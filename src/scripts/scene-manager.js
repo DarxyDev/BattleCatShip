@@ -15,6 +15,10 @@ function getScenes() {
 
 function loadScene(sceneNode) {
     if (currentScene) currentScene.remove();
+    if (!sceneNode) {
+        console.log(`${{ sceneNode }} is not a valid node.`);
+        return;
+    }
     gameWindow.appendChild(sceneNode);
     currentScene = sceneNode;
 }
@@ -27,30 +31,28 @@ function initializeScenes() {
     _initGameOver();
 }
 
-
-
-function _setScenes(){
-    scenes.titleScreen = _initScene('TEMPLATE_title-screen');
-    scenes.playerSelect = _initScene('TEMPLATE_player-select');
-    scenes.piecePlacement1 = _initScene('TEMPLATE_piece-placement');
-    scenes.piecePlacement2 = _initScene('TEMPLATE_piece-placement');
-    scenes.mainGame1 = _initScene('TEMPLATE_main-game');
-    scenes.mainGame2 = _initScene('TEMPLATE_main-game');
-    scenes.gameOver = _initScene('TEMPLATE_game-over');
-}
-function _initTitleScreen(){
+function _initTitleScreen() {
     let scene = _initScene('TEMPLATE_title-screen');
-    scenes.titleScreen =  scene;
+    scenes.titleScreen = scene;
+    document.body.addEventListener('click', _onButtonPress);
+    document.body.addEventListener('keypress', _onButtonPress);
+
+    function _onButtonPress() {
+        document.body.removeEventListener('click', _onButtonPress);
+        document.body.removeEventListener('keypress', _onButtonPress);
+        if (currentScene == scene) loadScene(scenes.playerSelect);
+        else console.log(`Current scene is not titleScreen. Removing titleScreen event listeners and returning.`);
+    }
 }
-function _initPlayerSelect(){
+function _initPlayerSelect() {
     let scene = _initScene('TEMPLATE_player-select');
     scenes.playerSelect = scene;
 }
-function _initPiecePlacement(){
+function _initPiecePlacement() {
 }
-function _initMainGame(){
+function _initMainGame() {
 }
-function _initGameOver(){
+function _initGameOver() {
 }
 
 function _initScene(templateID) {
