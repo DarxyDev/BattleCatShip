@@ -1,0 +1,64 @@
+:root{
+    --COL_mainBG: black;
+    --COL_gameBG: antiquewhite;
+    --COL_defaultText:white;
+
+    --TINT_dark:rgba(0,0,0,.75);
+    --TINT_light:rgba(0, 254, 246, 0.2);
+
+    --SIZE_defaultGap:1.5em;
+}
+html{
+    height:100%;
+    width:100%;
+    background-image: url('./../images/cat-black-moon-pattern-repeating.png');
+    background-size:33%;
+    color:var(--COL_defaultText);
+}
+body{
+    width:100%;
+    height:100%;
+}
+h1{
+    font-size: 4em;
+}
+h3{
+    font-size: 2em;
+}
+#gameWindow {
+    position: relative;
+    width:100%;
+    height:100%;
+    background-color: var(--TINT_dark);
+}
+
+.fullscreen{
+    position:absolute;
+    width:100%;
+    height:100%;
+}
+.fl-col-center{
+    display:flex;
+    flex-direction:column;
+    justify-content: center;
+    align-items: center;
+}
+.gap{
+    gap:var(--SIZE_defaultGap);
+}
+
+.section-container{
+    position:absolute;
+    background-color: var(--TINT_light);
+}
+
+
+/* Animations */
+.blink{
+    animation: 2s infinite alternate blink;
+}
+@keyframes blink {
+    from {opacity: 100%;}
+    33%{opacity: 100%}
+    to {opacity:0%;}
+}
