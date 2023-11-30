@@ -47,6 +47,12 @@ function _initTitleScreen() {
 function _initPlayerSelect() {
     let scene = _initScene('TEMPLATE_player-select');
     scenes.playerSelect = scene;
+
+    const submitButton = scene.querySelector('[pSelectID="submit"]')
+    submitButton.addEventListener('click', _onSubmit);
+    function _onSubmit(){
+        alert('yay')
+    }
 }
 function _initPiecePlacement() {
 }

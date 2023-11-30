@@ -15,7 +15,7 @@
     <template id="TEMPLATE_title-screen">
         <div class="scene-container"> <!--template will only use first child, wrap all contents in container-->
             <div class="fullscreen fl-col-center gap">
-                <h1 id="titleText">Cattleship!</h1>
+                <h1>Cattleship!</h1>
                 <h3 class="blink">Press any key to continue...</h3>
             </div>
         </div>
@@ -24,15 +24,15 @@
         <div class="scene-container">
             <div class="fl-col-center gap pad">
                 <h3>Players:</h3>
-                <div>1 <input type="radio" name="playerCount" id=""></div>
-                <div>2 <input type="radio" name="playerCount" id=""></div>
+                <div>1 <input type="radio" name="playerCount" pSelectID="1player"></div>
+                <div>2 <input type="radio" name="playerCount"></div>
             </div>
             <div class="fl-col-center gap">
                 <h3>Names:</h3>
-                <div>Player 1: <input type="text" name="" id=""></div>
-                <div>Player 2: <input type="text" name="" id=""></div>
+                <div>Player 1: <input type="text" name="player1_name"></div>
+                <div>Player 2: <input type="text" name="player2_name"></div>
             </div>
-            <div class="fl-col-center pad"><input type="button" value="Submit"></div>
+            <div class="fl-col-center pad"><button pSelectID="submit">Submit</button></div>
         </div>
     </template>
     <template id="TEMPLATE_piece-placement">
