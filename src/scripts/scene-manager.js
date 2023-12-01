@@ -63,7 +63,7 @@ function _initPlayerSelect() {
 
     submitButton.addEventListener('click', _onSubmit);
     function _onSubmit(){
-        let singlePlayer = singlePlayerInput.value;
+        let singlePlayer = singlePlayerInput.checked;
         //p1
         let name = p1Input.value;
         if(name === '') name = 'Player1';
@@ -83,12 +83,19 @@ function _initPlayerSelect() {
         player = playerFactory(name, type);
         gameState.set.player2.player(player);
         //
+        gameState.set.game.isSinglePlayer(singlePlayer);
         loadScene(scenes.p1.piecePlacement);
     }
 }
 function _initPiecePlacement() {
     scenes.p1.piecePlacement = _getPiecePlacementScene();
+
+    if(gameState.get.game.isSinglePlayer()){
+        scenes.p2.piecePlacement = null;
+        return;
+    }
     scenes.p2.piecePlacement = _getPiecePlacementScene();
+
     function _getPiecePlacementScene(){
         let scene = _initScene('TEMPLATE_piece-placement');
         return scene;
