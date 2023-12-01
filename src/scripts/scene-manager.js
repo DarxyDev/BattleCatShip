@@ -1,3 +1,6 @@
+import playerFactory from "./player-factory";
+import gameState from "./game-state";
+
 let scenes = {};
 let currentScene;
 const gameWindow = document.getElementById('gameWindow');
@@ -48,10 +51,37 @@ function _initPlayerSelect() {
     let scene = _initScene('TEMPLATE_player-select');
     scenes.playerSelect = scene;
 
-    const submitButton = scene.querySelector('[pSelectID="submit"]')
+    const submitButton = scene.querySelector('[pSelectID="submit"]');
+    const singlePlayerInput = scene.querySelector('[pSelectID="singlePlayer"]');
+    const p1Input = scene.querySelector('[pSelectID="player1"]');
+    const p2Input = scene.querySelector('[pSelectID="player2"]');
+
+
     submitButton.addEventListener('click', _onSubmit);
     function _onSubmit(){
-        alert('yay')
+        let singlePlayer = singlePlayerInput.value;
+        //p1
+        let name = p1Input.value;
+        if(name === '') name = 'Player1';
+        let type = 'human';
+        let player = playerFactory(name, type);
+        gameState.set.player1.player(player);
+
+        //p2
+        if(singlePlayer){
+            name = 'CPU';
+            type = 'computer';
+        }
+        else{
+            name = p2Input.value;
+            if(name === '') name = 'Player 2';
+        }
+        player = playerFactory(name, type);
+        gameState.set.player2.player(player);
+        //
+        loadScene(scenes.piecePlacement);
+        console.log('might need to change loadScene here');
+
     }
 }
 function _initPiecePlacement() {
