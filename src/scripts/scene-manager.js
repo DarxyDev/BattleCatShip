@@ -1,7 +1,11 @@
 import playerFactory from "./player-factory";
 import gameState from "./game-state";
 
-let scenes = {};
+let scenes = {
+    main:{},
+    p1:{},
+    p2:{},
+};
 let currentScene;
 const gameWindow = document.getElementById('gameWindow');
 const sceneManager = {
@@ -36,20 +40,20 @@ function initializeScenes() {
 
 function _initTitleScreen() {
     let scene = _initScene('TEMPLATE_title-screen');
-    scenes.titleScreen = scene;
+    scenes.main.titleScreen = scene;
     document.body.addEventListener('click', _onButtonPress);
     document.body.addEventListener('keypress', _onButtonPress);
 
     function _onButtonPress() {
         document.body.removeEventListener('click', _onButtonPress);
         document.body.removeEventListener('keypress', _onButtonPress);
-        if (currentScene == scene) loadScene(scenes.playerSelect);
+        if (currentScene == scene) loadScene(scenes.main.playerSelect);
         else console.log(`Current scene is not titleScreen. Removing titleScreen event listeners and returning.`);
     }
 }
 function _initPlayerSelect() {
     let scene = _initScene('TEMPLATE_player-select');
-    scenes.playerSelect = scene;
+    scenes.main.playerSelect = scene;
 
     const submitButton = scene.querySelector('[pSelectID="submit"]');
     const singlePlayerInput = scene.querySelector('[pSelectID="singlePlayer"]');
@@ -79,12 +83,16 @@ function _initPlayerSelect() {
         player = playerFactory(name, type);
         gameState.set.player2.player(player);
         //
-        loadScene(scenes.piecePlacement);
-        console.log('might need to change loadScene here');
-
+        loadScene(scenes.p1.piecePlacement);
     }
 }
 function _initPiecePlacement() {
+    scenes.p1.piecePlacement = _getPiecePlacementScene();
+    scenes.p2.piecePlacement = _getPiecePlacementScene();
+    function _getPiecePlacementScene(){
+        let scene = _initScene('TEMPLATE_piece-placement');
+        return scene;
+    }
 }
 function _initMainGame() {
 }

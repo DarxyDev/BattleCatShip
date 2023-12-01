@@ -6,4 +6,4 @@ import sceneManager from './scripts/scene-manager';
 sceneManager.initializeScenes();
 const scenes = sceneManager.getScenes();
 
-sceneManager.loadScene(scenes.titleScreen);
+sceneManager.loadScene(scenes.main.titleScreen);
