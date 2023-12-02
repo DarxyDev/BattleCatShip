@@ -89,12 +89,16 @@ function _initPlayerSelect() {
 }
 function _initPiecePlacement() {
     scenes.p1.piecePlacement = _getPiecePlacementScene();
-
+    let gameBox = scenes.p1.piecePlacement.querySelector('[pPlacementID="rightBox"]');
+    _generateGameTiles(gameBox);
     if(gameState.get.game.isSinglePlayer()){
         scenes.p2.piecePlacement = null;
         return;
     }
     scenes.p2.piecePlacement = _getPiecePlacementScene();
+    
+    gameBox = scenes.p2.piecePlacement.querySelector('[pPlacementID="rightBox"]');
+    _generateGameTiles(gameBox);
 
     function _getPiecePlacementScene(){
         let scene = _initScene('TEMPLATE_piece-placement');
@@ -113,4 +117,11 @@ function _initScene(templateID) {
         return false;
     }
     return template.content.firstElementChild.cloneNode(true);
+}
+function _generateGameTiles(parentNode, numTiles = 100){
+    for(let i = 0; i < numTiles; i++){
+        let tile = document.createElement('div');
+        tile.classList.add('board-tile');
+        parentNode.appendChild(tile);
+    }
 }
