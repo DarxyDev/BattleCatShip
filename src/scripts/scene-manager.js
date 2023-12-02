@@ -1,5 +1,6 @@
 import playerFactory from "./player-factory";
 import gameState from "./game-state";
+import gamePieces from "./game-pieces";
 
 let scenes = {
     main:{},
