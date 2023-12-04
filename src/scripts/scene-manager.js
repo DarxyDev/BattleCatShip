@@ -3,9 +3,9 @@ import gameState from "./game-state";
 import gamePieces from "./game-pieces";
 
 let scenes = {
-    main:{},
-    p1:{},
-    p2:{},
+    main: {},
+    p1: {},
+    p2: {},
 };
 let currentScene;
 const gameWindow = document.getElementById('gameWindow');
@@ -63,23 +63,23 @@ function _initPlayerSelect() {
 
 
     submitButton.addEventListener('click', _onSubmit);
-    function _onSubmit(){
+    function _onSubmit() {
         let singlePlayer = singlePlayerInput.checked;
         //p1
         let name = p1Input.value;
-        if(name === '') name = 'Player1';
+        if (name === '') name = 'Player1';
         let type = 'human';
         let player = playerFactory(name, type);
         gameState.set.player1.player(player);
 
         //p2
-        if(singlePlayer){
+        if (singlePlayer) {
             name = 'CPU';
             type = 'computer';
         }
-        else{
+        else {
             name = p2Input.value;
-            if(name === '') name = 'Player 2';
+            if (name === '') name = 'Player 2';
         }
         player = playerFactory(name, type);
         gameState.set.player2.player(player);
@@ -90,21 +90,33 @@ function _initPlayerSelect() {
 }
 function _initPiecePlacement() {
     scenes.p1.piecePlacement = _getPiecePlacementScene();
-    let gameBox = scenes.p1.piecePlacement.querySelector('[pPlacementID="rightBox"]');
-    _generateGameTiles(gameBox);
-    if(gameState.get.game.isSinglePlayer()){
-        scenes.p2.piecePlacement = null;
-        return;
-    }
-    scenes.p2.piecePlacement = _getPiecePlacementScene();
-    
-    gameBox = scenes.p2.piecePlacement.querySelector('[pPlacementID="rightBox"]');
-    _generateGameTiles(gameBox);
 
-    function _getPiecePlacementScene(){
-        let scene = _initScene('TEMPLATE_piece-placement');
-        return scene;
+
+    if (gameState.get.game.isSinglePlayer()) {
+        scenes.p2.piecePlacement = null;
     }
+    else scenes.p2.piecePlacement = _getPiecePlacementScene();
+
+    function _getPiecePlacementScene() {
+        const scene = _initScene('TEMPLATE_piece-placement');
+
+        const gameBox = scene.querySelector('[pPlacementID="rightBox"]');
+        _generateGameTiles(gameBox);
+        const pieceBox = scene.querySelector('[pPlacementID="leftBox"]');
+        _generateGamePieces(pieceBox);
+
+        return scene;
+
+        function _generateGamePieces(parentNode) {
+            for (const item in gamePieces) {
+                const piece = gamePieces[item].element.cloneNode(true);
+                parentNode.appendChild(piece);
+            }
+
+            console.log(parentNode);
+        }
+    }
+
 }
 function _initMainGame() {
 }
@@ -119,9 +131,9 @@ function _initScene(templateID) {
     }
     return template.content.firstElementChild.cloneNode(true);
 }
-function _generateGameTiles(parentNode, numTiles = 100){
-    for(let i = 0; i < numTiles; i++){
-        let tile = document.createElement('div');
+function _generateGameTiles(parentNode, numTiles = 100) {
+    for (let i = 0; i < numTiles; i++) {
+        const tile = document.createElement('div');
         tile.classList.add('board-tile');
         parentNode.appendChild(tile);
     }
