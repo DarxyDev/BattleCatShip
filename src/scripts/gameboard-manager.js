@@ -12,7 +12,7 @@ function gameboardFactory(width = 10, height = 10) {
             boardArray: () => { return _boardArray },
             hitArray: () => { return _hitArray },
             width: () => { return width },
-            height: () => { return height }
+            height: () => { return height },
         },
         placeUnit: (unit, coord, rotated) => {
             for (let i = 0; i < unit.get.length(); i++) {

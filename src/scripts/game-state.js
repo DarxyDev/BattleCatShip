@@ -1,6 +1,7 @@
 import { gameboardFactory } from "./gameboard-manager";
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
+const PIECE_COUNT = 5;
 let _isSinglePlayer;
 
 
@@ -8,8 +9,9 @@ const gameState = {
     get: {
         game: {
             isSinglePlayer: () => _isSinglePlayer,
-            boardWidth:()=> BOARD_WIDTH,
-            boardHeight:()=> BOARD_HEIGHT,
+            boardWidth: () => BOARD_WIDTH,
+            boardHeight: () => BOARD_HEIGHT,
+            pieceCount: () => PIECE_COUNT,
         }
     },
     set: {
@@ -47,7 +49,7 @@ const gameState = {
             if (_player !== undefined) return console.log('player already set. Returning.');
             _player = player
         };
-        const _gameBoard = gameboardFactory(BOARD_WIDTH,BOARD_HEIGHT);
+        const _gameBoard = gameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
         get.gameBoard = () => _gameBoard;
         set.gameBoard = (gameBoard) => {
             if (_gameBoard !== undefined) return console.log('gameBoard already set. Returning.');

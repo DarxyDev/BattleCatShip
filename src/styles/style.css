@@ -2,6 +2,7 @@
     --COL_mainBG: black;
     --COL_gameBG: antiquewhite;
     --COL_defaultText:white;
+    --COL_altDefaultText:antiquewhite;
 
     --TINT_dark:rgba(0,0,0,.75);
     --TINT_lowDark: rgba(0,0,0,.25);
@@ -78,22 +79,16 @@ h3{
     width: 100%;
     height:100%;
     border:1px solid;
-}
-/* .board-tile:hover{
-    opacity:.5;
-    background-color:var(--TINT_lowDark)
-} */
-/* .board-tile:active{
-    opacity:.8;
-    background-color:var(--TINT_lowDark);
-} */
-.game-piece{
-    width:50px;
-    height:50px;
-    background-color: red;
+    box-sizing:border-box;
 }
 .tile-hover{
-    background-color:var(--TINT_green_light);
+    border:3px solid var(--COL_altDefaultText);
+}
+.tile-greenbg{
+    background-color: var(--TINT_green_light);
+}
+.tile-redbg{
+    background-color: var(--TINT_red_light);
 }
 .red-border{
     border: 1px solid red;
