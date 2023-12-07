@@ -1,4 +1,7 @@
 import { initScene } from "../scene-manager";
+import sceneManager from "../scene-manager";
+import playerFactory from "../player-factory";
+import gameState from "../game-state";
 
 function initPlayerSelect() {
     let scene = initScene('TEMPLATE_player-select');
@@ -31,7 +34,7 @@ function initPlayerSelect() {
         gameState.set.player2.player(player);
         //
         gameState.set.game.isSinglePlayer(singlePlayer);
-        loadScene(scenes.p1.piecePlacement);
+        sceneManager.loadScene(sceneManager.getScenes().p1.piecePlacement);
     }
     return scene;
 }
