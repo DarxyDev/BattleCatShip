@@ -1,32 +1,18 @@
-let _player1;
-let _player2;
+import { gameboardFactory } from "./gameboard-manager";
+const BOARD_WIDTH = 10;
+const BOARD_HEIGHT = 10;
 let _isSinglePlayer;
+
 
 const gameState = {
     get: {
-        player1: {
-            player: () => { return _player1 },
-        },
-        player2: {
-            player: () => { return _player2 },
-        },
         game: {
-            isSinglePlayer: () => { return _isSinglePlayer },
+            isSinglePlayer: () => _isSinglePlayer,
+            boardWidth:()=> BOARD_WIDTH,
+            boardHeight:()=> BOARD_HEIGHT,
         }
     },
     set: {
-        player1: {
-            player: (player) => {
-                if (_player1 !== undefined) return;
-                _player1 = player;
-            },
-        },
-        player2: {
-            player: (player) => {
-                if (_player2 !== undefined) return;
-                _player2 = player;
-            },
-        },
         game: {
             isSinglePlayer: (bool) => {
                 if (_isSinglePlayer !== undefined) {
@@ -43,5 +29,31 @@ const gameState = {
         }
     },
 };
+
+(() => {
+    _generatePlayerObj(1);
+    _generatePlayerObj(2);
+
+    function _generatePlayerObj(playerNum) {
+        const pString = `player${playerNum}`;
+        const get = {};
+        const set = {};
+        gameState.set[pString] = set;
+        gameState.get[pString] = get;
+
+        let _player;
+        get.player = () => _player;
+        set.player = (player) => {
+            if (_player !== undefined) return console.log('player already set. Returning.');
+            _player = player
+        };
+        const _gameBoard = gameboardFactory(BOARD_WIDTH,BOARD_HEIGHT);
+        get.gameBoard = () => _gameBoard;
+        set.gameBoard = (gameBoard) => {
+            if (_gameBoard !== undefined) return console.log('gameBoard already set. Returning.');
+            _gameBoard = gameBoard;
+        }
+    }
+})()
 
 export default gameState;

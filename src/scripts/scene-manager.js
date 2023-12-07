@@ -35,23 +35,21 @@ function loadScene(sceneNode) {
     currentScene = sceneNode;
 }
 
-function getCurrentScene(){
+function getCurrentScene() {
     return currentScene;
 }
 
 function initializeScenes() {
     scenes.main.titleScreen = initTitleScreen();
     scenes.main.playerSelect = initPlayerSelect();
-    const ppObject = initPiecePlacement();
-    scenes.p1.piecePlacement = ppObject.p1.piecePlacement;
-    scenes.p2.piecePlacement = ppObject.p2.piecePlacement;
+    [scenes.p1.piecePlacement, scenes.p2.piecePlacement] = initPiecePlacement();
     //initMainGame();
     //initGameOver();
 }
 
 //exports
 
-export {initScene, generateGameTiles};
+export { initScene, generateGameTiles };
 
 function initScene(templateID) {
     let template = document.getElementById(templateID);
@@ -61,10 +59,17 @@ function initScene(templateID) {
     }
     return template.content.firstElementChild.cloneNode(true);
 }
-function generateGameTiles(parentNode, numTiles = 100) {
-    for (let i = 0; i < numTiles; i++) {
-        const tile = document.createElement('div');
-        tile.classList.add('board-tile');
-        parentNode.appendChild(tile);
+function generateGameTiles(parentNode, numTilesX = 10, numTilesY = 10) {
+    const tileArr = [];
+    for (let y = 0; y < numTilesY; y++) {
+        for (let x = 0; x < numTilesX; x++) {
+            const tile = document.createElement('div');
+            tile.classList.add('board-tile');
+            tile.setAttribute('posX',x);
+            tile.setAttribute('posY',y);
+            parentNode.appendChild(tile);
+            tileArr.push(tile);
+        }
     }
+    return tileArr;
 }

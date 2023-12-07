@@ -6,6 +6,8 @@
     --TINT_dark:rgba(0,0,0,.75);
     --TINT_lowDark: rgba(0,0,0,.25);
     --TINT_light:rgba(0, 254, 246, 0.2);
+    --TINT_green_light:rgba(0, 255, 0, 0.2);
+    --TINT_red_light:rgba(255,0,0,.2);
 
     --SIZE_defaultGap:1.5em;
     --SIZE_defaultPadding:1.5em;
@@ -77,18 +79,21 @@ h3{
     height:100%;
     border:1px solid;
 }
-.board-tile:hover{
+/* .board-tile:hover{
     opacity:.5;
     background-color:var(--TINT_lowDark)
-}
-.board-tile:active{
+} */
+/* .board-tile:active{
     opacity:.8;
     background-color:var(--TINT_lowDark);
-}
+} */
 .game-piece{
     width:50px;
     height:50px;
     background-color: red;
+}
+.tile-hover{
+    background-color:var(--TINT_green_light);
 }
 .red-border{
     border: 1px solid red;
