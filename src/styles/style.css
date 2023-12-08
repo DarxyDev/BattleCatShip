@@ -81,7 +81,7 @@ h3{
     border:1px solid;
     box-sizing:border-box;
 }
-.tile-hover{
+.pPlacement-tile:hover{
     border:3px solid var(--COL_altDefaultText);
 }
 .tile-greenbg{

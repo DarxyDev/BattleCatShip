@@ -16,6 +16,14 @@ for (let i = 0; i < PIECE_COUNT; i++) {
     ref.p2.placedPieces.push(false);
 }
 
+let activeTiles = [];
+
+let currentState = 1;
+const states = {
+    pickTile: 1,
+    placeUnit: 2,
+}
+////////////////////////////////
 function initPiecePlacement() {
     const scenes = {};
     scenes.p1 = _getPiecePlacementScene('p1');
@@ -23,34 +31,60 @@ function initPiecePlacement() {
     else scenes.p2 = _getPiecePlacementScene('p2');
     return [scenes.p1, scenes.p2];
 
-    ////
     function _getPiecePlacementScene(playerRef) {
         const scene = initScene('TEMPLATE_piece-placement');
         const gameBox = scene.querySelector('[pPlacementID="gameBox"]');
         const gameTiles = generateGameTiles(gameBox);
         gameTiles.forEach((tile) => {
             tile.setAttribute('playerRef', playerRef);
-            tile.addEventListener('mouseover', (e) => {
-                tile.classList.add('tile-hover');
-                _highlightPossibleTiles(tile);
-            });
-            tile.addEventListener('mouseleave', (e) => { //might combine mouseleave into function to use onclick as well.
-                tile.classList.remove('tile-hover');
-                _removeHighlight(tile);
-            });
-            tile.addEventListener('onclick', (e) => {
-                tile.classList.remove('tile-hover');
-                _removeHighlight(tile);
-            })
+            tile.classList.add('pPlacement-tile');
+            tile.addEventListener('mouseover', _mouseoverTile);
+            tile.addEventListener('mouseleave', _mouseleaveTile);
+            tile.addEventListener('click', _onclickTile);
         });
         ref[playerRef].gameTiles = gameTiles;
         return scene;
     }
 }
 
+function _mouseoverTile(e) {
+    switch (currentState) {
+        case states.pickTile:
+            _highlightPossibleTiles(e.target);
+            break;
+        case states.placeUnit:
+            break;
+        default: console.log(`Invalid state: ${currentState}.`);
+    }
+}
+function _mouseleaveTile(e) {
+    switch (currentState) {
+        case states.pickTile:
+            _removeHighlight(e.target);
+            break;
+        case states.placeUnit:
+            break;
+        default: console.log(`Invalid state: ${currentState}.`);
+
+    }
+}
+function _onclickTile(e) {
+    switch (currentState) {
+        case states.pickTile:
+            _removeHighlight(e.target);
+            _changeState(states.placeUnit);
+            break;
+        case states.placeUnit:
+            break;
+        default: console.log(`Invalid state: ${currentState}.`);
+
+    }
+}
 export default initPiecePlacement
-//////////
-let activeTiles = [];
+////////////////////////////////////
+function _changeState(state) {
+    currentState = state;
+}
 function _highlightPossibleTiles(tile) {
     const _checkFunctions = [_checkUp, _checkDown, _checkLeft, _checkRight];
     const posX = +tile.getAttribute('posX');
@@ -68,7 +102,7 @@ function _highlightPossibleTiles(tile) {
         }
         _checkFunctions.forEach((checkDirection) => {
             let tileIndex = checkDirection(i);
-            if (tileIndex) _markTile(tileIndex);
+            if (tileIndex !== false) _markTile(tileIndex);
         })
     }
     //
