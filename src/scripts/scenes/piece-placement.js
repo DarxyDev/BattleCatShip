@@ -17,6 +17,7 @@ for (let i = 0; i < PIECE_COUNT; i++) {
 }
 
 let activeTiles = [];
+let selectedTile;
 
 let currentState = 1;
 const states = {
@@ -50,31 +51,27 @@ function initPiecePlacement() {
 function _mouseoverTile(e) {
     switch (currentState) {
         case states.pickTile:
-            _highlightPossibleTiles(e.target);
+            _pickTile_tileHighlight(e.target);
             break;
         case states.placeUnit:
+            _placeUnit_tileHighlight(e.target);
             break;
         default: console.log(`Invalid state: ${currentState}.`);
     }
 }
 function _mouseleaveTile(e) {
-    switch (currentState) {
-        case states.pickTile:
-            _removeHighlight(e.target);
-            break;
-        case states.placeUnit:
-            break;
-        default: console.log(`Invalid state: ${currentState}.`);
-
-    }
+    _removeHighlight();
 }
 function _onclickTile(e) {
     switch (currentState) {
         case states.pickTile:
-            _removeHighlight(e.target);
+            _removeHighlight();
+            selectedTile = e.target;
+            selectedTile.classList.add('tile-greenbg');
             _changeState(states.placeUnit);
             break;
         case states.placeUnit:
+            console.log('attempt to place unit. then changestate back on success');
             break;
         default: console.log(`Invalid state: ${currentState}.`);
 
@@ -85,13 +82,72 @@ export default initPiecePlacement
 function _changeState(state) {
     currentState = state;
 }
-function _highlightPossibleTiles(tile) {
+console.log('working here, need logic for after clicking');
+function _placeUnit_tileHighlight(tile) {
+    const playerRef = tile.getAttribute('playerRef');
+    const selectedPosX = +selectedTile.getAttribute('posX');
+    const selectedPosY = +selectedTile.getAttribute('posY');
+    const tilePosX = +tile.getAttribute('posX');
+    const tilePosY = +tile.getAttribute('posY');
+
+    const xDif = tilePosX - selectedPosX;
+    const yDif = selectedPosY - tilePosY; //flipped so positive y axis is upwards
+    const inXAxis = Math.abs(xDif) > Math.abs(yDif);
+    let positiveDir;
+    if (inXAxis) positiveDir = (xDif >= 0)
+    else positiveDir = (yDif >= 0);
+
+    for (let i = 1; i <= PIECE_COUNT; i++) {
+        switch (true) {
+            case inXAxis && positiveDir:
+                _markTile(_checkRight(i));
+                break;
+            case inXAxis && !positiveDir:
+                _markTile(_checkLeft(i));
+                break;
+            case !inXAxis && positiveDir:
+                _markTile(_checkUp(i));
+                break;
+            case !inXAxis && !positiveDir:
+                _markTile(_checkDown(i));
+                break;
+            default: console.log('This should never appear.');
+        }
+    }
+    function _checkUp(distance) {
+        let index = (selectedPosY * BOARD_WIDTH) + selectedPosX - (distance * BOARD_WIDTH);
+        if (index < 0) return false;
+        return index;
+    }
+    function _checkDown(distance) {
+        let index = (selectedPosY * BOARD_WIDTH) + selectedPosX + (distance * BOARD_WIDTH);
+        if (index >= (BOARD_HEIGHT * BOARD_WIDTH)) return false;
+        return index;
+    }
+    function _checkLeft(distance) {
+        let newX = selectedPosX - distance;
+        if (newX < 0) return false;
+        return (selectedPosY * BOARD_WIDTH) + newX;
+    }
+    function _checkRight(distance) {
+        let newX = selectedPosX + distance;
+        if (newX >= BOARD_WIDTH) return false;
+        return (selectedPosY * BOARD_WIDTH) + newX;
+    }
+    function _markTile(tileIndex) {
+        if (!tileIndex) return;
+        let activeTile = ref[playerRef].gameTiles[tileIndex];
+        activeTile.classList.add('tile-greenbg');
+        activeTiles.push(activeTile);
+    }
+}
+
+function _pickTile_tileHighlight(tile) {
     const _checkFunctions = [_checkUp, _checkDown, _checkLeft, _checkRight];
     const posX = +tile.getAttribute('posX');
     const posY = +tile.getAttribute('posY');
     const index = (posY * BOARD_WIDTH) + posX;
     const playerRef = tile.getAttribute('playerRef');
-    let possibleMove = true;
 
     tile.classList.add('tile-greenbg'); //todo: change to red when all pieces placed
     activeTiles.push(tile);             //  except when removing piece. 
