@@ -45,45 +45,45 @@ function initPiecePlacement() {
         });
         ref[playerRef].gameTiles = gameTiles;
         return scene;
-    }
-}
 
-function _mouseoverTile(e) {
-    switch (currentState) {
-        case states.pickTile:
-            _pickTile_tileHighlight(e.target);
-            break;
-        case states.placeUnit:
-            _placeUnit_tileHighlight(e.target);
-            break;
-        default: console.log(`Invalid state: ${currentState}.`);
-    }
-}
-function _mouseleaveTile(e) {
-    _removeHighlight();
-}
-function _onclickTile(e) {
-    switch (currentState) {
-        case states.pickTile:
+        function _mouseoverTile(e) {
+            switch (currentState) {
+                case states.pickTile:
+                    _pickTile_tileHighlight(e.target);
+                    break;
+                case states.placeUnit:
+                    _placeUnit_tileHighlight(e.target);
+                    break;
+                default: console.log(`Invalid state: ${currentState}.`);
+            }
+        }
+        function _mouseleaveTile(e) {
             _removeHighlight();
-            selectedTile = e.target;
-            selectedTile.classList.add('tile-greenbg');
-            _changeState(states.placeUnit);
-            break;
-        case states.placeUnit:
-            console.log('attempt to place unit. then changestate back on success');
-            break;
-        default: console.log(`Invalid state: ${currentState}.`);
-
+        }
+        function _onclickTile(e) {
+            switch (currentState) {
+                case states.pickTile:
+                    _removeHighlight();
+                    selectedTile = e.target;
+                    selectedTile.classList.add('tile-greenbg');
+                    _changeState(states.placeUnit);
+                    break;
+                case states.placeUnit:
+                    console.log('attempt to place unit. then changestate back on success');
+                    break;
+                default: console.log(`Invalid state: ${currentState}.`);
+        
+            }
+        }
     }
 }
+
 export default initPiecePlacement
 ////////////////////////////////////
 function _changeState(state) {
     currentState = state;
 }
 function _placeUnit_tileHighlight(tile) {
-    const playerRef = tile.getAttribute('playerRef');
     const selectedPosX = +selectedTile.getAttribute('posX');
     const selectedPosY = +selectedTile.getAttribute('posY');
     const tilePosX = +tile.getAttribute('posX');
@@ -113,41 +113,13 @@ function _placeUnit_tileHighlight(tile) {
             default: console.log('This should never appear.');
         }
     }
-    function _checkUp(distance, x, y) {
-        let index = (y * BOARD_WIDTH) + x - (distance * BOARD_WIDTH);
-        if (index < 0) return false;
-        return index;
-    }
-    function _checkDown(distance, x, y) {
-        let index = (y * BOARD_WIDTH) + x + (distance * BOARD_WIDTH);
-        if (index >= (BOARD_HEIGHT * BOARD_WIDTH)) return false;
-        return index;
-    }
-    function _checkLeft(distance, x, y) {
-        let newX = x - distance;
-        if (newX < 0) return false;
-        return (y * BOARD_WIDTH) + newX;
-    }
-    function _checkRight(distance, x, y) {
-        let newX = x + distance;
-        if (newX >= BOARD_WIDTH) return false;
-        return (y * BOARD_WIDTH) + newX;
-    }
-    function _markTile(tileIndex, className = 'tile-greenbg') {
-        if (!tileIndex) return;
-        let activeTile = ref[playerRef].gameTiles[tileIndex];
-        activeTile.classList.add(className);
-        activeTiles.push(activeTile);
-    }
 }
-console.log('modify checkXXX() functions to accept index as argument. remove duplicates');
 
 function _pickTile_tileHighlight(tile) {
-    const _checkFunctions = [_checkUp, _checkDown, _checkLeft, _checkRight];
     const posX = +tile.getAttribute('posX');
     const posY = +tile.getAttribute('posY');
     const index = (posY * BOARD_WIDTH) + posX;
-    const playerRef = tile.getAttribute('playerRef');
+    const playerRef = gameState.get.scene.currentPlayer();
 
     tile.classList.add('tile-greenbg'); //todo: change to red when all pieces placed
     activeTiles.push(tile);             //  except when removing piece. 
@@ -157,38 +129,39 @@ function _pickTile_tileHighlight(tile) {
             continue;
         }
         _checkFunctions.forEach((checkDirection) => {
-            let tileIndex = checkDirection(i);
+            let tileIndex = checkDirection(i, posX, posY);
             if (tileIndex !== false) _markTile(tileIndex);
         })
     }
-    //
-    function _markTile(tileIndex) {
-        if (tileIndex !== false) {
-            let activeTile = ref[playerRef].gameTiles[tileIndex];
-            activeTile.classList.add('tile-greenbg');
-            activeTiles.push(activeTile);
-        }
-    }
-    function _checkUp(distance) {
-        let newIndex = index - (distance * BOARD_WIDTH);
-        if (newIndex < 0) return false;
-        return newIndex;
-    }
-    function _checkDown(distance) {
-        let newIndex = index + (distance * BOARD_WIDTH);
-        if (newIndex >= (BOARD_HEIGHT * BOARD_WIDTH)) return false;
-        return newIndex;
-    }
-    function _checkLeft(distance) {
-        let newX = posX - distance;
-        if (newX < 0) return false;
-        return (posY * BOARD_WIDTH) + newX;
-    }
-    function _checkRight(distance) {
-        let newX = posX + distance;
-        if (newX >= BOARD_WIDTH) return false;
-        return (posY * BOARD_WIDTH) + newX;
-    }
+}
+
+const _checkFunctions = [_checkUp, _checkDown, _checkLeft, _checkRight];
+function _checkUp(distance, x, y) {
+    let index = (y * BOARD_WIDTH) + x - (distance * BOARD_WIDTH);
+    if (index < 0) return false;
+    return index;
+}
+function _checkDown(distance, x, y) {
+    let index = (y * BOARD_WIDTH) + x + (distance * BOARD_WIDTH);
+    if (index >= (BOARD_HEIGHT * BOARD_WIDTH)) return false;
+    return index;
+}
+function _checkLeft(distance, x, y) {
+    let newX = x - distance;
+    if (newX < 0) return false;
+    return (y * BOARD_WIDTH) + newX;
+}
+function _checkRight(distance, x, y) {
+    let newX = x + distance;
+    if (newX >= BOARD_WIDTH) return false;
+    return (y * BOARD_WIDTH) + newX;
+}
+function _markTile(tileIndex, className = 'tile-greenbg') {
+    if (!tileIndex) return;
+    let playerRef = gameState.get.scene.currentPlayer();
+    let activeTile = ref[playerRef].gameTiles[tileIndex];
+    activeTile.classList.add(className);
+    activeTiles.push(activeTile);
 }
 function _removeHighlight() {
     activeTiles.forEach((tile) => {
