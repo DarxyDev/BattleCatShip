@@ -82,7 +82,6 @@ export default initPiecePlacement
 function _changeState(state) {
     currentState = state;
 }
-console.log('working here, need logic for after clicking');
 function _placeUnit_tileHighlight(tile) {
     const playerRef = tile.getAttribute('playerRef');
     const selectedPosX = +selectedTile.getAttribute('posX');
@@ -100,47 +99,48 @@ function _placeUnit_tileHighlight(tile) {
     for (let i = 1; i <= PIECE_COUNT; i++) {
         switch (true) {
             case inXAxis && positiveDir:
-                _markTile(_checkRight(i));
+                _markTile(_checkRight(i, selectedPosX, selectedPosY));
                 break;
             case inXAxis && !positiveDir:
-                _markTile(_checkLeft(i));
+                _markTile(_checkLeft(i, selectedPosX, selectedPosY));
                 break;
             case !inXAxis && positiveDir:
-                _markTile(_checkUp(i));
+                _markTile(_checkUp(i, selectedPosX, selectedPosY));
                 break;
             case !inXAxis && !positiveDir:
-                _markTile(_checkDown(i));
+                _markTile(_checkDown(i, selectedPosX, selectedPosY));
                 break;
             default: console.log('This should never appear.');
         }
     }
-    function _checkUp(distance) {
-        let index = (selectedPosY * BOARD_WIDTH) + selectedPosX - (distance * BOARD_WIDTH);
+    function _checkUp(distance, x, y) {
+        let index = (y * BOARD_WIDTH) + x - (distance * BOARD_WIDTH);
         if (index < 0) return false;
         return index;
     }
-    function _checkDown(distance) {
-        let index = (selectedPosY * BOARD_WIDTH) + selectedPosX + (distance * BOARD_WIDTH);
+    function _checkDown(distance, x, y) {
+        let index = (y * BOARD_WIDTH) + x + (distance * BOARD_WIDTH);
         if (index >= (BOARD_HEIGHT * BOARD_WIDTH)) return false;
         return index;
     }
-    function _checkLeft(distance) {
-        let newX = selectedPosX - distance;
+    function _checkLeft(distance, x, y) {
+        let newX = x - distance;
         if (newX < 0) return false;
-        return (selectedPosY * BOARD_WIDTH) + newX;
+        return (y * BOARD_WIDTH) + newX;
     }
-    function _checkRight(distance) {
-        let newX = selectedPosX + distance;
+    function _checkRight(distance, x, y) {
+        let newX = x + distance;
         if (newX >= BOARD_WIDTH) return false;
-        return (selectedPosY * BOARD_WIDTH) + newX;
+        return (y * BOARD_WIDTH) + newX;
     }
-    function _markTile(tileIndex) {
+    function _markTile(tileIndex, className = 'tile-greenbg') {
         if (!tileIndex) return;
         let activeTile = ref[playerRef].gameTiles[tileIndex];
-        activeTile.classList.add('tile-greenbg');
+        activeTile.classList.add(className);
         activeTiles.push(activeTile);
     }
 }
+console.log('modify checkXXX() functions to accept index as argument. remove duplicates');
 
 function _pickTile_tileHighlight(tile) {
     const _checkFunctions = [_checkUp, _checkDown, _checkLeft, _checkRight];

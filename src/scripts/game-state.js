@@ -4,6 +4,8 @@ const BOARD_HEIGHT = 10;
 const PIECE_COUNT = 5;
 let _isSinglePlayer;
 
+let _currentPlayer = 'p1';
+
 
 const gameState = {
     get: {
@@ -12,6 +14,9 @@ const gameState = {
             boardWidth: () => BOARD_WIDTH,
             boardHeight: () => BOARD_HEIGHT,
             pieceCount: () => PIECE_COUNT,
+        },
+        scene: {
+            currentPlayer: () => _currentPlayer,
         }
     },
     set: {
@@ -27,6 +32,19 @@ const gameState = {
                     return;
                 }
                 _isSinglePlayer = bool;
+            }
+        },
+        scene:{
+            swapPlayers:()=>{
+                if(_isSinglePlayer) return _currentPlayer;
+                if(_currentPlayer === 'p1') _currentPlayer = 'p2';
+                else _currentPlayer = 'p1';
+                return _currentPlayer; 
+            },
+            setCurrentPlayer:(playerRef)=>{
+                if(playerRef !== 'p1' 
+                && playerRef !== 'p2') return console.log(`Invalid playerRef: ${playerRef}`);
+                _currentPlayer = playerRef;
             }
         }
     },
