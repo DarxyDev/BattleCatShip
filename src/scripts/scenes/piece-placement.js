@@ -92,7 +92,7 @@ function _changeState(state) {
     currentState = state;
 }
 function _placeUnit(tile) {
-
+    console.log('not implemented');
 }
 function _getTileCoordObj(tile) {
     const coords = {
@@ -135,7 +135,6 @@ function _placeUnit_tileHighlight(tile) {
 
 function _pickTile_tileHighlight(tile) {
     const coords = _getTileCoordObj(tile);
-    console.log(2)
     const index = (coords.y * BOARD_WIDTH) + coords.x;
     const playerRef = gameState.get.scene.currentPlayer();
 
@@ -183,7 +182,7 @@ function _markTile(tileIndex, className = 'tile-greenbg') {
 }
 function _removeHighlight() {
     activeTiles.forEach((tile) => {
-        _highlightClasses.forEach((className) => {tile.classList.remove(className)})
+        _highlightClasses.forEach((className) => { tile.classList.remove(className) })
     });
     activeTiles = [];
 }
