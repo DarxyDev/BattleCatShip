@@ -1,6 +1,7 @@
 import initTitleScreen from "./scenes/title-screen";
 import initPlayerSelect from "./scenes/player-select";
 import initPiecePlacement from "./scenes/piece-placement";
+import gameState from "./game-state";
 //import playerFactory from "./player-factory";
 //import gameState from "./game-state";
 //import gamePieces from "./game-pieces";
@@ -59,8 +60,11 @@ function initScene(templateID) {
     }
     return template.content.firstElementChild.cloneNode(true);
 }
-function generateGameTiles(parentNode, numTilesX = 10, numTilesY = 10) {
+function generateGameTiles(parentNode) {
     const tileArr = [];
+    const numTilesX = gameState.get.game.boardWidth();
+    const numTilesY = gameState.get.game.boardHeight();
+    _addGridBoardProperties(parentNode);
     for (let y = 0; y < numTilesY; y++) {
         for (let x = 0; x < numTilesX; x++) {
             const tile = document.createElement('div');
@@ -72,4 +76,11 @@ function generateGameTiles(parentNode, numTilesX = 10, numTilesY = 10) {
         }
     }
     return tileArr;
+}
+
+function _addGridBoardProperties(node){
+    const width = gameState.get.game.boardWidth();
+    const height = gameState.get.game.boardHeight();
+    node.style.display = 'grid';
+    node.style.gridTemplate = `repeat(${height}, 1fr) / repeat(${width}, 1fr)`
 }

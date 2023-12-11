@@ -24,7 +24,9 @@ const states = {
     pickTile: 1,
     placeUnit: 2,
 }
+
 ////////////////////////////////
+
 function initPiecePlacement() {
     const scenes = {};
     scenes.p1 = _getPiecePlacementScene('p1');
@@ -79,7 +81,9 @@ function initPiecePlacement() {
 }
 
 export default initPiecePlacement
+
 ////////////////////////////////////
+
 function _changeState(state) {
     currentState = state;
 }
