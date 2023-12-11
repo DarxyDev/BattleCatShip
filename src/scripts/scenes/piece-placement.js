@@ -25,6 +25,8 @@ const states = {
     placeUnit: 2,
 }
 
+const _highlightClasses = ['tile-greenbg', 'tile-redbg'];
+
 ////////////////////////////////
 
 function initPiecePlacement() {
@@ -72,9 +74,11 @@ function initPiecePlacement() {
                     break;
                 case states.placeUnit:
                     console.log('attempt to place unit. then changestate back on success');
+                    if (_placeUnit(e.target)) console.log('switch teams');
+                    else console.log('invalid spot');
                     break;
                 default: console.log(`Invalid state: ${currentState}.`);
-        
+
             }
         }
     }
@@ -87,14 +91,24 @@ export default initPiecePlacement
 function _changeState(state) {
     currentState = state;
 }
-function _placeUnit_tileHighlight(tile) {
-    const selectedPosX = +selectedTile.getAttribute('posX');
-    const selectedPosY = +selectedTile.getAttribute('posY');
-    const tilePosX = +tile.getAttribute('posX');
-    const tilePosY = +tile.getAttribute('posY');
+function _placeUnit(tile) {
 
-    const xDif = tilePosX - selectedPosX;
-    const yDif = selectedPosY - tilePosY; //flipped so positive y axis is upwards
+}
+function _getTileCoordObj(tile) {
+    const coords = {
+        x: +tile.getAttribute('posX'),
+        y: +tile.getAttribute('posY')
+    }
+    if (coords.x === undefined ||
+        coords.y === undefined) console.log(`Invalid tile coords in ${tile}`);
+    return coords;
+}
+function _placeUnit_tileHighlight(tile) {
+    const selectedCoords = _getTileCoordObj(selectedTile);
+    const tileCoords = _getTileCoordObj(tile);
+
+    const xDif = tileCoords.x - selectedCoords.x;
+    const yDif = selectedCoords.y - tileCoords.y; //flipped so positive y axis is upwards
     const inXAxis = Math.abs(xDif) > Math.abs(yDif);
     let positiveDir;
     if (inXAxis) positiveDir = (xDif >= 0)
@@ -103,26 +117,26 @@ function _placeUnit_tileHighlight(tile) {
     for (let i = 1; i <= PIECE_COUNT; i++) {
         switch (true) {
             case inXAxis && positiveDir:
-                _markTile(_checkRight(i, selectedPosX, selectedPosY));
+                _markTile(_checkRight(i, selectedCoords));
                 break;
             case inXAxis && !positiveDir:
-                _markTile(_checkLeft(i, selectedPosX, selectedPosY));
+                _markTile(_checkLeft(i, selectedCoords));
                 break;
             case !inXAxis && positiveDir:
-                _markTile(_checkUp(i, selectedPosX, selectedPosY));
+                _markTile(_checkUp(i, selectedCoords));
                 break;
             case !inXAxis && !positiveDir:
-                _markTile(_checkDown(i, selectedPosX, selectedPosY));
+                _markTile(_checkDown(i, selectedCoords));
                 break;
-            default: console.log('This should never appear.');
+            default: console.log('This should never appear. If it does, blame cosmic radiation.');
         }
     }
 }
 
 function _pickTile_tileHighlight(tile) {
-    const posX = +tile.getAttribute('posX');
-    const posY = +tile.getAttribute('posY');
-    const index = (posY * BOARD_WIDTH) + posX;
+    const coords = _getTileCoordObj(tile);
+    console.log(2)
+    const index = (coords.y * BOARD_WIDTH) + coords.x;
     const playerRef = gameState.get.scene.currentPlayer();
 
     tile.classList.add('tile-greenbg'); //todo: change to red when all pieces placed
@@ -133,32 +147,32 @@ function _pickTile_tileHighlight(tile) {
             continue;
         }
         _checkFunctions.forEach((checkDirection) => {
-            let tileIndex = checkDirection(i, posX, posY);
+            let tileIndex = checkDirection(i, coords);
             if (tileIndex !== false) _markTile(tileIndex);
         })
     }
 }
 
 const _checkFunctions = [_checkUp, _checkDown, _checkLeft, _checkRight];
-function _checkUp(distance, x, y) {
-    let index = (y * BOARD_WIDTH) + x - (distance * BOARD_WIDTH);
+function _checkUp(distance, coordObj) {
+    let index = (coordObj.y * BOARD_WIDTH) + coordObj.x - (distance * BOARD_WIDTH);
     if (index < 0) return false;
     return index;
 }
-function _checkDown(distance, x, y) {
-    let index = (y * BOARD_WIDTH) + x + (distance * BOARD_WIDTH);
+function _checkDown(distance, coordObj) {
+    let index = (coordObj.y * BOARD_WIDTH) + coordObj.x + (distance * BOARD_WIDTH);
     if (index >= (BOARD_HEIGHT * BOARD_WIDTH)) return false;
     return index;
 }
-function _checkLeft(distance, x, y) {
-    let newX = x - distance;
+function _checkLeft(distance, coordObj) {
+    let newX = coordObj.x - distance;
     if (newX < 0) return false;
-    return (y * BOARD_WIDTH) + newX;
+    return (coordObj.y * BOARD_WIDTH) + newX;
 }
-function _checkRight(distance, x, y) {
-    let newX = x + distance;
+function _checkRight(distance, coordObj) {
+    let newX = coordObj.x + distance;
     if (newX >= BOARD_WIDTH) return false;
-    return (y * BOARD_WIDTH) + newX;
+    return (coordObj.y * BOARD_WIDTH) + newX;
 }
 function _markTile(tileIndex, className = 'tile-greenbg') {
     if (!tileIndex) return;
@@ -169,8 +183,7 @@ function _markTile(tileIndex, className = 'tile-greenbg') {
 }
 function _removeHighlight() {
     activeTiles.forEach((tile) => {
-        tile.classList.remove('tile-greenbg');
-        tile.classList.remove('tile-redbg');
+        _highlightClasses.forEach((className) => {tile.classList.remove(className)})
     });
     activeTiles = [];
 }
