@@ -1,108 +1,140 @@
-:root{
+:root {
     --COL_mainBG: black;
     --COL_gameBG: antiquewhite;
-    --COL_defaultText:white;
-    --COL_altDefaultText:antiquewhite;
+    --COL_defaultText: white;
+    --COL_altDefaultText: antiquewhite;
 
-    --TINT_dark:rgba(0,0,0,.75);
-    --TINT_lowDark: rgba(0,0,0,.25);
-    --TINT_light:rgba(0, 254, 246, 0.2);
-    --TINT_green_light:rgba(0, 255, 0, 0.2);
-    --TINT_red_light:rgba(255,0,0,.2);
+    --TINT_dark: rgba(0, 0, 0, .75);
+    --TINT_lowDark: rgba(0, 0, 0, .25);
+    --TINT_light: rgba(0, 254, 246, 0.2);
+    --TINT_green_light: rgba(0, 255, 0, 0.2);
+    --TINT_green_dark: rgba(0, 255, 0, 0.8);
+    --TINT_red_light: rgba(255, 0, 0, .2);
 
-    --SIZE_defaultGap:1.5em;
-    --SIZE_defaultPadding:1.5em;
+    --SIZE_defaultGap: 1.5em;
+    --SIZE_defaultPadding: 1.5em;
 }
-html{
-    height:100%;
-    width:100%;
+
+html {
+    height: 100%;
+    width: 100%;
     background-image: url('./../images/cat-black-moon-pattern-repeating.png');
-    background-size:33%;
-    color:var(--COL_defaultText);
+    background-size: 33%;
+    color: var(--COL_defaultText);
 }
-body{
-    width:100%;
-    height:100%;
+
+body {
+    width: 100%;
+    height: 100%;
 }
-h1{
+
+h1 {
     font-size: 4em;
 }
-h3{
+
+h3 {
     font-size: 2em;
 }
+
 #gameWindow {
     position: relative;
-    width:100%;
-    height:100%;
+    width: 100%;
+    height: 100%;
     background-color: var(--TINT_dark);
 }
 
-.fullscreen{
-    position:absolute;
-    width:100%;
-    height:100%;
+.fullscreen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }
-.fl-col-center{
-    display:flex;
-    flex-direction:column;
+
+.fl-col-center {
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
-.fl-center{
-    display:flex;
+
+.fl-center {
+    display: flex;
     justify-content: center;
     align-items: center;
 }
-.gap{
-    gap:var(--SIZE_defaultGap);
+
+.gap {
+    gap: var(--SIZE_defaultGap);
 }
-.pad{
-    padding:var(--SIZE_defaultPadding);
+
+.pad {
+    padding: var(--SIZE_defaultPadding);
 }
-.scene-container{
-    width:100%;
-    height:100%;
+
+.scene-container {
+    width: 100%;
+    height: 100%;
 }
-.section-container{
-    position:relative;
+
+.section-container {
+    position: relative;
     background-color: var(--TINT_light);
 }
-.quarter-box{
-    width:25%;
+
+.quarter-box {
+    width: 25%;
     aspect-ratio: 1;
 }
 
-.board-tile{
+.board-tile {
     width: 100%;
-    height:100%;
-    border:1px solid;
-    box-sizing:border-box;
+    height: 100%;
+    border: 1px solid;
+    box-sizing: border-box;
 }
-.pPlacement-tile:hover{
-    border:3px solid var(--COL_altDefaultText);
+
+.pPlacement-tile:hover {
+    border: 3px solid var(--COL_altDefaultText);
 }
-.tile-greenbg{
+
+.tile-greenbg {
     background-color: var(--TINT_green_light);
 }
-.tile-redbg{
+
+.tile-selected-area {
+    background-color: var(--TINT_green_dark);
+}
+
+.tile-redbg {
     background-color: var(--TINT_red_light);
 }
-.red-border{
+
+.red-border {
     border: 1px solid red;
 }
-.border{
-    border:1px solid;
+
+.border {
+    border: 1px solid;
 }
-.border-2px{
-    border:2px solid;
+
+.border-2px {
+    border: 2px solid;
 }
 
 /* Animations */
-.blink{
+.blink {
     animation: 2s infinite alternate blink;
 }
+
 @keyframes blink {
-    from {opacity: 100%;}
-    33%{opacity: 100%}
-    to {opacity:0%;}
+    from {
+        opacity: 100%;
+    }
+
+    33% {
+        opacity: 100%
+    }
+
+    to {
+        opacity: 0%;
+    }
 }

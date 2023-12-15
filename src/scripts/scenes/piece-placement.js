@@ -25,7 +25,7 @@ const states = {
     placeUnit: 2,
 }
 
-const _highlightClasses = ['tile-greenbg', 'tile-redbg'];
+const _highlightClasses = ['tile-greenbg', 'tile-redbg', 'tile-selected-area']; //hardcoded indexes matter here.
 
 ////////////////////////////////
 
@@ -68,8 +68,9 @@ function initPiecePlacement() {
             switch (currentState) {
                 case states.pickTile:
                     _removeHighlight();
+                    _pickTile_tileHighlight(e.target);
                     selectedTile = e.target;
-                    selectedTile.classList.add('tile-greenbg');
+                    _markTile(selectedTile,_highlightClasses[2]);
                     _changeState(states.placeUnit);
                     break;
                 case states.placeUnit:
@@ -104,6 +105,7 @@ function _getTileCoordObj(tile) {
     return coords;
 }
 function _placeUnit_tileHighlight(tile) {
+    _markTile(selectedTile,_highlightClasses[2]);
     const selectedCoords = _getTileCoordObj(selectedTile);
     const tileCoords = _getTileCoordObj(tile);
 
@@ -115,18 +117,23 @@ function _placeUnit_tileHighlight(tile) {
     else positiveDir = (yDif >= 0);
 
     for (let i = 1; i <= PIECE_COUNT; i++) {
+        let classIndex = 0;
         switch (true) {
             case inXAxis && positiveDir:
-                _markTile(_checkRight(i, selectedCoords));
+                i <= xDif ? classIndex = 2 : classIndex = 0;
+                _markTile(_checkRight(i, selectedCoords), _highlightClasses[classIndex]);
                 break;
             case inXAxis && !positiveDir:
-                _markTile(_checkLeft(i, selectedCoords));
+                i <= Math.abs(xDif) ? classIndex = 2 : classIndex = 0;
+                _markTile(_checkLeft(i, selectedCoords), _highlightClasses[classIndex]);
                 break;
             case !inXAxis && positiveDir:
-                _markTile(_checkUp(i, selectedCoords));
+                i <= yDif ? classIndex = 2 : classIndex = 0;
+                _markTile(_checkUp(i, selectedCoords),_highlightClasses[classIndex]);
                 break;
             case !inXAxis && !positiveDir:
-                _markTile(_checkDown(i, selectedCoords));
+                i <= Math.abs(yDif) ? classIndex = 2 : classIndex = 0;
+                _markTile(_checkDown(i, selectedCoords),_highlightClasses[classIndex]);
                 break;
             default: console.log('This should never appear. If it does, blame cosmic radiation.');
         }
@@ -138,7 +145,7 @@ function _pickTile_tileHighlight(tile) {
     const index = (coords.y * BOARD_WIDTH) + coords.x;
     const playerRef = gameState.get.scene.currentPlayer();
 
-    tile.classList.add('tile-greenbg'); //todo: change to red when all pieces placed
+    tile.classList.add(_highlightClasses[0]); //todo: change to red when all pieces placed
     activeTiles.push(tile);             //  except when removing piece. 
     for (let i = 1; i <= PIECE_COUNT; i++) {
         if (ref[playerRef].placedPieces[i - 1]) {
@@ -173,10 +180,13 @@ function _checkRight(distance, coordObj) {
     if (newX >= BOARD_WIDTH) return false;
     return (coordObj.y * BOARD_WIDTH) + newX;
 }
-function _markTile(tileIndex, className = 'tile-greenbg') {
+function _markTile(tileIndex, className = _highlightClasses[0]) {
     if (!tileIndex) return;
+    let activeTile;
+    if(typeof(tileIndex) === 'number'){//is index
     let playerRef = gameState.get.scene.currentPlayer();
-    let activeTile = ref[playerRef].gameTiles[tileIndex];
+    activeTile = ref[playerRef].gameTiles[tileIndex];
+    } else activeTile = tileIndex;  //is element
     activeTile.classList.add(className);
     activeTiles.push(activeTile);
 }
