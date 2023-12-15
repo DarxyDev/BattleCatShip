@@ -67,11 +67,11 @@ const gameState = {
             if (_player !== undefined) return console.log('player already set. Returning.');
             _player = player
         };
-        const _gameBoard = gameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
-        get.gameBoard = () => _gameBoard;
-        set.gameBoard = (gameBoard) => {
-            if (_gameBoard !== undefined) return console.log('gameBoard already set. Returning.');
-            _gameBoard = gameBoard;
+        const _gameboard = gameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
+        get.gameboard = () => _gameboard;
+        set.gameboard = (gameboard) => {
+            if (_gameboard !== undefined) return console.log('gameboard already set. Returning.');
+            _gameboard = gameboard;
         }
     }
 })()

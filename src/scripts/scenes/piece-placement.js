@@ -93,7 +93,8 @@ function _changeState(state) {
     currentState = state;
 }
 function _placeUnit(tile) {
-    console.log('not implemented');
+    console.log('not implemented yet');
+    const tileCoords = _getTileCoordObj(tile);
 }
 function _getTileCoordObj(tile) {
     const coords = {
