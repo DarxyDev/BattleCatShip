@@ -51,33 +51,33 @@ const gameState = {
     },
 };
 
-(() => {
-    _generatePlayerObj(1);
-    _generatePlayerObj(2);
 
-    function _generatePlayerObj(playerNum) {
-        const pString = `player${playerNum}`;
-        const get = {};
-        const set = {};
-        gameState.set[pString] = set;
-        gameState.get[pString] = get;
+_generatePlayerObj(1);
+_generatePlayerObj(2);
 
-        let _player;
-        get.player = () => _player;
-        set.player = (player) => {
-            if (_player !== undefined) return console.log('player already set. Returning.');
-            _player = player
-        };
-        const _gameboard = gameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
-        const _units = [];
-        for (let i = 0; i < PIECE_COUNT; i++)
-            _units.push(unitFactory(i.toString, i + 2));
-        get.gameboard = () => _gameboard;
-        set.gameboard = (gameboard) => {
-            if (_gameboard !== undefined) return console.log('gameboard already set. Returning.');
-            _gameboard = gameboard;
-        }
+function _generatePlayerObj(playerNum) {
+    const pString = `player${playerNum}`;
+    const get = {};
+    const set = {};
+    gameState.set[pString] = set;
+    gameState.get[pString] = get;
+
+    let _player;
+    get.player = () => _player;
+    set.player = (player) => {
+        if (_player !== undefined) return console.log('player already set. Returning.');
+        _player = player
+    };
+    const _gameboard = gameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
+    const _units = [];
+    for (let i = 0; i < PIECE_COUNT; i++)
+        _units.push(unitFactory(i.toString, i + 2));
+    get.units = () => _units;
+    get.gameboard = () => _gameboard;
+    set.gameboard = (gameboard) => {
+        if (_gameboard !== undefined) return console.log('gameboard already set. Returning.');
+        _gameboard = gameboard;
     }
-})()
+}
 
 export default gameState;
