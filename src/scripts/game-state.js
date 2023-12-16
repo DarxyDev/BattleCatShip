@@ -1,4 +1,5 @@
-import { gameboardFactory } from "./gameboard-manager";
+import { gameboardFactory, unitFactory } from "./gameboard-manager";
+
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
 const PIECE_COUNT = 5;
@@ -34,16 +35,16 @@ const gameState = {
                 _isSinglePlayer = bool;
             }
         },
-        scene:{
-            swapPlayers:()=>{
-                if(_isSinglePlayer) return _currentPlayer;
-                if(_currentPlayer === 'p1') _currentPlayer = 'p2';
+        scene: {
+            swapPlayers: () => {
+                if (_isSinglePlayer) return _currentPlayer;
+                if (_currentPlayer === 'p1') _currentPlayer = 'p2';
                 else _currentPlayer = 'p1';
-                return _currentPlayer; 
+                return _currentPlayer;
             },
-            setCurrentPlayer:(playerRef)=>{
-                if(playerRef !== 'p1' 
-                && playerRef !== 'p2') return console.log(`Invalid playerRef: ${playerRef}`);
+            setCurrentPlayer: (playerRef) => {
+                if (playerRef !== 'p1'
+                    && playerRef !== 'p2') return console.log(`Invalid playerRef: ${playerRef}`);
                 _currentPlayer = playerRef;
             }
         }
@@ -68,6 +69,9 @@ const gameState = {
             _player = player
         };
         const _gameboard = gameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
+        const _units = [];
+        for (let i = 0; i < PIECE_COUNT; i++)
+            _units.push(unitFactory(i.toString, i + 2));
         get.gameboard = () => _gameboard;
         set.gameboard = (gameboard) => {
             if (_gameboard !== undefined) return console.log('gameboard already set. Returning.');

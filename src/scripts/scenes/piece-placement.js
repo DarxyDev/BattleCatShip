@@ -70,13 +70,14 @@ function initPiecePlacement() {
                     _removeHighlight();
                     _pickTile_tileHighlight(e.target);
                     selectedTile = e.target;
-                    _markTile(selectedTile,_highlightClasses[2]);
+                    _markTile(selectedTile, _highlightClasses[2]);
                     _changeState(states.placeUnit);
                     break;
                 case states.placeUnit:
-                    console.log('attempt to place unit. then changestate back on success');
-                    if (_placeUnit(e.target)) console.log('switch teams');
-                    else console.log('invalid spot');
+                    console.log('not working?');
+                    if (_placeUnit(e.target)) {
+                        _changeState(states.pickTile);
+                    } else console.log('invalid spot');
                     break;
                 default: console.log(`Invalid state: ${currentState}.`);
 
@@ -93,8 +94,16 @@ function _changeState(state) {
     currentState = state;
 }
 function _placeUnit(tile) {
-    console.log('not implemented yet');
+    console.log('need to grab unit objects from old script to work with gameboard-manager');
+    console.log('returning false');
+    return false;
+    const gameboard = gameState.get.player1.gameboard();
     const tileCoords = _getTileCoordObj(tile);
+    tileCoords = [tileCoords.x,tileCoords.y]; //gameboard takes coords in array
+    const inXAxis = true; //determine if in x or y
+    const length = 3; //get length of ship first
+    if(!gameboard.placeUnit(length,tileCoords,inXAxis)) return false; // return on failure
+    //mark the current tiles and save them somewhere.
 }
 function _getTileCoordObj(tile) {
     const coords = {
@@ -106,7 +115,7 @@ function _getTileCoordObj(tile) {
     return coords;
 }
 function _placeUnit_tileHighlight(tile) {
-    _markTile(selectedTile,_highlightClasses[2]);
+    _markTile(selectedTile, _highlightClasses[2]);
     const selectedCoords = _getTileCoordObj(selectedTile);
     const tileCoords = _getTileCoordObj(tile);
 
@@ -130,11 +139,11 @@ function _placeUnit_tileHighlight(tile) {
                 break;
             case !inXAxis && positiveDir:
                 i <= yDif ? classIndex = 2 : classIndex = 0;
-                _markTile(_checkUp(i, selectedCoords),_highlightClasses[classIndex]);
+                _markTile(_checkUp(i, selectedCoords), _highlightClasses[classIndex]);
                 break;
             case !inXAxis && !positiveDir:
                 i <= Math.abs(yDif) ? classIndex = 2 : classIndex = 0;
-                _markTile(_checkDown(i, selectedCoords),_highlightClasses[classIndex]);
+                _markTile(_checkDown(i, selectedCoords), _highlightClasses[classIndex]);
                 break;
             default: console.log('This should never appear. If it does, blame cosmic radiation.');
         }
@@ -184,9 +193,9 @@ function _checkRight(distance, coordObj) {
 function _markTile(tileIndex, className = _highlightClasses[0]) {
     if (!tileIndex) return;
     let activeTile;
-    if(typeof(tileIndex) === 'number'){//is index
-    let playerRef = gameState.get.scene.currentPlayer();
-    activeTile = ref[playerRef].gameTiles[tileIndex];
+    if (typeof (tileIndex) === 'number') {//is index
+        let playerRef = gameState.get.scene.currentPlayer();
+        activeTile = ref[playerRef].gameTiles[tileIndex];
     } else activeTile = tileIndex;  //is element
     activeTile.classList.add(className);
     activeTiles.push(activeTile);
