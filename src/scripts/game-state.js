@@ -3,6 +3,7 @@ import { gameboardFactory, unitFactory } from "./gameboard-manager";
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
 const PIECE_COUNT = 5;
+const PIECE_LENGTH_ARRAY = [0,0,1,1,1,1,1]; //index == piece length  value == piece count of said length
 let _isSinglePlayer;
 
 let _currentPlayer = 'p1';
@@ -69,10 +70,8 @@ function _generatePlayerObj(playerNum) {
         _player = player
     };
     const _gameboard = gameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
-    const _units = [];
-    for (let i = 0; i < PIECE_COUNT; i++)
-        _units.push(unitFactory(i.toString, i + 2));
-    get.units = () => _units;
+    const _units = _createUnitArray();
+     get.units = () => _units;
     get.gameboard = () => _gameboard;
     set.gameboard = (gameboard) => {
         if (_gameboard !== undefined) return console.log('gameboard already set. Returning.');
@@ -81,3 +80,13 @@ function _generatePlayerObj(playerNum) {
 }
 
 export default gameState;
+
+function _createUnitArray(){
+    const unitArray = [];
+    for(let unitLength = 0; unitLength < PIECE_LENGTH_ARRAY.length; unitLength++){
+        for (let unitCount = PIECE_LENGTH_ARRAY[unitLength]; unitCount > 0; unitCount--){
+            unitArray.push(unitFactory('',unitLength));
+        }
+    }
+    return unitArray;
+}
