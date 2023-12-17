@@ -74,7 +74,6 @@ function initPiecePlacement() {
                     _changeState(states.placeUnit);
                     break;
                 case states.placeUnit:
-                    console.log('not working?');
                     if (_placeUnit(e.target)) {
                         _changeState(states.pickTile);
                     } else console.log('invalid spot');
@@ -98,12 +97,7 @@ function _placeUnit(tile) {
     console.log('returning false');
     return false;
     const gameboard = gameState.get.player1.gameboard();
-    const tileCoords = _getTileCoordObj(tile);
-    tileCoords = [tileCoords.x,tileCoords.y]; //gameboard takes coords in array
-    const inXAxis = true; //determine if in x or y
-    const length = 3; //get length of ship first
-    if(!gameboard.placeUnit(length,tileCoords,inXAxis)) return false; // return on failure
-    //mark the current tiles and save them somewhere.
+    const tileCoords = _getTileCoordArr(tile);
 }
 function _getTileCoordObj(tile) {
     const coords = {
@@ -112,6 +106,12 @@ function _getTileCoordObj(tile) {
     }
     if (coords.x === undefined ||
         coords.y === undefined) console.log(`Invalid tile coords in ${tile}`);
+    return coords;
+}
+function _getTileCoordArr(tile) {
+    const coords = [+tile.getAttribute('posX'), +tile.getAttribute('posY')];
+    if (coords[0] === undefined ||
+        coords[1] === undefined) console.log(`Invalid tile coords in ${tile}`);
     return coords;
 }
 function _placeUnit_tileHighlight(tile) {
