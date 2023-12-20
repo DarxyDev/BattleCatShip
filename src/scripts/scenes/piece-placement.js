@@ -6,6 +6,9 @@ const PIECE_COUNT = gameState.get.game.pieceCount();
 const BOARD_WIDTH = gameState.get.game.boardWidth();
 const BOARD_HEIGHT = gameState.get.game.boardHeight();
 
+let playerObj = {};         //set on load
+let remainingUnits = [];    //
+
 const ref = {
     p1: { gameTiles: undefined, placedPieces: [] },
     p2: { gameTiles: undefined, placedPieces: [] }
@@ -48,6 +51,9 @@ function initPiecePlacement() {
             tile.addEventListener('click', _onclickTile);
         });
         ref[playerRef].gameTiles = gameTiles;
+        ///
+        scene.sceneOnLoad = _sceneOnLoad;
+        ///
         return scene;
 
         function _mouseoverTile(e) {
@@ -82,9 +88,19 @@ function initPiecePlacement() {
 
             }
         }
+        function _sceneOnLoad(){
+            playerObj = _getPlayerStateObj();
+            remainingUnits = [];
+            playerObj.get.units().forEach(unit =>{ //makes basic unit copy
+                let unitObj = {
+                    id: unit.get.id(),
+                    length: unit.get.length()
+                }
+                remainingUnits.push(unitObj);
+            })
+        }
     }
 }
-
 export default initPiecePlacement
 
 ////////////////////////////////////
@@ -93,11 +109,30 @@ function _changeState(state) {
     currentState = state;
 }
 function _placeUnit(tile) {
-    console.log('need to grab unit objects from old script to work with gameboard-manager');
-    console.log('returning false');
-    return false;
-    const gameboard = gameState.get.player1.gameboard();
-    const tileCoords = _getTileCoordArr(tile);
+    if (!_isValidPlacement()) return false;
+
+    const gameboard = playerObj.get.gameboard();
+    const tileCoords = _getTileCoordObj(tile);
+    const originCoords = _getTileCoordObj(selectedTile);
+
+    const xDif = tileCoords.x - originCoords.x;
+    const yDif = tileCoords.y - originCoords.y;
+    console.log({ tileCoords });
+    const rotated = xDif === 0 ? true : false;
+    let startCoords;
+    if (rotated) startCoords = yDif < 0 ? tileCoords : originCoords;
+    else startCoords = xDif < 0 ? tileCoords : originCoords;
+
+    startCoords = [startCoords.x, startCoords.y];
+    const unit = '';
+    console.log('search units for correct size. if available, unit =');
+
+    return gameboard.placeUnit(unit, startCoords, rotated);
+
+    function _isValidPlacement() {
+        console.log('todo');
+        return true;
+    }
 }
 function _getTileCoordObj(tile) {
     const coords = {
@@ -205,4 +240,12 @@ function _removeHighlight() {
         _highlightClasses.forEach((className) => { tile.classList.remove(className) })
     });
     activeTiles = [];
+}
+function _getPlayerStateObj(){
+    const playerRef = gameState.get.scene.currentPlayer();
+    let playerObj = {
+        get: gameState.get[playerRef],
+        set: gameState.set[playerRef]
+    }
+    return playerObj;
 }

@@ -53,14 +53,15 @@ function gameboardFactory(width = 10, height = 10) {
     return gameboard;
 }
 
-function unitFactory(name, length) {
-    const _name = name;
+let _unitID = 1000;
+function unitFactory(length) {
+    const _id = _unitID++;
     const _length = length;
     let _hits = 0;
 
     const unit = {
         get: {
-            name: () => { return _name },
+            id: () => { return _id },
             length: () => { return _length }
         },
         hit: () => { _hits++; },

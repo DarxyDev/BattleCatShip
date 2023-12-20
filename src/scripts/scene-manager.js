@@ -33,6 +33,7 @@ function loadScene(sceneNode) {
         return;
     }
     gameWindow.appendChild(sceneNode);
+    if(sceneNode.sceneOnLoad) sceneNode.sceneOnLoad();
     currentScene = sceneNode;
 }
 

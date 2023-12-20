@@ -57,7 +57,7 @@ _generatePlayerObj(1);
 _generatePlayerObj(2);
 
 function _generatePlayerObj(playerNum) {
-    const pString = `player${playerNum}`;
+    const pString = `p${playerNum}`;
     const get = {};
     const set = {};
     gameState.set[pString] = set;
@@ -85,7 +85,7 @@ function _createUnitArray(){
     const unitArray = [];
     for(let unitLength = 0; unitLength < PIECE_LENGTH_ARRAY.length; unitLength++){
         for (let unitCount = PIECE_LENGTH_ARRAY[unitLength]; unitCount > 0; unitCount--){
-            unitArray.push(unitFactory('',unitLength));
+            unitArray.push(unitFactory(unitLength));
         }
     }
     return unitArray;
