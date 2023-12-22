@@ -33,6 +33,14 @@ function gameboardFactory(width = 10, height = 10) {
             _unitsRemaining++;
             return true;
         },
+        removeUnit: (unit) => {
+            _boardArray.forEach(value => { if (value === unit) value = false; })
+        },
+        checkCoordEmpty: (coord) => {
+            const index = get2DIndex(width, coord);
+            if (_boardArray[index]) return false;
+            return true;
+        },
         receiveAttack: (coord) => {
             const i = get2DIndex(width, coord);
 
@@ -87,4 +95,4 @@ function get2DIndex(rowLength, x, y) {
     return a * rowLength + b;
 }
 
-export {gameboardFactory, unitFactory, get2DIndex};
+export { gameboardFactory, unitFactory, get2DIndex };

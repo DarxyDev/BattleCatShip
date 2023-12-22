@@ -10,6 +10,7 @@
     --TINT_green_light: rgba(0, 255, 0, 0.2);
     --TINT_green_dark: rgba(0, 255, 0, 0.8);
     --TINT_red_light: rgba(255, 0, 0, .2);
+    --TINT_brown_light: rgba(139, 69, 19, .5);
 
     --SIZE_defaultGap: 1.5em;
     --SIZE_defaultPadding: 1.5em;
@@ -102,6 +103,10 @@ h3 {
 
 .tile-selected-area {
     background-color: var(--TINT_green_dark);
+}
+
+.tile-placed-unit {
+    background-color: var(--TINT_brown_light);
 }
 
 .tile-redbg {
