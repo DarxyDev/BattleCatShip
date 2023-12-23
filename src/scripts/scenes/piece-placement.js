@@ -88,14 +88,21 @@ function initPiecePlacement() {
         }
         function _onclickTile(e) {
             switch (currentState) {
-                case states.pickTile:
+                case states.pickTile: //initial state
                     _removeHighlight();
                     _pickTile_tileHighlight(e.target);
                     selectedTile = e.target;
                     _markTile(selectedTile, tempClasses[2]);
                     _changeState(states.placeUnit);
                     break;
-                case states.placeUnit:
+                case states.placeUnit: //
+                    if (e.target === selectedTile) { //click second time to remove selected tile
+                        //selectedTile = undefined;
+                        _removeHighlight();
+                        _changeState(states.pickTile);
+                        _pickTile_tileHighlight(e.target);
+                        break;
+                    }
                     if (_placeUnit(e.target)) {
                         _changeState(states.pickTile);
                     } else console.log('invalid spot -- need visual representation');
@@ -114,7 +121,6 @@ function _changeState(state) {
     currentState = state;
 }
 function _placeUnit(tile) {
-    console.log(placedUnits);//////
     const gameboard = playerObj.get.gameboard();
     const tileCoords = _getTileCoordObj(tile);
     const originCoords = _getTileCoordObj(selectedTile);
@@ -137,8 +143,8 @@ function _placeUnit(tile) {
     endCoords = [endCoords.x, endCoords.y];
     startCoords = [startCoords.x, startCoords.y];
     let selectedUnit;
-    units.every(unit =>{
-        if(unit.get.length() !== length) return true;
+    units.every(unit => {
+        if (unit.get.length() !== length) return true;
         for (let i = 0; i < placedUnits.length; i++)
             if (unit === placedUnits[i].unit)
                 return true;
@@ -150,8 +156,8 @@ function _placeUnit(tile) {
         return false;
 
     const occupiedTiles = _getTileArray();
-    _highlightPlacedTiles(occupiedTiles)
-    placedUnits.push({ unit: selectedUnit, tiles:occupiedTiles});
+    _highlightPlacedTiles(occupiedTiles);
+    placedUnits.push({ unit: selectedUnit, tiles: occupiedTiles });
 
     return true;
 
