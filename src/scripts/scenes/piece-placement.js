@@ -8,7 +8,7 @@ const BOARD_HEIGHT = gameState.get.game.boardHeight();
 
 //TODO: these are duplicate variables, but neater. convert other methods to use these
 let playerObj = {};
-let placedUnits = []; 
+let placedUnits = [];
 let units = [];
 let tileArray = [];
 
@@ -18,10 +18,9 @@ let playerRef = '';
 function _sceneOnLoad() { //added to scene as scene.sceneOnLoad
     playerRef = gameState.get.scene.currentPlayer(); //must be first
     playerObj = _getPlayerStateObj();
-    placedUnits = []; 
-    units = playerObj.get.units();    
+    placedUnits = [];
+    units = playerObj.get.units();
     tileArray = ref[playerRef].gameTiles;
-    console.log(tileArray)
     tileArray[0].classList.add(tempClasses[3])
 }
 
@@ -99,7 +98,7 @@ function initPiecePlacement() {
                 case states.placeUnit:
                     if (_placeUnit(e.target)) {
                         _changeState(states.pickTile);
-                    } else console.log('invalid spot');
+                    } else console.log('invalid spot -- need visual representation');
                     break;
                 default: console.log(`Invalid state: ${currentState}.`);
 
@@ -115,6 +114,7 @@ function _changeState(state) {
     currentState = state;
 }
 function _placeUnit(tile) {
+    console.log(placedUnits);//////
     const gameboard = playerObj.get.gameboard();
     const tileCoords = _getTileCoordObj(tile);
     const originCoords = _getTileCoordObj(selectedTile);
@@ -137,20 +137,21 @@ function _placeUnit(tile) {
     endCoords = [endCoords.x, endCoords.y];
     startCoords = [startCoords.x, startCoords.y];
     let selectedUnit;
-    units.forEach(unit => {
-        if (unit.get.length() !== length) return;
+    units.every(unit =>{
+        if(unit.get.length() !== length) return true;
         for (let i = 0; i < placedUnits.length; i++)
-            if (unit === placedUnits[i])
-                return false;
+            if (unit === placedUnits[i].unit)
+                return true;
         selectedUnit = unit;
+        return false;
     });
     if (!selectedUnit
         || !gameboard.placeUnit(selectedUnit, startCoords, rotated))
         return false;
 
-    const selectedTiles = _getTileArray();
-    _highlightPlacedTiles(selectedTiles)
-    placedUnits.push({ unit: selectedUnit, selectedTiles });
+    const occupiedTiles = _getTileArray();
+    _highlightPlacedTiles(occupiedTiles)
+    placedUnits.push({ unit: selectedUnit, tiles:occupiedTiles});
 
     return true;
 
@@ -167,7 +168,6 @@ function _placeUnit(tile) {
             else index = (startCoords[1] * BOARD_WIDTH) + startCoords[0] + i;
             tiles.push(tileArray[index]);
         }
-        console.log(tiles);
         return tiles
     }
 }
