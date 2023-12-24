@@ -1,6 +1,6 @@
 import initTitleScreen from "./scenes/title-screen";
 import initPlayerSelect from "./scenes/player-select";
-import initPiecePlacement from "./scenes/piece-placement";
+import initPiecePlacement from "./scenes/pp2"//"./scenes/piece-placement";
 import gameState from "./game-state";
 //import playerFactory from "./player-factory";
 //import gameState from "./game-state";
@@ -15,16 +15,13 @@ let currentScene;
 const gameWindow = document.getElementById('gameWindow');
 const sceneManager = {
     initializeScenes: initializeScenes,
-    getScenes: getScenes,
+    getScenes: ()=>scenes,
+    getCurrentScene: ()=>currentScene,
     loadScene: loadScene,
-    getCurrentScene: getCurrentScene,
 };
 
 export default sceneManager;
 
-function getScenes() {
-    return scenes;
-}
 
 function loadScene(sceneNode) {
     if (currentScene) currentScene.remove();

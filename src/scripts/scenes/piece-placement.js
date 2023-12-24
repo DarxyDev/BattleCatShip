@@ -327,3 +327,13 @@ function _placedUnitsContains(unit){
     }
     return false;
 }
+const directions = {all:0,up:1,down:2,left:3,right:4};
+function _createTileObj(tile){
+    const tileObj = {
+        getTile: ()=>tile,
+        isOccupiedBy:'',
+    }
+}
+function _createDirectionTileArr(originTile, direction = directions.all, distance = maxLength){
+
+}
