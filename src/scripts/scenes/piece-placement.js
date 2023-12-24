@@ -97,7 +97,7 @@ function initPiecePlacement() {
                     break;
                 case states.placeUnit: //
                     if (e.target === selectedTile) { //click second time to remove selected tile
-                        //selectedTile = undefined;
+                        selectedTile = undefined;
                         _removeHighlight();
                         _changeState(states.pickTile);
                         _pickTile_tileHighlight(e.target);
@@ -105,6 +105,7 @@ function initPiecePlacement() {
                     }
                     if (_placeUnit(e.target)) {
                         _changeState(states.pickTile);
+                        selectedTile = undefined;
                     } else console.log('invalid spot -- need visual representation');
                     break;
                 default: console.log(`Invalid state: ${currentState}.`);

@@ -3,6 +3,10 @@
     --COL_gameBG: antiquewhite;
     --COL_defaultText: white;
     --COL_altDefaultText: antiquewhite;
+    
+    --COL_placedUnit: brown;
+    --COL_tileSelectNo: red;
+    --COL_tileSelectYes: green;
 
     --TINT_dark: rgba(0, 0, 0, .75);
     --TINT_lowDark: rgba(0, 0, 0, .25);
@@ -101,16 +105,18 @@ h3 {
     background-color: var(--TINT_green_light);
 }
 
-.tile-selected-area {
-    background-color: var(--TINT_green_dark);
-}
 
 .tile-placed-unit {
-    background-color: var(--TINT_brown_light);
+    background-color: var(--COL_placedUnit) !important;
+    border:none !important;
+}
+
+.tile-selected-area {
+    background-color: var(--COL_tileSelectYes);
 }
 
 .tile-redbg {
-    background-color: var(--TINT_red_light);
+    background-color: var(--COL_tileSelectNo);
 }
 
 .red-border {
