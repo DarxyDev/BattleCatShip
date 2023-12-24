@@ -3,7 +3,7 @@
     --COL_gameBG: antiquewhite;
     --COL_defaultText: white;
     --COL_altDefaultText: antiquewhite;
-    
+
     --COL_placedUnit: brown;
     --COL_tileSelectNo: red;
     --COL_tileSelectYes: green;
@@ -105,18 +105,17 @@ h3 {
     background-color: var(--TINT_green_light);
 }
 
+.tile-redbg {
+    background-color: var(--TINT_red_light);
+}
 
 .tile-placed-unit {
     background-color: var(--COL_placedUnit) !important;
-    border:none !important;
+    border: none !important;
 }
 
 .tile-selected-area {
     background-color: var(--COL_tileSelectYes);
-}
-
-.tile-redbg {
-    background-color: var(--COL_tileSelectNo);
 }
 
 .red-border {
