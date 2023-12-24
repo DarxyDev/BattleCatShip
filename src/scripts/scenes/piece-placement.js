@@ -12,6 +12,8 @@ let placedUnits = [];
 let units = [];
 let tileArray = [];
 
+let maxLength;
+
 let playerRef = '';
 
 
@@ -22,6 +24,7 @@ function _sceneOnLoad() { //added to scene as scene.sceneOnLoad
     units = playerObj.get.units();
     tileArray = ref[playerRef].gameTiles;
     tileArray[0].classList.add(tempClasses[3])
+    maxLength = _getMaxLength(playerObj);
 }
 
 const ref = {
@@ -241,17 +244,17 @@ function _pickTile_tileHighlight(tile) {
     const coords = _getTileCoordObj(tile);
     const index = (coords.y * BOARD_WIDTH) + coords.x;
     const playerRef = gameState.get.scene.currentPlayer();
+    const yesClass = tempClasses[0];
+    const noClass = tempClasses[1];
 
     tile.classList.add(tempClasses[0]); //todo: change to red when all pieces placed
     activeTiles.push(tile);             //  except when removing piece. 
-    for (let i = 1; i <= PIECE_COUNT; i++) {
-        if (ref[playerRef].placedPieces[i - 1]) {
-            console.log('mark red here?');
-            continue;
-        }
+    for (let i = 1; i < maxLength; i++) {
         _checkFunctions.forEach((checkDirection) => {
             let tileIndex = checkDirection(i, coords);
-            if (tileIndex !== false) _markTile(tileIndex);
+            if (tileIndex === false) return;
+           if (_unitOfLengthAvailable(i + 1)) _markTile(tileIndex, yesClass);
+           else _markTile(tileIndex, noClass);
         })
     }
 }
@@ -299,4 +302,28 @@ function _getPlayerStateObj() {
         set: gameState.set[playerRef]
     }
     return playerObj;
+}
+function _getMaxLength(playerObject) {
+    let max = 0;
+    let units = playerObj.get.units();
+    units.forEach(unit => {
+        if (unit.get.length() > max)
+            max = unit.get.length();
+    })
+    return max;
+}
+function _unitOfLengthAvailable(length) {
+    console.log(length);
+    for(let i = 0; i < units.length; i++){
+        let unit = units[i];
+        if(_placedUnitsContains(unit)) continue;
+        if(unit.get.length() === length) return true;
+    }
+    return false;
+}
+function _placedUnitsContains(unit){
+    for(let i = 0; i < placedUnits.length; i++){
+        if(placedUnits[i].unit === unit) return true;
+    }
+    return false;
 }
