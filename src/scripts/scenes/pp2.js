@@ -5,8 +5,8 @@ import gameState from "../game-state";
 function initPiecePlacement() {
     const scenes = {};
     scenes.p1 = createScene('p1');
-    if (gameState.get.game.isSinglePlayer()) scenes.p2 = null;
-    else scenes.p2 = createScene('p2');
+    // if (gameState.get.game.isSinglePlayer()) scenes.p2 = null;
+    // else scenes.p2 = createScene('p2');
     return [scenes.p1, scenes.p2];
 }
 export default initPiecePlacement
@@ -26,10 +26,7 @@ function createScene(playerRef) {
         tileObjs.push(tileFactory(gameTiles[i], i));
     }
     //scoped vars
-    const playerObj = {
-        get: gameState.get[playerRef],
-        set: gameState.set[playerRef]
-    }
+    const playerObj = gameState[playerRef];
     const allUnits = playerObj.get.units();
     const availableUnitArray = [];
     for(let i = 0; i < allUnits.length; i++){

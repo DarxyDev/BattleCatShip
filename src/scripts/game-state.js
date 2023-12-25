@@ -3,7 +3,7 @@ import { gameboardFactory, unitFactory } from "./gameboard-manager";
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
 const PIECE_COUNT = 5;
-const PIECE_LENGTH_ARRAY = [0,0,1,1,1,1,1]; //index == piece length  value == piece count of said length
+const PIECE_LENGTH_ARRAY = [0, 0, 1, 1, 1, 1, 1]; //index == piece length  value == piece count of said length
 let _isSinglePlayer;
 
 let _currentPlayer = 'p1';
@@ -19,7 +19,7 @@ const gameState = {
         },
         scene: {
             currentPlayer: () => _currentPlayer,
-        }
+        },
     },
     set: {
         game: {
@@ -48,7 +48,20 @@ const gameState = {
                     && playerRef !== 'p2') return console.log(`Invalid playerRef: ${playerRef}`);
                 _currentPlayer = playerRef;
             }
-        }
+        },
+    },
+    p1: _generatePlayerObj(),
+    p2: _generatePlayerObj(),
+    p0: { //here for intelisense
+        get: {
+            player: () => {},
+            units: () => {},
+            gameboard: () => {},
+        },
+        set: {
+            player: () => {},
+            gameboard: () => {},
+        },
     },
 };
 
@@ -56,35 +69,38 @@ const gameState = {
 _generatePlayerObj(1);
 _generatePlayerObj(2);
 
-function _generatePlayerObj(playerNum) {
-    const pString = `p${playerNum}`;
-    const get = {};
-    const set = {};
-    gameState.set[pString] = set;
-    gameState.get[pString] = get;
+function _generatePlayerObj() {
 
     let _player;
-    get.player = () => _player;
-    set.player = (player) => {
-        if (_player !== undefined) return console.log('player already set. Returning.');
-        _player = player
-    };
     const _gameboard = gameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
     const _units = _createUnitArray();
-     get.units = () => _units;
-    get.gameboard = () => _gameboard;
-    set.gameboard = (gameboard) => {
-        if (_gameboard !== undefined) return console.log('gameboard already set. Returning.');
-        _gameboard = gameboard;
-    }
+
+    const playerObj = {
+        get: {
+            player: () => _player,
+            units: () => _units,
+            gameboard: () => _gameboard,
+        },
+        set: {
+            player: (player) => {
+                if (_player !== undefined) return console.log('player already set. Returning.');
+                _player = player;
+            },
+            gameboard: (gameboard) => {
+                if (_gameboard !== undefined) return console.log('gameboard already set. Returning.');
+                _gameboard = gameboard;
+            },
+        },
+    };
+    return playerObj;
 }
 
 export default gameState;
 
-function _createUnitArray(){
+function _createUnitArray() {
     const unitArray = [];
-    for(let unitLength = 0; unitLength < PIECE_LENGTH_ARRAY.length; unitLength++){
-        for (let unitCount = PIECE_LENGTH_ARRAY[unitLength]; unitCount > 0; unitCount--){
+    for (let unitLength = 0; unitLength < PIECE_LENGTH_ARRAY.length; unitLength++) {
+        for (let unitCount = PIECE_LENGTH_ARRAY[unitLength]; unitCount > 0; unitCount--) {
             unitArray.push(unitFactory(unitLength));
         }
     }
