@@ -8,7 +8,7 @@ let _isSinglePlayer;
 
 let _currentPlayer = 'p1';
 
-
+//todo: change gamestate get/sets to individual objects with get/set and all references
 const gameState = {
     get: {
         game: {

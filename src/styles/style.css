@@ -4,10 +4,6 @@
     --COL_defaultText: white;
     --COL_altDefaultText: antiquewhite;
 
-    --COL_placedUnit: brown;
-    --COL_tileSelectNo: red;
-    --COL_tileSelectYes: green;
-
     --TINT_dark: rgba(0, 0, 0, .75);
     --TINT_lowDark: rgba(0, 0, 0, .25);
     --TINT_light: rgba(0, 254, 246, 0.2);
@@ -96,28 +92,28 @@ h3 {
     border: 1px solid;
     box-sizing: border-box;
 }
-
+/*Piece Placement*/
 .pPlacement-tile:hover {
     border: 3px solid var(--COL_altDefaultText);
 }
 
-.tile-greenbg {
-    background-color: var(--TINT_green_light);
+.tile-has-unit{
+    background-color: blueviolet;
+    border:none;
 }
 
-.tile-redbg {
-    background-color: var(--TINT_red_light);
+.tile-highlight-low{
+    background-color: lightGreen;
 }
 
-.tile-placed-unit {
-    background-color: var(--COL_placedUnit) !important;
-    border: none !important;
+.tile-highlight-high{
+    background-color: rgb(0,255,0);
 }
 
-.tile-selected-area {
-    background-color: var(--COL_tileSelectYes);
+.tile-highlight-invalid{
+    background-color: red;
 }
-
+/*              */
 .red-border {
     border: 1px solid red;
 }
