@@ -2,6 +2,8 @@ import { initScene } from "../scene-manager";
 import { generateGameTiles } from "../scene-manager";
 import gameState from "../game-state";
 
+
+console.log('working in highlightCurrentPlacement');
 //export scene to sceneManager
 function initPiecePlacement() {
     const scenes = {};
@@ -24,7 +26,6 @@ const CLASSES = {
     highHighlight: 'tile-highlight-high',
     invalidHighlight: 'tile-highlight-invalid',
 };
-const nonPersistentTiles = [];
 
 const STATES = {
     current: 1,
@@ -48,10 +49,14 @@ function createScene(playerRef) {
         const _tileNodeArray = generateGameTiles(_gameBox);
         const tileObjs = [];
 
+        let selectedTile;
+        //tile-class object arrays
+        const activeHoverTiles = [];
+        // const activeUnitTiles = [];
+
         for (let i = 0; i < _tileNodeArray.length; i++) {
             tileObjs.push(_tileFactory(_tileNodeArray[i], i));
         }
-
         return tileObjs;
 
         //private functions
@@ -90,75 +95,150 @@ function createScene(playerRef) {
                         return tileObjs[index + 1];
                     },
                 },
-                highlight: (className, persistent = false) => {
-                    tileNode.classList.add(className);
-                    if (!persistent)
-                        nonPersistentTiles.push(new TileClassObj(tileNode, className))
+                highlight: {
+                    selectable: () => { addHighlight(activeHoverTiles, CLASSES.lowHighlight); },
+                    invalid: () => { addHighlight(activeHoverTiles, CLASSES.invalidHighlight); },
+                    validPlaceUnit: () => { addHighlight(activeHoverTiles, CLASSES.highHighlight) },
+                },
+                selectedTile: {
+                    unSelect: () => {
+                        if (!selectedTile) return console.log('no selected tile');
+                        //removeHighlights(activeUnitTiles);
+                        removeHighlights(activeHoverTiles);
+                        selectedTile.getNode().classList.remove(CLASSES.highHighlight);
+                    },
+                    selectThis: () => {
+                        if (selectedTile) console.log('overwriting selectedTile. was this intentional?');
+                        selectedTile = tile;
+                        tileNode.classList.add(CLASSES.highHighlight);
+
+                    },
                 },
             }
             //event listeners
             tileNode.addEventListener('mouseover', (e) => {
                 switch (STATES.current) {
                     case STATES.pickTile:
-                        highlightPossiblePlacements(e.target);
+                        highlightAllplacements();
                         break;
                     case STATES.placeUnit:
-                        highlightUnitPlacements(e.target);
+                        highlightCurrentPlacement();
                         break;
                     default: console.log(`Invalid state: ${STATES.current}.`);
                 }
             });
 
             tileNode.addEventListener('mouseleave', (e) => {
-                removeHoverHighlight();
+                removeHighlights(activeHoverTiles);
             });
             tileNode.addEventListener('click', (e) => {
-
+                switch (STATES.current) {
+                    case STATES.pickTile:
+                        tile.selectedTile.selectThis();
+                        STATES.current = STATES.placeUnit;
+                        break;
+                    case STATES.placeUnit:
+                        if (tile === selectedTile) {
+                            tile.selectedTile.unSelect();
+                            STATES.current = STATES.pickTile;
+                            highlightAllplacements();
+                        }
+                        break;
+                    default: console.log(`Invalid state: ${STATES.current}.`);
+                }
             });
 
             //highlights in all 4 directions for a distance of the current maxLength
-            function highlightPossiblePlacements(tileNode) {
-                const tile = getTileFromNode(tileNode);
+            function highlightAllplacements() {
                 if (tile.unit.getUnit()) {
-                    tile.highlight(CLASSES.invalidHighlight);
+                    tile.highlight.invalid();
                     return;
-                } else tile.highlight(CLASSES.lowHighlight);
+                } else tile.highlight.selectable();
                 const directionTiles = [
                     new DirecionTileObj('up'),
                     new DirecionTileObj('down'),
                     new DirecionTileObj('left'),
                     new DirecionTileObj('right')
                 ]
-                for (let i = 0; i < unitObj.getMaxLength(); i++) {
+                for (let i = 1; i < unitObj.getMaxLength(); i++) {
                     directionTiles.forEach(obj => { obj.highlightNext(); })
                 }
                 function DirecionTileObj(direction, tileObj = tile) {
-                    let className = CLASSES.lowHighlight;
+                    let invalid = false;
                     this.highlightNext = () => {
-                        if (!tileObj) return;
+                        if (!tileObj)
+                            return;
                         tileObj = tileObj.nextTile[direction]();
-                        if (!tileObj) return;
+                        if (!tileObj)
+                            return;
                         if (tileObj.unit.getUnit()) {
-                            className = CLASSES.invalidHighlight;
+                            invalid = true;
                             return;
                         }
-                        tileObj.highlight(className);
+                        if (!invalid)
+                            tileObj.highlight.selectable();
+                        else tileObj.highlight.invalid();
                     }
                 }
             }
-            function highlightUnitPlacements() {
+            function highlightCurrentPlacement() {
+                if (selectedTile === tile) return highlightAllplacements();
+                const tileArray = getTileArrayFrom(selectedTile, tile);
+                let setInvalid = false;
+                for (let i = 0; i < tileArray.length; i++) {
+                    let tile = tileArray[i];
+                    if (tile.unit.getUnit()) setInvalid = true;
+                    if (setInvalid) return tile.highlight.invalid();
+                    if (i >= 2 && !unitObj.getUnitOfLength(i + 1))
+                        tile.highlight.invalid();
+                    tile.highlight.validPlaceUnit();
+                }
+            }
+            function getTileArrayFrom(tile1, tile2, limitByMaxLength = true) {
+                if (tile1 === tile2) return [tile1];
 
+                const startCoords = tile1.getCoordObj();
+                const endCoords = tile2.getCoordObj();
+                const xDif = endCoords.x - startCoords.x;
+                const yDif = endCoords.y - startCoords.y;
+                const inXAxis = Math.abs(yDif) <= Math.abs(xDif);
+
+                let length;
+                if (inXAxis) length = Math.abs(xDif);
+                else length = Math.abs(yDif);
+                if (limitByMaxLength && length >= unitObj.getMaxLength())
+                    length = unitObj.getMaxLength() - 1; //-1 because starting at 0
+
+                const tileArray = [tile1];
+                let tempTile = tile1;
+
+                for (let i = 0; i < length; i++) {
+                    let direction;
+                    if (!inXAxis && yDif <= 0) direction = 'up';
+                    else if (!inXAxis) direction = 'down';
+                    else if (xDif <= 0) direction = 'left'
+                    else direction = 'right';
+                    tempTile = tempTile.nextTile[direction]();
+                    if (tempTile) tileArray.push(tempTile);
+                }
+                return tileArray;
             }
 
+            function removeHighlights(tileClassObjArray) {
+                while (tileClassObjArray.length > 0) {
+                    let obj = tileClassObjArray.pop();
+                    obj.tileNode.classList.remove(obj.className);
+                }
+            }
+            function addHighlight(tileClassObjArray, className) {
+                tileNode.classList.add(className);
+                tileClassObjArray.push(new TileClassObj(tileNode, className))
+            }
             return tile;
         }
+
     }
-    function removeHoverHighlight() {
-        while (nonPersistentTiles.length > 0) {
-            let obj = nonPersistentTiles.pop();
-            obj.tileNode.classList.remove(obj.className);
-        }
-    }
+
     function TileClassObj(tileNode, className) {
         this.tileNode = tileNode;
         this.className = className;
