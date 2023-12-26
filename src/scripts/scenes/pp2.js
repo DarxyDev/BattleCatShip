@@ -6,8 +6,9 @@ import gameState from "../game-state";
 function initPiecePlacement() {
     const scenes = {};
     scenes.p1 = createScene('p1');
-    // if (gameState.get.game.isSinglePlayer()) scenes.p2 = null;
-    // else scenes.p2 = createScene('p2');
+    //if (gameState.get.game.isSinglePlayer()) scenes.p2 = null;
+    //else scenes.p2 = createScene('p2');
+    console.log('remove after testing');
     return [scenes.p1, scenes.p2];
 }
 export default initPiecePlacement
@@ -16,13 +17,15 @@ export default initPiecePlacement
 const PIECE_COUNT = gameState.get.game.pieceCount();
 const BOARD_WIDTH = gameState.get.game.boardWidth();
 const BOARD_HEIGHT = gameState.get.game.boardHeight();
-console.log('add color classes, then on upTile etc.. mark them as needed');
+
 const CLASSES = {
-    unit:'tile-has-unit',
-    lowHighlight:'tile-highlight-low',
+    unit: 'tile-has-unit',
+    lowHighlight: 'tile-highlight-low',
     highHighlight: 'tile-highlight-high',
-    invalidHighlight:'tile-highlight-invalid',
+    invalidHighlight: 'tile-highlight-invalid',
 };
+const nonPersistentTiles = [];
+
 const STATES = {
     current: 1,
     pickTile: 1,
@@ -44,14 +47,12 @@ function createScene(playerRef) {
         const _gameBox = scene.querySelector('[pPlacementID="gameBox"]');
         const _tileNodeArray = generateGameTiles(_gameBox);
         const tileObjs = [];
+
         for (let i = 0; i < _tileNodeArray.length; i++) {
             tileObjs.push(_tileFactory(_tileNodeArray[i], i));
         }
-        const tileObj = {
 
-        }
-
-        return tileObj;
+        return tileObjs;
 
         //private functions
         function _tileFactory(tileNode, index) {
@@ -89,8 +90,10 @@ function createScene(playerRef) {
                         return tileObjs[index + 1];
                     },
                 },
-                highLightTile: (highlightClass) => {
-
+                highlight: (className, persistent = false) => {
+                    tileNode.classList.add(className);
+                    if (!persistent)
+                        nonPersistentTiles.push(new TileClassObj(tileNode, className))
                 },
             }
             //event listeners
@@ -107,36 +110,39 @@ function createScene(playerRef) {
             });
 
             tileNode.addEventListener('mouseleave', (e) => {
-
+                removeHoverHighlight();
             });
             tileNode.addEventListener('click', (e) => {
 
             });
 
             //highlights in all 4 directions for a distance of the current maxLength
-            function highlightPossiblePlacements(_tileNode) {
-                const _coords = {
-                    x: +_tileNode.getAttribute('posX'),
-                    y: +_tileNode.getAttribute('posY')
-                }
-                const _index = (_coords.y * BOARD_WIDTH) + _coords.x;
-                const _tile = tileObjs[_index];
-                let upTile = _tile;
-                let downTile = _tile;
-                let leftTile = _tile;
-                let rightTile = _tile;
+            function highlightPossiblePlacements(tileNode) {
+                const tile = getTileFromNode(tileNode);
+                if (tile.unit.getUnit()) {
+                    tile.highlight(CLASSES.invalidHighlight);
+                    return;
+                } else tile.highlight(CLASSES.lowHighlight);
+                const directionTiles = [
+                    new DirecionTileObj('up'),
+                    new DirecionTileObj('down'),
+                    new DirecionTileObj('left'),
+                    new DirecionTileObj('right')
+                ]
                 for (let i = 0; i < unitObj.getMaxLength(); i++) {
-                    if (upTile) {
-                        upTile = upTile.nextTile.up();
-                    }
-                    if (downTile) {
-                        downTile = downTile.nextTile.down();
-                    }
-                    if (leftTile) {
-                        leftTile = leftTile.nextTile.left();
-                    }
-                    if (rightTile) {
-                        rightTile = rightTile.nextTile.right();
+                    directionTiles.forEach(obj => { obj.highlightNext(); })
+                }
+                function DirecionTileObj(direction, tileObj = tile) {
+                    let className = CLASSES.lowHighlight;
+                    this.highlightNext = () => {
+                        if (!tileObj) return;
+                        tileObj = tileObj.nextTile[direction]();
+                        if (!tileObj) return;
+                        if (tileObj.unit.getUnit()) {
+                            className = CLASSES.invalidHighlight;
+                            return;
+                        }
+                        tileObj.highlight(className);
                     }
                 }
             }
@@ -146,6 +152,24 @@ function createScene(playerRef) {
 
             return tile;
         }
+    }
+    function removeHoverHighlight() {
+        while (nonPersistentTiles.length > 0) {
+            let obj = nonPersistentTiles.pop();
+            obj.tileNode.classList.remove(obj.className);
+        }
+    }
+    function TileClassObj(tileNode, className) {
+        this.tileNode = tileNode;
+        this.className = className;
+    }
+    function getTileFromNode(tileNode) {
+        const coords = {
+            x: +tileNode.getAttribute('posX'),
+            y: +tileNode.getAttribute('posY')
+        };
+        const index = coords.y * BOARD_WIDTH + coords.x;
+        return gameTiles[index];
     }
 }
 
