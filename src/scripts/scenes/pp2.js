@@ -239,7 +239,7 @@ function createScene(playerRef) {
                     let tile = tileArray[i];
                     if (tile.unit.getUnit()) setInvalid = true;
                     if (setInvalid) return tile.highlight.invalid();
-                    if (i >= 2 && !unitObj.getUnitOfLength(i + 1))
+                    if (i >= 1 && !unitObj.getUnitOfLength(i + 1))
                         tile.highlight.invalid();
                     tile.highlight.validPlaceUnit();
                 }
