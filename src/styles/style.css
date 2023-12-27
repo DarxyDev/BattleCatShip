@@ -113,6 +113,12 @@ h3 {
 .tile-highlight-invalid{
     background-color: red;
 }
+.tile-placed-unit{
+    background-color: yellow;
+}
+.tile-removeable-unit{
+    outline:3px solid black;
+}
 /*              */
 .red-border {
     border: 1px solid red;
