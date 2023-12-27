@@ -116,8 +116,8 @@ h3 {
 .tile-placed-unit{
     background-color: yellow;
 }
-.tile-removeable-unit{
-    outline:3px solid black;
+.tile-removable-unit{
+    opacity: .5;
 }
 /*              */
 .red-border {

@@ -217,8 +217,8 @@ h3 {
 .tile-placed-unit{
     background-color: yellow;
 }
-.tile-removeable-unit{
-    outline:3px solid black;
+.tile-removable-unit{
+    opacity: .5;
 }
 /*              */
 .red-border {
@@ -250,7 +250,7 @@ h3 {
     to {
         opacity: 0%;
     }
-}`, "",{"version":3,"sources":["webpack://./src/styles/style.css"],"names":[],"mappings":"AAAA;IACI,mBAAmB;IACnB,0BAA0B;IAC1B,wBAAwB;IACxB,kCAAkC;;IAElC,+BAA+B;IAC/B,kCAAkC;IAClC,oCAAoC;IACpC,wCAAwC;IACxC,uCAAuC;IACvC,qCAAqC;IACrC,yCAAyC;;IAEzC,wBAAwB;IACxB,4BAA4B;AAChC;;AAEA;IACI,YAAY;IACZ,WAAW;IACX,yDAAyE;IACzE,oBAAoB;IACpB,6BAA6B;AACjC;;AAEA;IACI,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,cAAc;AAClB;;AAEA;IACI,cAAc;AAClB;;AAEA;IACI,kBAAkB;IAClB,WAAW;IACX,YAAY;IACZ,kCAAkC;AACtC;;AAEA;IACI,kBAAkB;IAClB,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,aAAa;IACb,sBAAsB;IACtB,uBAAuB;IACvB,mBAAmB;AACvB;;AAEA;IACI,aAAa;IACb,uBAAuB;IACvB,mBAAmB;AACvB;;AAEA;IACI,2BAA2B;AAC/B;;AAEA;IACI,mCAAmC;AACvC;;AAEA;IACI,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,kBAAkB;IAClB,mCAAmC;AACvC;;AAEA;IACI,UAAU;IACV,eAAe;AACnB;;AAEA;IACI,WAAW;IACX,YAAY;IACZ,iBAAiB;IACjB,sBAAsB;AAC1B;AACA,kBAAkB;AAClB;IACI,2CAA2C;AAC/C;;AAEA;IACI,4BAA4B;IAC5B,WAAW;AACf;;AAEA;IACI,4BAA4B;AAChC;;AAEA;IACI,8BAA8B;AAClC;;AAEA;IACI,qBAAqB;AACzB;AACA;IACI,wBAAwB;AAC5B;AACA;IACI,uBAAuB;AAC3B;AACA,iBAAiB;AACjB;IACI,qBAAqB;AACzB;;AAEA;IACI,iBAAiB;AACrB;;AAEA;IACI,iBAAiB;AACrB;;AAEA,eAAe;AACf;IACI,sCAAsC;AAC1C;;AAEA;IACI;QACI,aAAa;IACjB;;IAEA;QACI;IACJ;;IAEA;QACI,WAAW;IACf;AACJ","sourcesContent":[":root {\r\n    --COL_mainBG: black;\r\n    --COL_gameBG: antiquewhite;\r\n    --COL_defaultText: white;\r\n    --COL_altDefaultText: antiquewhite;\r\n\r\n    --TINT_dark: rgba(0, 0, 0, .75);\r\n    --TINT_lowDark: rgba(0, 0, 0, .25);\r\n    --TINT_light: rgba(0, 254, 246, 0.2);\r\n    --TINT_green_light: rgba(0, 255, 0, 0.2);\r\n    --TINT_green_dark: rgba(0, 255, 0, 0.8);\r\n    --TINT_red_light: rgba(255, 0, 0, .2);\r\n    --TINT_brown_light: rgba(139, 69, 19, .5);\r\n\r\n    --SIZE_defaultGap: 1.5em;\r\n    --SIZE_defaultPadding: 1.5em;\r\n}\r\n\r\nhtml {\r\n    height: 100%;\r\n    width: 100%;\r\n    background-image: url('./../images/cat-black-moon-pattern-repeating.png');\r\n    background-size: 33%;\r\n    color: var(--COL_defaultText);\r\n}\r\n\r\nbody {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\nh1 {\r\n    font-size: 4em;\r\n}\r\n\r\nh3 {\r\n    font-size: 2em;\r\n}\r\n\r\n#gameWindow {\r\n    position: relative;\r\n    width: 100%;\r\n    height: 100%;\r\n    background-color: var(--TINT_dark);\r\n}\r\n\r\n.fullscreen {\r\n    position: absolute;\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.fl-col-center {\r\n    display: flex;\r\n    flex-direction: column;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.fl-center {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.gap {\r\n    gap: var(--SIZE_defaultGap);\r\n}\r\n\r\n.pad {\r\n    padding: var(--SIZE_defaultPadding);\r\n}\r\n\r\n.scene-container {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.section-container {\r\n    position: relative;\r\n    background-color: var(--TINT_light);\r\n}\r\n\r\n.quarter-box {\r\n    width: 25%;\r\n    aspect-ratio: 1;\r\n}\r\n\r\n.board-tile {\r\n    width: 100%;\r\n    height: 100%;\r\n    border: 1px solid;\r\n    box-sizing: border-box;\r\n}\r\n/*Piece Placement*/\r\n.pPlacement-tile:hover {\r\n    border: 3px solid var(--COL_altDefaultText);\r\n}\r\n\r\n.tile-has-unit{\r\n    background-color: blueviolet;\r\n    border:none;\r\n}\r\n\r\n.tile-highlight-low{\r\n    background-color: lightGreen;\r\n}\r\n\r\n.tile-highlight-high{\r\n    background-color: rgb(0,255,0);\r\n}\r\n\r\n.tile-highlight-invalid{\r\n    background-color: red;\r\n}\r\n.tile-placed-unit{\r\n    background-color: yellow;\r\n}\r\n.tile-removeable-unit{\r\n    outline:3px solid black;\r\n}\r\n/*              */\r\n.red-border {\r\n    border: 1px solid red;\r\n}\r\n\r\n.border {\r\n    border: 1px solid;\r\n}\r\n\r\n.border-2px {\r\n    border: 2px solid;\r\n}\r\n\r\n/* Animations */\r\n.blink {\r\n    animation: 2s infinite alternate blink;\r\n}\r\n\r\n@keyframes blink {\r\n    from {\r\n        opacity: 100%;\r\n    }\r\n\r\n    33% {\r\n        opacity: 100%\r\n    }\r\n\r\n    to {\r\n        opacity: 0%;\r\n    }\r\n}"],"sourceRoot":""}]);
+}`, "",{"version":3,"sources":["webpack://./src/styles/style.css"],"names":[],"mappings":"AAAA;IACI,mBAAmB;IACnB,0BAA0B;IAC1B,wBAAwB;IACxB,kCAAkC;;IAElC,+BAA+B;IAC/B,kCAAkC;IAClC,oCAAoC;IACpC,wCAAwC;IACxC,uCAAuC;IACvC,qCAAqC;IACrC,yCAAyC;;IAEzC,wBAAwB;IACxB,4BAA4B;AAChC;;AAEA;IACI,YAAY;IACZ,WAAW;IACX,yDAAyE;IACzE,oBAAoB;IACpB,6BAA6B;AACjC;;AAEA;IACI,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,cAAc;AAClB;;AAEA;IACI,cAAc;AAClB;;AAEA;IACI,kBAAkB;IAClB,WAAW;IACX,YAAY;IACZ,kCAAkC;AACtC;;AAEA;IACI,kBAAkB;IAClB,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,aAAa;IACb,sBAAsB;IACtB,uBAAuB;IACvB,mBAAmB;AACvB;;AAEA;IACI,aAAa;IACb,uBAAuB;IACvB,mBAAmB;AACvB;;AAEA;IACI,2BAA2B;AAC/B;;AAEA;IACI,mCAAmC;AACvC;;AAEA;IACI,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,kBAAkB;IAClB,mCAAmC;AACvC;;AAEA;IACI,UAAU;IACV,eAAe;AACnB;;AAEA;IACI,WAAW;IACX,YAAY;IACZ,iBAAiB;IACjB,sBAAsB;AAC1B;AACA,kBAAkB;AAClB;IACI,2CAA2C;AAC/C;;AAEA;IACI,4BAA4B;IAC5B,WAAW;AACf;;AAEA;IACI,4BAA4B;AAChC;;AAEA;IACI,8BAA8B;AAClC;;AAEA;IACI,qBAAqB;AACzB;AACA;IACI,wBAAwB;AAC5B;AACA;IACI,WAAW;AACf;AACA,iBAAiB;AACjB;IACI,qBAAqB;AACzB;;AAEA;IACI,iBAAiB;AACrB;;AAEA;IACI,iBAAiB;AACrB;;AAEA,eAAe;AACf;IACI,sCAAsC;AAC1C;;AAEA;IACI;QACI,aAAa;IACjB;;IAEA;QACI;IACJ;;IAEA;QACI,WAAW;IACf;AACJ","sourcesContent":[":root {\r\n    --COL_mainBG: black;\r\n    --COL_gameBG: antiquewhite;\r\n    --COL_defaultText: white;\r\n    --COL_altDefaultText: antiquewhite;\r\n\r\n    --TINT_dark: rgba(0, 0, 0, .75);\r\n    --TINT_lowDark: rgba(0, 0, 0, .25);\r\n    --TINT_light: rgba(0, 254, 246, 0.2);\r\n    --TINT_green_light: rgba(0, 255, 0, 0.2);\r\n    --TINT_green_dark: rgba(0, 255, 0, 0.8);\r\n    --TINT_red_light: rgba(255, 0, 0, .2);\r\n    --TINT_brown_light: rgba(139, 69, 19, .5);\r\n\r\n    --SIZE_defaultGap: 1.5em;\r\n    --SIZE_defaultPadding: 1.5em;\r\n}\r\n\r\nhtml {\r\n    height: 100%;\r\n    width: 100%;\r\n    background-image: url('./../images/cat-black-moon-pattern-repeating.png');\r\n    background-size: 33%;\r\n    color: var(--COL_defaultText);\r\n}\r\n\r\nbody {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\nh1 {\r\n    font-size: 4em;\r\n}\r\n\r\nh3 {\r\n    font-size: 2em;\r\n}\r\n\r\n#gameWindow {\r\n    position: relative;\r\n    width: 100%;\r\n    height: 100%;\r\n    background-color: var(--TINT_dark);\r\n}\r\n\r\n.fullscreen {\r\n    position: absolute;\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.fl-col-center {\r\n    display: flex;\r\n    flex-direction: column;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.fl-center {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.gap {\r\n    gap: var(--SIZE_defaultGap);\r\n}\r\n\r\n.pad {\r\n    padding: var(--SIZE_defaultPadding);\r\n}\r\n\r\n.scene-container {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.section-container {\r\n    position: relative;\r\n    background-color: var(--TINT_light);\r\n}\r\n\r\n.quarter-box {\r\n    width: 25%;\r\n    aspect-ratio: 1;\r\n}\r\n\r\n.board-tile {\r\n    width: 100%;\r\n    height: 100%;\r\n    border: 1px solid;\r\n    box-sizing: border-box;\r\n}\r\n/*Piece Placement*/\r\n.pPlacement-tile:hover {\r\n    border: 3px solid var(--COL_altDefaultText);\r\n}\r\n\r\n.tile-has-unit{\r\n    background-color: blueviolet;\r\n    border:none;\r\n}\r\n\r\n.tile-highlight-low{\r\n    background-color: lightGreen;\r\n}\r\n\r\n.tile-highlight-high{\r\n    background-color: rgb(0,255,0);\r\n}\r\n\r\n.tile-highlight-invalid{\r\n    background-color: red;\r\n}\r\n.tile-placed-unit{\r\n    background-color: yellow;\r\n}\r\n.tile-removable-unit{\r\n    opacity: .5;\r\n}\r\n/*              */\r\n.red-border {\r\n    border: 1px solid red;\r\n}\r\n\r\n.border {\r\n    border: 1px solid;\r\n}\r\n\r\n.border-2px {\r\n    border: 2px solid;\r\n}\r\n\r\n/* Animations */\r\n.blink {\r\n    animation: 2s infinite alternate blink;\r\n}\r\n\r\n@keyframes blink {\r\n    from {\r\n        opacity: 100%;\r\n    }\r\n\r\n    33% {\r\n        opacity: 100%\r\n    }\r\n\r\n    to {\r\n        opacity: 0%;\r\n    }\r\n}"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -1261,7 +1261,7 @@ const CLASSES = {
     lowHighlight: 'tile-highlight-low',
     highHighlight: 'tile-highlight-high',
     invalidHighlight: 'tile-highlight-invalid',
-    removableUnit: 'tile-removeable-unit',
+    removableUnit: 'tile-removable-unit',
 };
 
 const STATES = {
@@ -1307,7 +1307,7 @@ function createScene(playerRef) {
             this.getTileArrayFromPlaced = (unit) => {
                 const placedUnit = placedUnitArr.find((placedUnit) => placedUnit.unit === unit);
                 if (!placedUnit) return [];
-                sortTiles(tileArr)
+                sortTiles(placedUnit.tileArr)
                 return placedUnit.tileArr;
             }
             function sortTiles(tileArr) {
@@ -1370,10 +1370,7 @@ function createScene(playerRef) {
                     selectable: () => { addHighlight(activeHoverTiles, CLASSES.lowHighlight); },
                     invalid: () => { addHighlight(activeHoverTiles, CLASSES.invalidHighlight); },
                     validPlaceUnit: () => { addHighlight(activeHoverTiles, CLASSES.highHighlight) },
-                    removableUnit: () => {
-
-                        //addHighlight(activeHoverTiles, CLASSES.removableUnit);
-                    },
+                    removableUnit: () => { addHighlight(activeHoverTiles, CLASSES.removableUnit); },
                 },
                 selectedTile: {
                     unSelect: () => {
@@ -1385,7 +1382,7 @@ function createScene(playerRef) {
                     },
                     selectThis: () => {
                         if (selectedTile) return false;
-                        if(tile.unit.getUnit()) return false;
+                        if (tile.unit.getUnit()) return false;
                         selectedTile = tile;
                         tileNode.classList.add(CLASSES.highHighlight);
                         return true;
@@ -1396,7 +1393,9 @@ function createScene(playerRef) {
             tileNode.addEventListener('mouseover', (e) => {
                 switch (STATES.current) {
                     case STATES.pickTile:
-                        highlightAllplacements();
+                        if (currentUnit) {
+                            highlightUnit(currentUnit);
+                        } else highlightAllplacements();
                         break;
                     case STATES.placeUnit:
                         highlightCurrentPlacement();
@@ -1438,10 +1437,7 @@ function createScene(playerRef) {
                 if (!unitObj.getMaxLength()) {
                     tile.highlight.invalid();
                 }
-                else if (tile.unit.getUnit()) {
-                    tile.highlight.removableUnit();
-                    return;
-                } else tile.highlight.validPlaceUnit();
+                else tile.highlight.validPlaceUnit();
                 if (!unitObj.getMaxLength()) return;
                 const directionTiles = [
                     new DirecionTileObj('up'),
@@ -1483,6 +1479,12 @@ function createScene(playerRef) {
                         tile.highlight.invalid();
                     tile.highlight.validPlaceUnit();
                 }
+            }
+            function highlightUnit(unit) {
+                let tileArr = placedUnitsObj.getTileArrayFromPlaced(unit);
+                tileArr.forEach(tile => {
+                    tile.highlight.removableUnit();
+                })
             }
             function placeUnit() {
                 const tileArray = getTileArrayFrom(selectedTile, tile);

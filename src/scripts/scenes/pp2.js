@@ -25,7 +25,7 @@ const CLASSES = {
     lowHighlight: 'tile-highlight-low',
     highHighlight: 'tile-highlight-high',
     invalidHighlight: 'tile-highlight-invalid',
-    removableUnit: 'tile-removeable-unit',
+    removableUnit: 'tile-removable-unit',
 };
 
 const STATES = {
@@ -71,7 +71,7 @@ function createScene(playerRef) {
             this.getTileArrayFromPlaced = (unit) => {
                 const placedUnit = placedUnitArr.find((placedUnit) => placedUnit.unit === unit);
                 if (!placedUnit) return [];
-                sortTiles(tileArr)
+                sortTiles(placedUnit.tileArr)
                 return placedUnit.tileArr;
             }
             function sortTiles(tileArr) {
@@ -134,10 +134,7 @@ function createScene(playerRef) {
                     selectable: () => { addHighlight(activeHoverTiles, CLASSES.lowHighlight); },
                     invalid: () => { addHighlight(activeHoverTiles, CLASSES.invalidHighlight); },
                     validPlaceUnit: () => { addHighlight(activeHoverTiles, CLASSES.highHighlight) },
-                    removableUnit: () => {
-
-                        //addHighlight(activeHoverTiles, CLASSES.removableUnit);
-                    },
+                    removableUnit: () => { addHighlight(activeHoverTiles, CLASSES.removableUnit); },
                 },
                 selectedTile: {
                     unSelect: () => {
@@ -149,7 +146,7 @@ function createScene(playerRef) {
                     },
                     selectThis: () => {
                         if (selectedTile) return false;
-                        if(tile.unit.getUnit()) return false;
+                        if (tile.unit.getUnit()) return false;
                         selectedTile = tile;
                         tileNode.classList.add(CLASSES.highHighlight);
                         return true;
@@ -160,7 +157,9 @@ function createScene(playerRef) {
             tileNode.addEventListener('mouseover', (e) => {
                 switch (STATES.current) {
                     case STATES.pickTile:
-                        highlightAllplacements();
+                        if (currentUnit) {
+                            highlightUnit(currentUnit);
+                        } else highlightAllplacements();
                         break;
                     case STATES.placeUnit:
                         highlightCurrentPlacement();
@@ -202,10 +201,7 @@ function createScene(playerRef) {
                 if (!unitObj.getMaxLength()) {
                     tile.highlight.invalid();
                 }
-                else if (tile.unit.getUnit()) {
-                    tile.highlight.removableUnit();
-                    return;
-                } else tile.highlight.validPlaceUnit();
+                else tile.highlight.validPlaceUnit();
                 if (!unitObj.getMaxLength()) return;
                 const directionTiles = [
                     new DirecionTileObj('up'),
@@ -247,6 +243,12 @@ function createScene(playerRef) {
                         tile.highlight.invalid();
                     tile.highlight.validPlaceUnit();
                 }
+            }
+            function highlightUnit(unit) {
+                let tileArr = placedUnitsObj.getTileArrayFromPlaced(unit);
+                tileArr.forEach(tile => {
+                    tile.highlight.removableUnit();
+                })
             }
             function placeUnit() {
                 const tileArray = getTileArrayFrom(selectedTile, tile);
