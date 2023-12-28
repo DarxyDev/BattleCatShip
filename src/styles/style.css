@@ -82,7 +82,7 @@ h3 {
 }
 
 .quarter-box {
-    width: 25%;
+    width: 50%; /*changed from 25 for now*/
     aspect-ratio: 1;
 }
 

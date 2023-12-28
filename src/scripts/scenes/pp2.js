@@ -46,8 +46,9 @@ function createScene(playerRef) {
     return scene;
     //
     function createGameTilesObj() {
-        const _gameBox = scene.querySelector('[pPlacementID="gameBox"]');
-        const _tileNodeArray = generateGameTiles(_gameBox);
+        const _submitElement = scene.querySelector('[pPlacementID=""]');
+        const _gameBoxElement = scene.querySelector('[pPlacementID="gameBox"]');
+        const _tileNodeArray = generateGameTiles(_gameBoxElement);
         const tileObjs = [];
         const placedUnitsObj = new PlacedUnitsObj();
 
@@ -66,9 +67,10 @@ function createScene(playerRef) {
             this.removeUnit = (unit) => {
                 const index = placedUnitArr.findIndex((placedUnit) => placedUnit.unit === unit);
                 if (index < 0) return false;
+                unitObj.setUnitAvailable(unit);
                 return placedUnitArr.splice(index, 1)[0];
             }
-            this.getTileArrayFromPlaced = (unit) => {
+            this.getTileArrayFromPlacedUnit = (unit) => {
                 const placedUnit = placedUnitArr.find((placedUnit) => placedUnit.unit === unit);
                 if (!placedUnit) return [];
                 sortTiles(placedUnit.tileArr)
@@ -110,10 +112,18 @@ function createScene(playerRef) {
                         currentUnit = unit;
                         placedUnitsObj.pushUnit(unit, tile);
                         tileNode.classList.add('tile-placed-unit');
+                        unitObj.setUnitPlaced(unit);
                     },
-                    remove: (unit) => {
-                        currentUnit = undefined
+                    removeFullUnit: (unit) => {
+
+                        let tileArr = placedUnitsObj.getTileArrayFromPlacedUnit(unit);
+                        tileArr.forEach(tile => {
+                            tile.unit.removeSelfUnit(unit);
+                        });
                         placedUnitsObj.removeUnit(unit);
+                    },
+                    removeSelfUnit: (unit) => {
+                        currentUnit = undefined  //old code in case it breaks
                         tileNode.classList.remove('tile-placed-unit');
                     },
                     getUnit: () => currentUnit,
@@ -139,8 +149,6 @@ function createScene(playerRef) {
                 selectedTile: {
                     unSelect: () => {
                         if (!selectedTile) return console.log('no selected tile');
-                        //removeHighlights(activeUnitTiles);
-                        //removeHighlights(activeHoverTiles);
                         selectedTile.getNode().classList.remove(CLASSES.highHighlight);
                         selectedTile = undefined;
                     },
@@ -174,9 +182,11 @@ function createScene(playerRef) {
             tileNode.addEventListener('click', (e) => {
                 switch (STATES.current) {
                     case STATES.pickTile:
-                        if (!tile.selectedTile.selectThis())
-                            break;
-                        STATES.current = STATES.placeUnit;
+                        if (currentUnit) {
+                            removeUnit(currentUnit);
+                        }
+                        else if (tile.selectedTile.selectThis())
+                            STATES.current = STATES.placeUnit;
                         break;
                     case STATES.placeUnit:
                         if (tile === selectedTile) { //clicking selectedTile removes it
@@ -198,11 +208,9 @@ function createScene(playerRef) {
 
             //highlights in all 4 directions for a distance of the current maxLength
             function highlightAllplacements() {
-                if (!unitObj.getMaxLength()) {
-                    tile.highlight.invalid();
-                }
-                else tile.highlight.validPlaceUnit();
-                if (!unitObj.getMaxLength()) return;
+                if (!unitObj.noUnitsAvailable())
+                    tile.highlight.validPlaceUnit();
+                else return tile.highlight.invalid();
                 const directionTiles = [
                     new DirecionTileObj('up'),
                     new DirecionTileObj('down'),
@@ -245,7 +253,7 @@ function createScene(playerRef) {
                 }
             }
             function highlightUnit(unit) {
-                let tileArr = placedUnitsObj.getTileArrayFromPlaced(unit);
+                let tileArr = placedUnitsObj.getTileArrayFromPlacedUnit(unit);
                 tileArr.forEach(tile => {
                     tile.highlight.removableUnit();
                 })
@@ -259,8 +267,10 @@ function createScene(playerRef) {
                     if (tile.unit.getUnit()) return;          //check if any of the tiles have units
                     tile.unit.place(unit);
                 }
-                unitObj.setUnitPlaced(unit);
                 return true;
+            }
+            function removeUnit(unit){
+                tile.unit.removeFullUnit(unit);
             }
             function getTileArrayFrom(tile1, tile2, limitByMaxLength = true) { //could be placed inside tile obj as getTileArrayTo
                 if (tile1 === tile2) return [tile1];
@@ -371,11 +381,13 @@ function createUnitObj(unitArray) {
     }
     function fromArrayToArray(fromArr, toArr, item) {
         const index = fromArr.indexOf(item);
-        if (index < 0) return console.log('Unable to transfer item.');
+        if (index < 0) return false;
         toArr.push(item);
         fromArr.splice(index, 1);
     }
     const unitObj = {
+        getAvailableUnitCount: () => _availableUnits.length,
+        noUnitsAvailable: () => _availableUnits.length === 0,
         getMinLength: () => _minLength,
         getMaxLength: () => _maxLength,
         getUnitOfLength,
