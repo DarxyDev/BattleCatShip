@@ -179,9 +179,11 @@ function createScene(playerRef) {
 
             //highlights in all 4 directions for a distance of the current maxLength
             function highlightAllplacements() {
+
                 if (!unitObj.noUnitsAvailable())
-                    tile.highlight.validPlaceUnit();
-                else return tile.highlight.invalid();
+                    tile.highlight.invalid();
+                else return;
+
                 const directionTiles = [
                     new DirecionTileObj('up'),
                     new DirecionTileObj('down'),
@@ -190,13 +192,14 @@ function createScene(playerRef) {
                 ]
                 const minLength = unitObj.getMinLength();
                 const maxLength = unitObj.getMaxLength();
-                for (let i = minLength; i <= maxLength; i++) {
+
+                for (let i = 2; i <= maxLength; i++)
                     directionTiles.forEach(obj => { obj.highlightNext(i); })
-                }
+
                 function DirecionTileObj(direction) {
                     const tileArr = [tile];
                     let tileObj = tile;
-                    let invalid = false;
+
                     this.highlightNext = (length) => {
                         if (!tileObj) return;
                         tileObj = tileObj.nextTile[direction]();
@@ -204,7 +207,7 @@ function createScene(playerRef) {
 
                         if (tileObj.unit.getUnit()) {
                             if (tileArr.length === 0) return tileObj = false;
-                            
+
                             for (length--; length >= minLength && !unitObj.getUnitOfLength(length); length--) {
                                 tileObj = tileArr.pop();
                                 tileObj.getNode().classList.remove(CLASSES.invalidHighlight);
@@ -384,13 +387,11 @@ function createUnitObj(unitArray) {
     }
     function setUnitPlaced(unit) {
         fromArrayToArray(_availableUnits, _placedUnits, unit);
-        //adjust max length
-        let length = unit.get.length();
-        if (length === _maxLength) setLengthBounds();
-        return true;
+        setLengthBounds();
     }
     function setUnitAvailable(unit) {
         fromArrayToArray(_placedUnits, _availableUnits, unit);
+        setLengthBounds();
     }
     function setLengthBounds() {
         if (!_availableUnits.length) {
