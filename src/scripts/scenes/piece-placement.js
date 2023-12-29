@@ -84,15 +84,14 @@ function createScene(playerRef) {
                         unitObj.setUnitPlaced(unit);
                     },
                     removeFullUnit: (unit) => {
-
                         let tileArr = placedUnitsObj.getTileArrayFromPlacedUnit(unit);
                         tileArr.forEach(tile => {
-                            tile.unit.removeSelfUnit(unit);
+                            tile.unit.removeSelfUnit();
                         });
                         placedUnitsObj.removeUnit(unit);
                     },
-                    removeSelfUnit: (unit) => {
-                        currentUnit = undefined  //old code in case it breaks
+                    removeSelfUnit: () => {
+                        currentUnit = undefined;
                         tileNode.classList.remove('tile-placed-unit');
                     },
                     getUnit: () => currentUnit,
@@ -152,12 +151,14 @@ function createScene(playerRef) {
                 switch (STATES.current) {
                     case STATES.pickTile:
                         if (currentUnit) {
-                            removeUnit(currentUnit);
+                            tile.unit.removeFullUnit(currentUnit);
+                            highlightAllplacements();
                         }
                         else if (tile.selectedTile.selectThis())
                             STATES.current = STATES.placeUnit;
                         break;
                     case STATES.placeUnit:
+                        if (tile.unit.getUnit()) return;
                         if (tile === selectedTile) { //clicking selectedTile removes it
                             tile.selectedTile.unSelect();
                             removeHighlights(activeHoverTiles);
@@ -179,10 +180,8 @@ function createScene(playerRef) {
 
             //highlights in all 4 directions for a distance of the current maxLength
             function highlightAllplacements() {
-
-                if (!unitObj.noUnitsAvailable())
-                    tile.highlight.invalid();
-                else return;
+                if (unitObj.noUnitsAvailable()) return;
+                tile.highlight.selectable();
 
                 const directionTiles = [
                     new DirecionTileObj('up'),
@@ -203,9 +202,8 @@ function createScene(playerRef) {
                     this.highlightNext = (length) => {
                         if (!tileObj) return;
                         tileObj = tileObj.nextTile[direction]();
-                        if (!tileObj) return;
 
-                        if (tileObj.unit.getUnit()) {
+                        if (!tileObj || tileObj.unit.getUnit()) {
                             if (tileArr.length === 0) return tileObj = false;
 
                             for (length--; length >= minLength && !unitObj.getUnitOfLength(length); length--) {
@@ -222,7 +220,11 @@ function createScene(playerRef) {
                 }
             }
             function highlightCurrentPlacement() {
-                if (selectedTile === tile) return highlightAllplacements();
+                if (selectedTile === tile) {
+                    tile.highlight.removableUnit();
+                    highlightAllplacements();
+                    return;
+                }
                 const tileArray = getTileArrayFrom(selectedTile, tile);
                 let setInvalid = false;
                 for (let i = 0; i < tileArray.length; i++) {
@@ -250,9 +252,6 @@ function createScene(playerRef) {
                     tile.unit.place(unit);
                 }
                 return true;
-            }
-            function removeUnit(unit) {
-                tile.unit.removeFullUnit(unit);
             }
             function getTileArrayFrom(tile1, tile2, limitByMaxLength = true) { //could be placed inside tile obj as getTileArrayTo
                 if (tile1 === tile2) return [tile1];
