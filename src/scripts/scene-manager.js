@@ -1,3 +1,4 @@
+import initBlinder from "./scenes/blinder";
 import initTitleScreen from "./scenes/title-screen";
 import initPlayerSelect from "./scenes/player-select";
 import initPiecePlacement from "./scenes/pp2"//"./scenes/piece-placement";
@@ -11,13 +12,15 @@ let scenes = {
     p1: {},
     p2: {},
 };
+const blinderScene = initBlinder();
 let currentScene;
 const gameWindow = document.getElementById('gameWindow');
 const sceneManager = {
     initializeScenes: initializeScenes,
     getScenes: ()=>scenes,
     getCurrentScene: ()=>currentScene,
-    loadScene: loadScene,
+    loadScene,
+    addBlinder,
 };
 
 export default sceneManager;
@@ -34,16 +37,16 @@ function loadScene(sceneNode) {
     currentScene = sceneNode;
 }
 
-function getCurrentScene() {
-    return currentScene;
-}
-
 function initializeScenes() {
     scenes.main.titleScreen = initTitleScreen();
     scenes.main.playerSelect = initPlayerSelect();
     [scenes.p1.piecePlacement, scenes.p2.piecePlacement] = initPiecePlacement();
+    scenes.main.game = '';
     //initMainGame();
     //initGameOver();
+}
+function addBlinder(){
+    gameWindow.appendChild(blinderScene);
 }
 
 //exports

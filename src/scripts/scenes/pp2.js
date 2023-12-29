@@ -1,8 +1,6 @@
-import { initScene } from "../scene-manager";
+import sceneManager, { initScene } from "../scene-manager";
 import { generateGameTiles } from "../scene-manager";
 import gameState from "../game-state";
-
-console.log('in submitScene -- sort tiles in placed units')
 
 //export scene to sceneManager
 function initPiecePlacement() {
@@ -300,15 +298,19 @@ function createScene(playerRef) {
                 gameboard.placeUnit(gameUnit, tileArray[0].getCoordArray());
                 console.log(`There shouldn't be any units of length 1.`);
             }
-
             const startCoords = tileArray[0].getCoordObj();
             const endCoords = tileArray[tileArray.length - 1].getCoordObj();
             const inXaxis = startCoords.x === endCoords.x ? false : true;
-            if (!gameboard.placeUnit(gameUnit, [startCoords.x,startCoords.y], !inXaxis)){
+            if (!gameboard.placeUnit(gameUnit, [startCoords.x, startCoords.y], !inXaxis)) {
                 console.log('Error: trying to place unit on occupied tile.');
             }
         })
-        console.log('Load next scene!');
+        const scenes = sceneManager.getScenes();
+        if (gameState.get.game.isSinglePlayer() || playerRef === 'p2') sceneManager.loadScene(scenes.main.game)
+        else {
+            sceneManager.addBlinder();
+            sceneManager.loadScene(scenes.p2.piecePlacement)
+        }
     }
 
     function TileClassObj(tileNode, className) {
