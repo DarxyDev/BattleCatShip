@@ -188,25 +188,33 @@ function createScene(playerRef) {
                     new DirecionTileObj('left'),
                     new DirecionTileObj('right')
                 ]
-                for (let i = unitObj.getMinLength(); i <= unitObj.getMaxLength(); i++) {
+                const minLength = unitObj.getMinLength();
+                const maxLength = unitObj.getMaxLength();
+                for (let i = minLength; i <= maxLength; i++) {
                     directionTiles.forEach(obj => { obj.highlightNext(i); })
                 }
-                function DirecionTileObj(direction, tileObj = tile) {
+                function DirecionTileObj(direction) {
+                    const tileArr = [tile];
+                    let tileObj = tile;
                     let invalid = false;
                     this.highlightNext = (length) => {
-                        // if(length > unitObj.getMaxLength()) return;
                         if (!tileObj) return;
                         tileObj = tileObj.nextTile[direction]();
                         if (!tileObj) return;
+
                         if (tileObj.unit.getUnit()) {
-                            invalid = true;
-                            return;
+                            if (tileArr.length === 0) return tileObj = false;
+                            
+                            for (length--; length >= minLength && !unitObj.getUnitOfLength(length); length--) {
+                                tileObj = tileArr.pop();
+                                tileObj.getNode().classList.remove(CLASSES.invalidHighlight);
+                            }
+                            return tileObj = false;
                         }
-                        if (!invalid) {
-                            if (unitObj.getUnitOfLength(length))
-                                tileObj.highlight.selectable();
-                            else tileObj.highlight.invalid();
-                        }
+                        if (unitObj.getUnitOfLength(length))
+                            tileObj.highlight.selectable();
+                        else tileObj.highlight.invalid();
+                        tileArr.push(tileObj);
                     }
                 }
             }
