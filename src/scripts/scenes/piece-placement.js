@@ -1,339 +1,428 @@
-import { initScene } from "../scene-manager";
+import sceneManager, { initScene } from "../scene-manager";
 import { generateGameTiles } from "../scene-manager";
 import gameState from "../game-state";
 
+//export scene to sceneManager
+function initPiecePlacement() {
+    const scenes = {};
+    scenes.p1 = createScene('p1');
+    if (gameState.get.game.isSinglePlayer()) scenes.p2 = null;
+    else scenes.p2 = createScene('p2');
+    return [scenes.p1, scenes.p2];
+}
+export default initPiecePlacement
+
+//internal workings start here
 const PIECE_COUNT = gameState.get.game.pieceCount();
 const BOARD_WIDTH = gameState.get.game.boardWidth();
 const BOARD_HEIGHT = gameState.get.game.boardHeight();
 
-//TODO: these are duplicate variables, but neater. convert other methods to use these
-let playerObj = {};
-let placedUnits = [];
-let units = [];
-let tileArray = [];
-
-let maxLength;
-
-let playerRef = '';
-
-
-function _sceneOnLoad() { //added to scene as scene.sceneOnLoad
-    playerRef = gameState.get.scene.currentPlayer(); //must be first
-    playerObj = _getPlayerStateObj();
-    placedUnits = [];
-    units = playerObj.get.units();
-    tileArray = ref[playerRef].gameTiles;
-    tileArray[0].classList.add(tempClasses[3])
-    maxLength = _getMaxLength(playerObj);
-}
-
-const ref = {
-    p1: { gameTiles: undefined, placedPieces: [] },
-    p2: { gameTiles: undefined, placedPieces: [] }
+const CLASSES = {
+    unit: 'tile-has-unit',
+    lowHighlight: 'tile-highlight-low',
+    highHighlight: 'tile-highlight-high',
+    invalidHighlight: 'tile-highlight-invalid',
+    removableUnit: 'tile-removable-unit',
 };
 
-for (let i = 0; i < PIECE_COUNT; i++) {
-    ref.p1.placedPieces.push(false);
-    ref.p2.placedPieces.push(false);
-}
-
-let activeTiles = [];
-let selectedTile;
-
-let currentState = 1;
-const states = {
+const STATES = {
+    current: 1,
     pickTile: 1,
     placeUnit: 2,
 }
 
-const tempClasses = ['tile-greenbg', 'tile-redbg', 'tile-selected-area']; //hardcoded indexes, removed on mouseexit tiles
-const highlightClasses = ['tile-placed-unit'];
+function createScene(playerRef) {
+    //generate scene node from template
+    const scene = initScene('TEMPLATE_piece-placement');
+    //generate gameTiles and add properties
+    const gameTiles = createGameTilesObj();
+    //other scoped vars
+    const playerObj = gameState[playerRef];
+    const unitObj = createUnitObj(playerObj.get.units());
+    const placedUnitsObj = new PlacedUnitsObj();
 
-////////////////////////////////
+    return scene;
+    //
+    function createGameTilesObj() {
+        const _submitElement = scene.querySelector('[pPlacementID="submit"]');
+        const _gameBoxElement = scene.querySelector('[pPlacementID="gameBox"]');
+        const _tileNodeArray = generateGameTiles(_gameBoxElement);
+        const tileObjs = [];
 
-function initPiecePlacement() {
-    const scenes = {};
-    scenes.p1 = _getPiecePlacementScene('p1');
-    if (gameState.get.game.isSinglePlayer()) scenes.p2 = null;
-    else scenes.p2 = _getPiecePlacementScene('p2');
-    return [scenes.p1, scenes.p2];
 
-    function _getPiecePlacementScene(playerRef) {
-        const scene = initScene('TEMPLATE_piece-placement');
-        const gameBox = scene.querySelector('[pPlacementID="gameBox"]');
-        const gameTiles = generateGameTiles(gameBox);
-        gameTiles.forEach((tile) => {
-            tile.setAttribute('playerRef', playerRef);
-            tile.classList.add('pPlacement-tile');
-            tile.addEventListener('mouseover', _mouseoverTile);
-            tile.addEventListener('mouseleave', _mouseleaveTile);
-            tile.addEventListener('click', _onclickTile);
-        });
-        ref[playerRef].gameTiles = gameTiles;
-        ///
-        scene.sceneOnLoad = _sceneOnLoad;
-        ///
-        return scene;
+        //removed }  here -in case that was the wrong one
 
-        function _mouseoverTile(e) {
-            switch (currentState) {
-                case states.pickTile:
-                    _pickTile_tileHighlight(e.target);
-                    break;
-                case states.placeUnit:
-                    _placeUnit_tileHighlight(e.target);
-                    break;
-                default: console.log(`Invalid state: ${currentState}.`);
+        let selectedTile;
+        //tile-class object arrays
+        const activeHoverTiles = [];
+        // const activeUnitTiles = [];
+
+        for (let i = 0; i < _tileNodeArray.length; i++) {
+            tileObjs.push(_tileFactory(_tileNodeArray[i], i));
+        }
+        return tileObjs;
+
+        //private functions
+        function _tileFactory(tileNode, index) {
+            let currentUnit;
+            const coords = {
+                x: +tileNode.getAttribute('posX'),
+                y: +tileNode.getAttribute('posY')
             }
-        }
-        function _mouseleaveTile(e) {
-            _removeHighlight();
-        }
-        function _onclickTile(e) {
-            switch (currentState) {
-                case states.pickTile: //initial state
-                    _removeHighlight();
-                    _pickTile_tileHighlight(e.target);
-                    selectedTile = e.target;
-                    _markTile(selectedTile, tempClasses[2]);
-                    _changeState(states.placeUnit);
-                    break;
-                case states.placeUnit: //
-                    if (e.target === selectedTile) { //click second time to remove selected tile
+            //tile object creation
+            const tile = {
+                getNode: () => tileNode,
+                getCoordObj: () => coords,
+                getCoordArray: () => [coords.x, coords.y],
+                getIndex: () => index,
+                unit: {
+                    place: (unit) => {
+                        if (currentUnit) return false;
+                        currentUnit = unit;
+                        placedUnitsObj.pushUnit(unit, tile);
+                        tileNode.classList.add('tile-placed-unit');
+                        unitObj.setUnitPlaced(unit);
+                    },
+                    removeFullUnit: (unit) => {
+
+                        let tileArr = placedUnitsObj.getTileArrayFromPlacedUnit(unit);
+                        tileArr.forEach(tile => {
+                            tile.unit.removeSelfUnit(unit);
+                        });
+                        placedUnitsObj.removeUnit(unit);
+                    },
+                    removeSelfUnit: (unit) => {
+                        currentUnit = undefined  //old code in case it breaks
+                        tileNode.classList.remove('tile-placed-unit');
+                    },
+                    getUnit: () => currentUnit,
+                },
+                nextTile: {
+                    up: () => tileObjs[index - BOARD_WIDTH],
+                    down: () => tileObjs[index + BOARD_WIDTH],
+                    left: () => {
+                        if (coords.x - 1 < 0) return false;
+                        return tileObjs[index - 1];
+                    },
+                    right: () => {
+                        if (coords.x + 1 >= BOARD_WIDTH) return false;
+                        return tileObjs[index + 1];
+                    },
+                },
+                highlight: {
+                    selectable: () => { addHighlight(activeHoverTiles, CLASSES.lowHighlight); },
+                    invalid: () => { addHighlight(activeHoverTiles, CLASSES.invalidHighlight); },
+                    validPlaceUnit: () => { addHighlight(activeHoverTiles, CLASSES.highHighlight) },
+                    removableUnit: () => { addHighlight(activeHoverTiles, CLASSES.removableUnit); },
+                },
+                selectedTile: {
+                    unSelect: () => {
+                        if (!selectedTile) return console.log('no selected tile');
+                        selectedTile.getNode().classList.remove(CLASSES.highHighlight);
                         selectedTile = undefined;
-                        _removeHighlight();
-                        _changeState(states.pickTile);
-                        _pickTile_tileHighlight(e.target);
+                    },
+                    selectThis: () => {
+                        if (selectedTile) return false;
+                        if (tile.unit.getUnit()) return false;
+                        selectedTile = tile;
+                        tileNode.classList.add(CLASSES.highHighlight);
+                        return true;
+                    },
+                },
+            }
+            //event listeners
+            tileNode.addEventListener('mouseover', (e) => {
+                switch (STATES.current) {
+                    case STATES.pickTile:
+                        if (currentUnit) {
+                            highlightUnit(currentUnit);
+                        } else highlightAllplacements();
                         break;
+                    case STATES.placeUnit:
+                        highlightCurrentPlacement();
+                        break;
+                    default: console.log(`Invalid state: ${STATES.current}.`);
+                }
+            });
+
+            tileNode.addEventListener('mouseleave', (e) => {
+                removeHighlights(activeHoverTiles);
+            });
+            tileNode.addEventListener('click', (e) => {
+                switch (STATES.current) {
+                    case STATES.pickTile:
+                        if (currentUnit) {
+                            removeUnit(currentUnit);
+                        }
+                        else if (tile.selectedTile.selectThis())
+                            STATES.current = STATES.placeUnit;
+                        break;
+                    case STATES.placeUnit:
+                        if (tile === selectedTile) { //clicking selectedTile removes it
+                            tile.selectedTile.unSelect();
+                            removeHighlights(activeHoverTiles);
+                            STATES.current = STATES.pickTile;
+                            highlightAllplacements();
+                            break;
+                        }
+                        if (!placeUnit()) break;
+                        tile.selectedTile.unSelect();
+                        highlightAllplacements()
+                        STATES.current = STATES.pickTile;
+
+                        break;
+                    default: console.log(`Invalid state: ${STATES.current}.`);
+                }
+            });
+
+            _submitElement.addEventListener('click', submitScene);
+
+            //highlights in all 4 directions for a distance of the current maxLength
+            function highlightAllplacements() {
+                if (!unitObj.noUnitsAvailable())
+                    tile.highlight.validPlaceUnit();
+                else return tile.highlight.invalid();
+                const directionTiles = [
+                    new DirecionTileObj('up'),
+                    new DirecionTileObj('down'),
+                    new DirecionTileObj('left'),
+                    new DirecionTileObj('right')
+                ]
+                for (let i = unitObj.getMinLength(); i <= unitObj.getMaxLength(); i++) {
+                    directionTiles.forEach(obj => { obj.highlightNext(i); })
+                }
+                function DirecionTileObj(direction, tileObj = tile) {
+                    let invalid = false;
+                    this.highlightNext = (length) => {
+                        // if(length > unitObj.getMaxLength()) return;
+                        if (!tileObj) return;
+                        tileObj = tileObj.nextTile[direction]();
+                        if (!tileObj) return;
+                        if (tileObj.unit.getUnit()) {
+                            invalid = true;
+                            return;
+                        }
+                        if (!invalid) {
+                            if (unitObj.getUnitOfLength(length))
+                                tileObj.highlight.selectable();
+                            else tileObj.highlight.invalid();
+                        }
                     }
-                    if (_placeUnit(e.target)) {
-                        _changeState(states.pickTile);
-                        selectedTile = undefined;
-                    } else console.log('invalid spot -- need visual representation');
-                    break;
-                default: console.log(`Invalid state: ${currentState}.`);
-
+                }
             }
-        }
-    }
-}
-export default initPiecePlacement
-
-////////////////////////////////////
-
-function _changeState(state) {
-    currentState = state;
-}
-function _placeUnit(tile) {
-    const gameboard = playerObj.get.gameboard();
-    const tileCoords = _getTileCoordObj(tile);
-    const originCoords = _getTileCoordObj(selectedTile);
-
-    const xDif = tileCoords.x - originCoords.x;
-    const yDif = tileCoords.y - originCoords.y;
-    const rotated = xDif === 0 ? true : false;
-
-    let startCoords;
-    let endCoords;
-    let length;
-    if (rotated) {
-        startCoords = yDif < 0 ? tileCoords : originCoords;
-        length = Math.abs(yDif) + 1;
-    } else {
-        startCoords = xDif < 0 ? tileCoords : originCoords;
-        length = Math.abs(xDif) + 1;
-    }
-    endCoords = startCoords === tileCoords ? originCoords : tileCoords;
-    endCoords = [endCoords.x, endCoords.y];
-    startCoords = [startCoords.x, startCoords.y];
-    let selectedUnit;
-    units.every(unit => {
-        if (unit.get.length() !== length) return true;
-        for (let i = 0; i < placedUnits.length; i++)
-            if (unit === placedUnits[i].unit)
+            function highlightCurrentPlacement() {
+                if (selectedTile === tile) return highlightAllplacements();
+                const tileArray = getTileArrayFrom(selectedTile, tile);
+                let setInvalid = false;
+                for (let i = 0; i < tileArray.length; i++) {
+                    let tile = tileArray[i];
+                    if (tile.unit.getUnit()) setInvalid = true;
+                    if (setInvalid) return tile.highlight.invalid();
+                    if (i >= 1 && !unitObj.getUnitOfLength(i + 1))
+                        tile.highlight.invalid();
+                    tile.highlight.validPlaceUnit();
+                }
+            }
+            function highlightUnit(unit) {
+                let tileArr = placedUnitsObj.getTileArrayFromPlacedUnit(unit);
+                tileArr.forEach(tile => {
+                    tile.highlight.removableUnit();
+                })
+            }
+            function placeUnit() {
+                const tileArray = getTileArrayFrom(selectedTile, tile);
+                const unit = unitObj.getUnitOfLength(tileArray.length);
+                if (!unit) return;                       //check if unit of length available
+                for (let i = 0; i < tileArray.length; i++) {
+                    let tile = tileArray[i];
+                    if (tile.unit.getUnit()) return;          //check if any of the tiles have units
+                    tile.unit.place(unit);
+                }
                 return true;
-        selectedUnit = unit;
-        return false;
-    });
-    if (!selectedUnit
-        || !gameboard.placeUnit(selectedUnit, startCoords, rotated))
-        return false;
+            }
+            function removeUnit(unit) {
+                tile.unit.removeFullUnit(unit);
+            }
+            function getTileArrayFrom(tile1, tile2, limitByMaxLength = true) { //could be placed inside tile obj as getTileArrayTo
+                if (tile1 === tile2) return [tile1];
 
-    const occupiedTiles = _getTileArray();
-    _highlightPlacedTiles(occupiedTiles);
-    placedUnits.push({ unit: selectedUnit, tiles: occupiedTiles });
+                const startCoords = tile1.getCoordObj();
+                const endCoords = tile2.getCoordObj();
+                const xDif = endCoords.x - startCoords.x;
+                const yDif = endCoords.y - startCoords.y;
+                const inXAxis = Math.abs(yDif) <= Math.abs(xDif);
 
-    return true;
+                let length;
+                if (inXAxis) length = Math.abs(xDif);
+                else length = Math.abs(yDif);
+                if (limitByMaxLength && length >= unitObj.getMaxLength())
+                    length = unitObj.getMaxLength() - 1; //-1 because starting at 0
 
-    function _highlightPlacedTiles(tileArray) {
-        tileArray.forEach(tile => {
-            tile.classList.add(highlightClasses[0]);
-        })
-    }
-    function _getTileArray() {
-        const tiles = [];
-        let index;
-        for (let i = 0; i < length; i++) {
-            if (rotated) index = ((startCoords[1] + i) * BOARD_WIDTH) + startCoords[0];
-            else index = (startCoords[1] * BOARD_WIDTH) + startCoords[0] + i;
-            tiles.push(tileArray[index]);
+                const tileArray = [tile1];
+                let tempTile = tile1;
+
+                for (let i = 0; i < length; i++) {
+                    let direction;
+                    if (!inXAxis && yDif <= 0) direction = 'up';
+                    else if (!inXAxis) direction = 'down';
+                    else if (xDif <= 0) direction = 'left'
+                    else direction = 'right';
+                    tempTile = tempTile.nextTile[direction]();
+                    if (tempTile) tileArray.push(tempTile);
+                }
+                return tileArray;
+            }
+
+            function removeHighlights(tileClassObjArray) {
+                while (tileClassObjArray.length > 0) {
+                    let obj = tileClassObjArray.pop();
+                    obj.tileNode.classList.remove(obj.className);
+                }
+            }
+            function addHighlight(tileClassObjArray, className) {
+                tileNode.classList.add(className);
+                tileClassObjArray.push(new TileClassObj(tileNode, className))
+            }
+            return tile;
         }
-        return tiles
+
     }
-}
-function _removePlacedUnitHighlight(unit) {
-    placedUnits.forEach(unitObj => {
-        if (unitObj.unit !== unit) return;
-        unitObj.tileArray.forEach(tile => {
-            highlightClasses.forEach((className) => { tile.classList.remove(className) })
+    function submitScene() {
+        if (!unitObj.noUnitsAvailable()) return;
+        const gameboard = playerObj.get.gameboard();
+        const unitArray = unitObj.getPlacedUnits();
+        unitArray.forEach(unit => {
+            const gameUnit = unitObj.getRealUnitFromClone(unit);
+            const tileArray = placedUnitsObj.getTileArrayFromPlacedUnit(unit);
+            if (unit.get.length() === 1) { //shouldn't ever have a piece of length 1, but just in case
+                gameboard.placeUnit(gameUnit, tileArray[0].getCoordArray());
+                console.log(`There shouldn't be any units of length 1.`);
+            }
+            const startCoords = tileArray[0].getCoordObj();
+            const endCoords = tileArray[tileArray.length - 1].getCoordObj();
+            const inXaxis = startCoords.x === endCoords.x ? false : true;
+            if (!gameboard.placeUnit(gameUnit, [startCoords.x, startCoords.y], !inXaxis)) {
+                console.log('Error: trying to place unit on occupied tile.');
+            }
         })
-    })
-}
-function _getTileCoordObj(tile) {
-    const coords = {
-        x: +tile.getAttribute('posX'),
-        y: +tile.getAttribute('posY')
-    }
-    if (coords.x === undefined ||
-        coords.y === undefined) console.log(`Invalid tile coords in ${tile}`);
-    return coords;
-}
-function _getTileCoordArr(tile) {
-    const coords = [+tile.getAttribute('posX'), +tile.getAttribute('posY')];
-    if (coords[0] === undefined ||
-        coords[1] === undefined) console.log(`Invalid tile coords in ${tile}`);
-    return coords;
-}
-function _placeUnit_tileHighlight(tile) {
-    _markTile(selectedTile, tempClasses[2]);
-    const selectedCoords = _getTileCoordObj(selectedTile);
-    const tileCoords = _getTileCoordObj(tile);
-
-    const xDif = tileCoords.x - selectedCoords.x;
-    const yDif = selectedCoords.y - tileCoords.y; //flipped so positive y axis is upwards
-    const inXAxis = Math.abs(xDif) > Math.abs(yDif);
-    let positiveDir;
-    if (inXAxis) positiveDir = (xDif >= 0)
-    else positiveDir = (yDif >= 0);
-
-    for (let i = 1; i <= PIECE_COUNT; i++) {
-        let classIndex = 0;
-        switch (true) {
-            case inXAxis && positiveDir:
-                i <= xDif ? classIndex = 2 : classIndex = 0;
-                _markTile(_checkRight(i, selectedCoords), tempClasses[classIndex]);
-                break;
-            case inXAxis && !positiveDir:
-                i <= Math.abs(xDif) ? classIndex = 2 : classIndex = 0;
-                _markTile(_checkLeft(i, selectedCoords), tempClasses[classIndex]);
-                break;
-            case !inXAxis && positiveDir:
-                i <= yDif ? classIndex = 2 : classIndex = 0;
-                _markTile(_checkUp(i, selectedCoords), tempClasses[classIndex]);
-                break;
-            case !inXAxis && !positiveDir:
-                i <= Math.abs(yDif) ? classIndex = 2 : classIndex = 0;
-                _markTile(_checkDown(i, selectedCoords), tempClasses[classIndex]);
-                break;
-            default: console.log('This should never appear. If it does, blame cosmic radiation.');
+        const scenes = sceneManager.getScenes();
+        if (gameState.get.game.isSinglePlayer() || playerRef === 'p2') sceneManager.loadScene(scenes.main.game)
+        else {
+            sceneManager.addBlinder();
+            sceneManager.loadScene(scenes.p2.piecePlacement)
         }
     }
-}
 
-function _pickTile_tileHighlight(tile) {
-    const coords = _getTileCoordObj(tile);
-    const index = (coords.y * BOARD_WIDTH) + coords.x;
-    const playerRef = gameState.get.scene.currentPlayer();
-    const yesClass = tempClasses[0];
-    const noClass = tempClasses[1];
+    function TileClassObj(tileNode, className) {
+        this.tileNode = tileNode;
+        this.className = className;
+    }
 
-    tile.classList.add(tempClasses[0]); //todo: change to red when all pieces placed
-    activeTiles.push(tile);             //  except when removing piece. 
-    for (let i = 1; i < maxLength; i++) {
-        _checkFunctions.forEach((checkDirection) => {
-            let tileIndex = checkDirection(i, coords);
-            if (tileIndex === false) return;
-           if (_unitOfLengthAvailable(i + 1)) _markTile(tileIndex, yesClass);
-           else _markTile(tileIndex, noClass);
-        })
+    function PlacedUnitsObj() {
+        const placedUnitArr = [];
+
+        this.pushUnit = (unit, tile) => {
+            let placedUnit = placedUnitArr.find((placedUnit) => placedUnit.unit === unit);
+            if (!placedUnit) {
+                placedUnit = { unit, tileArr: [] };
+                placedUnitArr.push(placedUnit);
+            }
+            let tileArr = placedUnit.tileArr;
+            if (!tileArr.includes(tile)) tileArr.push(tile);
+        }
+        this.removeUnit = (unit) => {
+            const index = placedUnitArr.findIndex((placedUnit) => placedUnit.unit === unit);
+            if (index < 0) return false;
+            unitObj.setUnitAvailable(unit);
+            return placedUnitArr.splice(index, 1)[0];
+        }
+        this.getTileArrayFromPlacedUnit = (unit) => {
+            const placedUnit = placedUnitArr.find((placedUnit) => placedUnit.unit === unit);
+            if (!placedUnit) return [];
+            sortTiles(placedUnit.tileArr)
+            return placedUnit.tileArr;
+        }
+        function sortTiles(tileArr) {
+            if (tileArr.length < 2) return;
+            let axis = tileArr[0].getCoordObj().x === tileArr[1].getCoordObj().x ? 'y' : 'x';
+            tileArr.sort((a, b) => a.getCoordObj()[axis] > b.getCoordObj()[axis])
+        }
     }
 }
 
-const _checkFunctions = [_checkUp, _checkDown, _checkLeft, _checkRight];
-function _checkUp(distance, coordObj) {
-    let index = (coordObj.y * BOARD_WIDTH) + coordObj.x - (distance * BOARD_WIDTH);
-    if (index < 0) return false;
-    return index;
-}
-function _checkDown(distance, coordObj) {
-    let index = (coordObj.y * BOARD_WIDTH) + coordObj.x + (distance * BOARD_WIDTH);
-    if (index >= (BOARD_HEIGHT * BOARD_WIDTH)) return false;
-    return index;
-}
-function _checkLeft(distance, coordObj) {
-    let newX = coordObj.x - distance;
-    if (newX < 0) return false;
-    return (coordObj.y * BOARD_WIDTH) + newX;
-}
-function _checkRight(distance, coordObj) {
-    let newX = coordObj.x + distance;
-    if (newX >= BOARD_WIDTH) return false;
-    return (coordObj.y * BOARD_WIDTH) + newX;
-}
-function _markTile(tileIndex, className = tempClasses[0]) {
-    if (!tileIndex) return;
-    let activeTile;
-    if (typeof (tileIndex) === 'number') {//is index
-        let playerRef = gameState.get.scene.currentPlayer();
-        activeTile = ref[playerRef].gameTiles[tileIndex];
-    } else activeTile = tileIndex;  //is element
-    activeTile.classList.add(className);
-    activeTiles.push(activeTile);
-}
-function _removeHighlight() {
-    activeTiles.forEach((tile) => {
-        tempClasses.forEach((className) => { tile.classList.remove(className) })
-    });
-    activeTiles = [];
-}
-function _getPlayerStateObj() {
-    let playerObj = {
-        get: gameState.get[playerRef],
-        set: gameState.set[playerRef]
-    }
-    return playerObj;
-}
-function _getMaxLength(playerObject) {
-    let max = 0;
-    let units = playerObj.get.units();
-    units.forEach(unit => {
-        if (unit.get.length() > max)
-            max = unit.get.length();
+function createUnitObj(unitArray) {
+    const _availableUnits = [];
+    const _placedUnits = [];
+    let _maxLength = 0;
+    let _minLength;
+    //create semi-cloned units and fill unit array
+    //  and set _maxLength
+    unitArray.forEach((unit) => {
+        _availableUnits.push(new CloneUnit(unit));
     })
-    return max;
-}
-function _unitOfLengthAvailable(length) {
-    console.log(length);
-    for(let i = 0; i < units.length; i++){
-        let unit = units[i];
-        if(_placedUnitsContains(unit)) continue;
-        if(unit.get.length() === length) return true;
+    function CloneUnit(unit) {
+        const id = unit.get.id();
+        const length = unit.get.length();
+        this.get = {
+            id: () => id,
+            length: () => length,
+        };
     }
-    return false;
-}
-function _placedUnitsContains(unit){
-    for(let i = 0; i < placedUnits.length; i++){
-        if(placedUnits[i].unit === unit) return true;
+    function getUnitOfLength(length) {
+        for (let i = 0; i < _availableUnits.length; i++) {
+            if (_availableUnits[i].get.length() === length) return _availableUnits[i];
+        }
+        return false;
     }
-    return false;
-}
-const directions = {all:0,up:1,down:2,left:3,right:4};
-function _createTileObj(tile){
-    const tileObj = {
-        getTile: ()=>tile,
-        isOccupiedBy:'',
+    function setUnitPlaced(unit) {
+        fromArrayToArray(_availableUnits, _placedUnits, unit);
+        //adjust max length
+        let length = unit.get.length();
+        if (length === _maxLength) setLengthBounds();
+        return true;
     }
-}
-function _createDirectionTileArr(originTile, direction = directions.all, distance = maxLength){
-
+    function setUnitAvailable(unit) {
+        fromArrayToArray(_placedUnits, _availableUnits, unit);
+    }
+    function setLengthBounds() {
+        if (!_availableUnits.length) {
+            _minLength = 0;
+            _maxLength = 0;
+            return;
+        }
+        _minLength = false;
+        _maxLength = 0;
+        for (let i = 0; i < _availableUnits.length; i++) {
+            length = _availableUnits[i].get.length();
+            if (_maxLength < length) _maxLength = length;
+            if (!_minLength || _minLength > length) _minLength = length;
+        }
+    }
+    function fromArrayToArray(fromArr, toArr, item) {
+        const index = fromArr.indexOf(item);
+        if (index < 0) return false;
+        toArr.push(item);
+        fromArr.splice(index, 1);
+    }
+    function getRealUnitFromClone(cloneUnit) {
+        let id = cloneUnit.get.id();
+        for (let i = 0; i < unitArray.length; i++) {
+            if (id === unitArray[i].get.id())
+                return unitArray[i];
+        }
+        return false;
+    }
+    const unitObj = {
+        getAvailableUnitCount: () => _availableUnits.length,
+        noUnitsAvailable: () => _availableUnits.length === 0,
+        getPlacedUnits: () => _placedUnits,
+        getMinLength: () => _minLength,
+        getMaxLength: () => _maxLength,
+        getUnitOfLength,
+        setUnitPlaced,
+        setUnitAvailable,
+        getRealUnitFromClone,
+    }
+    setLengthBounds();
+    return unitObj;
 }

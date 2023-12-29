@@ -1084,13 +1084,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _scenes_blinder__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./scenes/blinder */ "./src/scripts/scenes/blinder.js");
 /* harmony import */ var _scenes_title_screen__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./scenes/title-screen */ "./src/scripts/scenes/title-screen.js");
 /* harmony import */ var _scenes_player_select__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scenes/player-select */ "./src/scripts/scenes/player-select.js");
-/* harmony import */ var _scenes_pp2__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scenes/pp2 */ "./src/scripts/scenes/pp2.js");
+/* harmony import */ var _scenes_piece_placement__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scenes/piece-placement */ "./src/scripts/scenes/piece-placement.js");
 /* harmony import */ var _scenes_main_game__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./scenes/main-game */ "./src/scripts/scenes/main-game.js");
 /* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./game-state */ "./src/scripts/game-state.js");
 
 
 
-//"./scenes/piece-placement";
+
 
 
 //import playerFactory from "./player-factory";
@@ -1130,7 +1130,7 @@ function loadScene(sceneNode) {
 function initializeScenes() {
     scenes.main.titleScreen = (0,_scenes_title_screen__WEBPACK_IMPORTED_MODULE_1__["default"])();
     scenes.main.playerSelect = (0,_scenes_player_select__WEBPACK_IMPORTED_MODULE_2__["default"])();
-    [scenes.p1.piecePlacement, scenes.p2.piecePlacement] = (0,_scenes_pp2__WEBPACK_IMPORTED_MODULE_3__["default"])();
+    [scenes.p1.piecePlacement, scenes.p2.piecePlacement] = (0,_scenes_piece_placement__WEBPACK_IMPORTED_MODULE_3__["default"])();
     scenes.main.game = (0,_scenes_main_game__WEBPACK_IMPORTED_MODULE_4__["default"])();
     //initMainGame();
     //initGameOver();
@@ -1222,68 +1222,10 @@ function initMainGameScene(){
 
 /***/ }),
 
-/***/ "./src/scripts/scenes/player-select.js":
-/*!*********************************************!*\
-  !*** ./src/scripts/scenes/player-select.js ***!
-  \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _scene_manager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scene-manager */ "./src/scripts/scene-manager.js");
-/* harmony import */ var _player_factory__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../player-factory */ "./src/scripts/player-factory.js");
-/* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../game-state */ "./src/scripts/game-state.js");
-
-
-
-
-
-function initPlayerSelect() {
-    let scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_0__.initScene)('TEMPLATE_player-select');
-    const submitButton = scene.querySelector('[pSelectID="submit"]');
-    const singlePlayerInput = scene.querySelector('[pSelectID="singlePlayer"]');
-    const p1Input = scene.querySelector('[pSelectID="player1"]');
-    const p2Input = scene.querySelector('[pSelectID="player2"]');
-
-
-    submitButton.addEventListener('click', _onSubmit);
-    function _onSubmit() {
-        let singlePlayer = singlePlayerInput.checked;
-        //p1
-        let name = p1Input.value;
-        if (name === '') name = 'Player1';
-        let type = 'human';
-        let player = (0,_player_factory__WEBPACK_IMPORTED_MODULE_1__["default"])(name, type);
-        _game_state__WEBPACK_IMPORTED_MODULE_2__["default"].set.player1.player(player);
-
-        //p2
-        if (singlePlayer) {
-            name = 'CPU';
-            type = 'computer';
-        }
-        else {
-            name = p2Input.value;
-            if (name === '') name = 'Player 2';
-        }
-        player = (0,_player_factory__WEBPACK_IMPORTED_MODULE_1__["default"])(name, type);
-        _game_state__WEBPACK_IMPORTED_MODULE_2__["default"].set.player2.player(player);
-        //
-        _game_state__WEBPACK_IMPORTED_MODULE_2__["default"].set.game.isSinglePlayer(singlePlayer);
-        _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(_scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].getScenes().p1.piecePlacement);
-    }
-    return scene;
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initPlayerSelect);
-
-/***/ }),
-
-/***/ "./src/scripts/scenes/pp2.js":
-/*!***********************************!*\
-  !*** ./src/scripts/scenes/pp2.js ***!
-  \***********************************/
+/***/ "./src/scripts/scenes/piece-placement.js":
+/*!***********************************************!*\
+  !*** ./src/scripts/scenes/piece-placement.js ***!
+  \***********************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -1720,6 +1662,64 @@ function createUnitObj(unitArray) {
     setLengthBounds();
     return unitObj;
 }
+
+/***/ }),
+
+/***/ "./src/scripts/scenes/player-select.js":
+/*!*********************************************!*\
+  !*** ./src/scripts/scenes/player-select.js ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _scene_manager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scene-manager */ "./src/scripts/scene-manager.js");
+/* harmony import */ var _player_factory__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../player-factory */ "./src/scripts/player-factory.js");
+/* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../game-state */ "./src/scripts/game-state.js");
+
+
+
+
+
+function initPlayerSelect() {
+    let scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_0__.initScene)('TEMPLATE_player-select');
+    const submitButton = scene.querySelector('[pSelectID="submit"]');
+    const singlePlayerInput = scene.querySelector('[pSelectID="singlePlayer"]');
+    const p1Input = scene.querySelector('[pSelectID="player1"]');
+    const p2Input = scene.querySelector('[pSelectID="player2"]');
+
+
+    submitButton.addEventListener('click', _onSubmit);
+    function _onSubmit() {
+        let singlePlayer = singlePlayerInput.checked;
+        //p1
+        let name = p1Input.value;
+        if (name === '') name = 'Player1';
+        let type = 'human';
+        let player = (0,_player_factory__WEBPACK_IMPORTED_MODULE_1__["default"])(name, type);
+        _game_state__WEBPACK_IMPORTED_MODULE_2__["default"].set.player1.player(player);
+
+        //p2
+        if (singlePlayer) {
+            name = 'CPU';
+            type = 'computer';
+        }
+        else {
+            name = p2Input.value;
+            if (name === '') name = 'Player 2';
+        }
+        player = (0,_player_factory__WEBPACK_IMPORTED_MODULE_1__["default"])(name, type);
+        _game_state__WEBPACK_IMPORTED_MODULE_2__["default"].set.player2.player(player);
+        //
+        _game_state__WEBPACK_IMPORTED_MODULE_2__["default"].set.game.isSinglePlayer(singlePlayer);
+        _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(_scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].getScenes().p1.piecePlacement);
+    }
+    return scene;
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initPlayerSelect);
 
 /***/ }),
 
