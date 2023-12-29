@@ -1528,9 +1528,6 @@ function createScene(playerRef) {
     function submitScene() {
         if (!unitObj.noUnitsAvailable()) return;
         const gameboard = playerObj.get.gameboard();
-        console.log(gameboard.get.unitsRemaining());
-
-        console.log('place units on player gameboard, load next scene');
         const unitArray = unitObj.getPlacedUnits();
         unitArray.forEach(unit => {
             const gameUnit = unitObj.getRealUnitFromClone(unit);
@@ -1539,15 +1536,15 @@ function createScene(playerRef) {
                 gameboard.placeUnit(gameUnit, tileArray[0].getCoordArray());
                 console.log(`There shouldn't be any units of length 1.`);
             }
+
             const startCoords = tileArray[0].getCoordObj();
-            console.log(startCoords)
             const endCoords = tileArray[tileArray.length - 1].getCoordObj();
             const inXaxis = startCoords.x === endCoords.x ? false : true;
-            if (!gameboard.placeUnit(gameUnit, [startCoords.x,startCoords.y], !inXaxis))
-                console.log('Error: trying to place unit on occupied tile');
-            console.log(gameboard.get.unitsRemaining());
+            if (!gameboard.placeUnit(gameUnit, [startCoords.x,startCoords.y], !inXaxis)){
+                console.log('Error: trying to place unit on occupied tile.');
+            }
         })
-
+        console.log('Load next scene!');
     }
 
     function TileClassObj(tileNode, className) {
@@ -1581,8 +1578,8 @@ function createScene(playerRef) {
         }
         function sortTiles(tileArr) {
             if (tileArr.length < 2) return;
-            let axis = tileArr[0].x === tileArr[1].x ? 'y' : 'x';
-            tileArr.sort((a, b) => a.getCoordObj()[axis] < b.getCoordObj()[axis])
+            let axis = tileArr[0].getCoordObj().x === tileArr[1].getCoordObj().x ? 'y' : 'x';
+            tileArr.sort((a, b) => a.getCoordObj()[axis] > b.getCoordObj()[axis])
         }
     }
 }
