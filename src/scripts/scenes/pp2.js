@@ -2,15 +2,14 @@ import { initScene } from "../scene-manager";
 import { generateGameTiles } from "../scene-manager";
 import gameState from "../game-state";
 
+console.log('in submitScene -- sort tiles in placed units')
 
-console.log('working in highlightCurrentPlacement');
 //export scene to sceneManager
 function initPiecePlacement() {
     const scenes = {};
     scenes.p1 = createScene('p1');
-    //if (gameState.get.game.isSinglePlayer()) scenes.p2 = null;
-    //else scenes.p2 = createScene('p2');
-    console.log('remove after testing');
+    if (gameState.get.game.isSinglePlayer()) scenes.p2 = null;
+    else scenes.p2 = createScene('p2');
     return [scenes.p1, scenes.p2];
 }
 export default initPiecePlacement
@@ -42,46 +41,17 @@ function createScene(playerRef) {
     //other scoped vars
     const playerObj = gameState[playerRef];
     const unitObj = createUnitObj(playerObj.get.units());
+    const placedUnitsObj = new PlacedUnitsObj();
 
     return scene;
     //
     function createGameTilesObj() {
-        const _submitElement = scene.querySelector('[pPlacementID=""]');
+        const _submitElement = scene.querySelector('[pPlacementID="submit"]');
         const _gameBoxElement = scene.querySelector('[pPlacementID="gameBox"]');
         const _tileNodeArray = generateGameTiles(_gameBoxElement);
         const tileObjs = [];
-        const placedUnitsObj = new PlacedUnitsObj();
 
-        function PlacedUnitsObj() {
-            const placedUnitArr = [];
 
-            this.pushUnit = (unit, tile) => {
-                let placedUnit = placedUnitArr.find((placedUnit) => placedUnit.unit === unit);
-                if (!placedUnit) {
-                    placedUnit = { unit, tileArr: [] };
-                    placedUnitArr.push(placedUnit);
-                }
-                let tileArr = placedUnit.tileArr;
-                if (!tileArr.includes(tile)) tileArr.push(tile);
-            }
-            this.removeUnit = (unit) => {
-                const index = placedUnitArr.findIndex((placedUnit) => placedUnit.unit === unit);
-                if (index < 0) return false;
-                unitObj.setUnitAvailable(unit);
-                return placedUnitArr.splice(index, 1)[0];
-            }
-            this.getTileArrayFromPlacedUnit = (unit) => {
-                const placedUnit = placedUnitArr.find((placedUnit) => placedUnit.unit === unit);
-                if (!placedUnit) return [];
-                sortTiles(placedUnit.tileArr)
-                return placedUnit.tileArr;
-            }
-            function sortTiles(tileArr) {
-                if (tileArr.length < 2) return;
-                let axis = tileArr[0].x === tileArr[1].x ? 'y' : 'x';
-                tileArr.sort((a, b) => a.getCoordObj()[axis] < b.getCoordObj()[axis])
-            }
-        }
         //removed }  here -in case that was the wrong one
 
         let selectedTile;
@@ -105,6 +75,7 @@ function createScene(playerRef) {
             const tile = {
                 getNode: () => tileNode,
                 getCoordObj: () => coords,
+                getCoordArray: () => [coords.x, coords.y],
                 getIndex: () => index,
                 unit: {
                     place: (unit) => {
@@ -206,6 +177,8 @@ function createScene(playerRef) {
                 }
             });
 
+            _submitElement.addEventListener('click', submitScene);
+
             //highlights in all 4 directions for a distance of the current maxLength
             function highlightAllplacements() {
                 if (!unitObj.noUnitsAvailable())
@@ -269,7 +242,7 @@ function createScene(playerRef) {
                 }
                 return true;
             }
-            function removeUnit(unit){
+            function removeUnit(unit) {
                 tile.unit.removeFullUnit(unit);
             }
             function getTileArrayFrom(tile1, tile2, limitByMaxLength = true) { //could be placed inside tile obj as getTileArrayTo
@@ -316,19 +289,66 @@ function createScene(playerRef) {
         }
 
     }
+    function submitScene() {
+        if (!unitObj.noUnitsAvailable()) return;
+        const gameboard = playerObj.get.gameboard();
+        console.log(gameboard.get.unitsRemaining());
+
+        console.log('place units on player gameboard, load next scene');
+        const unitArray = unitObj.getPlacedUnits();
+        unitArray.forEach(unit => {
+            const gameUnit = unitObj.getRealUnitFromClone(unit);
+            const tileArray = placedUnitsObj.getTileArrayFromPlacedUnit(unit);
+            if (unit.get.length() === 1) { //shouldn't ever have a piece of length 1, but just in case
+                gameboard.placeUnit(gameUnit, tileArray[0].getCoordArray());
+                console.log(`There shouldn't be any units of length 1.`);
+            }
+            const startCoords = tileArray[0].getCoordObj();
+            console.log(startCoords)
+            const endCoords = tileArray[tileArray.length - 1].getCoordObj();
+            const inXaxis = startCoords.x === endCoords.x ? false : true;
+            if (!gameboard.placeUnit(gameUnit, [startCoords.x,startCoords.y], !inXaxis))
+                console.log('Error: trying to place unit on occupied tile');
+            console.log(gameboard.get.unitsRemaining());
+        })
+
+    }
 
     function TileClassObj(tileNode, className) {
         this.tileNode = tileNode;
         this.className = className;
     }
-    // function getTileFromNode(tileNode) {
-    //     const coords = {
-    //         x: +tileNode.getAttribute('posX'),
-    //         y: +tileNode.getAttribute('posY')
-    //     };
-    //     const index = coords.y * BOARD_WIDTH + coords.x;
-    //     return gameTiles[index];
-    // }
+
+    function PlacedUnitsObj() {
+        const placedUnitArr = [];
+
+        this.pushUnit = (unit, tile) => {
+            let placedUnit = placedUnitArr.find((placedUnit) => placedUnit.unit === unit);
+            if (!placedUnit) {
+                placedUnit = { unit, tileArr: [] };
+                placedUnitArr.push(placedUnit);
+            }
+            let tileArr = placedUnit.tileArr;
+            if (!tileArr.includes(tile)) tileArr.push(tile);
+        }
+        this.removeUnit = (unit) => {
+            const index = placedUnitArr.findIndex((placedUnit) => placedUnit.unit === unit);
+            if (index < 0) return false;
+            unitObj.setUnitAvailable(unit);
+            return placedUnitArr.splice(index, 1)[0];
+        }
+        this.getTileArrayFromPlacedUnit = (unit) => {
+            const placedUnit = placedUnitArr.find((placedUnit) => placedUnit.unit === unit);
+            if (!placedUnit) return [];
+            sortTiles(placedUnit.tileArr)
+            return placedUnit.tileArr;
+        }
+        function sortTiles(tileArr) {
+            if (tileArr.length < 2) return;
+            let axis = tileArr[0].x === tileArr[1].x ? 'y' : 'x';
+            tileArr.sort((a, b) => a.getCoordObj()[axis] < b.getCoordObj()[axis])
+        }
+    }
 }
 
 function createUnitObj(unitArray) {
@@ -385,14 +405,24 @@ function createUnitObj(unitArray) {
         toArr.push(item);
         fromArr.splice(index, 1);
     }
+    function getRealUnitFromClone(cloneUnit) {
+        let id = cloneUnit.get.id();
+        for (let i = 0; i < unitArray.length; i++) {
+            if (id === unitArray[i].get.id())
+                return unitArray[i];
+        }
+        return false;
+    }
     const unitObj = {
         getAvailableUnitCount: () => _availableUnits.length,
         noUnitsAvailable: () => _availableUnits.length === 0,
+        getPlacedUnits: () => _placedUnits,
         getMinLength: () => _minLength,
         getMaxLength: () => _maxLength,
         getUnitOfLength,
         setUnitPlaced,
         setUnitAvailable,
+        getRealUnitFromClone,
     }
     setLengthBounds();
     return unitObj;
