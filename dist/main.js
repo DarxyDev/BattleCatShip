@@ -1085,11 +1085,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _scenes_title_screen__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./scenes/title-screen */ "./src/scripts/scenes/title-screen.js");
 /* harmony import */ var _scenes_player_select__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scenes/player-select */ "./src/scripts/scenes/player-select.js");
 /* harmony import */ var _scenes_pp2__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scenes/pp2 */ "./src/scripts/scenes/pp2.js");
-/* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./game-state */ "./src/scripts/game-state.js");
+/* harmony import */ var _scenes_main_game__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./scenes/main-game */ "./src/scripts/scenes/main-game.js");
+/* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./game-state */ "./src/scripts/game-state.js");
 
 
 
 //"./scenes/piece-placement";
+
 
 //import playerFactory from "./player-factory";
 //import gameState from "./game-state";
@@ -1129,7 +1131,7 @@ function initializeScenes() {
     scenes.main.titleScreen = (0,_scenes_title_screen__WEBPACK_IMPORTED_MODULE_1__["default"])();
     scenes.main.playerSelect = (0,_scenes_player_select__WEBPACK_IMPORTED_MODULE_2__["default"])();
     [scenes.p1.piecePlacement, scenes.p2.piecePlacement] = (0,_scenes_pp2__WEBPACK_IMPORTED_MODULE_3__["default"])();
-    scenes.main.game = '';
+    scenes.main.game = (0,_scenes_main_game__WEBPACK_IMPORTED_MODULE_4__["default"])();
     //initMainGame();
     //initGameOver();
 }
@@ -1151,8 +1153,8 @@ function initScene(templateID) {
 }
 function generateGameTiles(parentNode) {
     const tileArr = [];
-    const numTilesX = _game_state__WEBPACK_IMPORTED_MODULE_4__["default"].get.game.boardWidth();
-    const numTilesY = _game_state__WEBPACK_IMPORTED_MODULE_4__["default"].get.game.boardHeight();
+    const numTilesX = _game_state__WEBPACK_IMPORTED_MODULE_5__["default"].get.game.boardWidth();
+    const numTilesY = _game_state__WEBPACK_IMPORTED_MODULE_5__["default"].get.game.boardHeight();
     _addGridBoardProperties(parentNode);
     for (let y = 0; y < numTilesY; y++) {
         for (let x = 0; x < numTilesX; x++) {
@@ -1168,8 +1170,8 @@ function generateGameTiles(parentNode) {
 }
 
 function _addGridBoardProperties(node){
-    const width = _game_state__WEBPACK_IMPORTED_MODULE_4__["default"].get.game.boardWidth();
-    const height = _game_state__WEBPACK_IMPORTED_MODULE_4__["default"].get.game.boardHeight();
+    const width = _game_state__WEBPACK_IMPORTED_MODULE_5__["default"].get.game.boardWidth();
+    const height = _game_state__WEBPACK_IMPORTED_MODULE_5__["default"].get.game.boardHeight();
     node.style.display = 'grid';
     node.style.gridTemplate = `repeat(${height}, 1fr) / repeat(${width}, 1fr)`
 }
@@ -1196,6 +1198,27 @@ function initBlinder(){
     return scene;
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initBlinder);
+
+/***/ }),
+
+/***/ "./src/scripts/scenes/main-game.js":
+/*!*****************************************!*\
+  !*** ./src/scripts/scenes/main-game.js ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _scene_manager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scene-manager */ "./src/scripts/scene-manager.js");
+
+function initMainGameScene(){
+    const scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_0__.initScene)('TEMPLATE_main-game');
+    
+    return scene;
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initMainGameScene);
 
 /***/ }),
 

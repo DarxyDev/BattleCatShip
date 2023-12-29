@@ -2,6 +2,7 @@ import initBlinder from "./scenes/blinder";
 import initTitleScreen from "./scenes/title-screen";
 import initPlayerSelect from "./scenes/player-select";
 import initPiecePlacement from "./scenes/pp2"//"./scenes/piece-placement";
+import initMainGameScene from "./scenes/main-game";
 import gameState from "./game-state";
 //import playerFactory from "./player-factory";
 //import gameState from "./game-state";
@@ -41,7 +42,7 @@ function initializeScenes() {
     scenes.main.titleScreen = initTitleScreen();
     scenes.main.playerSelect = initPlayerSelect();
     [scenes.p1.piecePlacement, scenes.p2.piecePlacement] = initPiecePlacement();
-    scenes.main.game = '';
+    scenes.main.game = initMainGameScene();
     //initMainGame();
     //initGameOver();
 }
