@@ -84,5 +84,5 @@ function addGridBoardProperties(node){
     const width = gameState.get.game.boardWidth();
     const height = gameState.get.game.boardHeight();
     node.style.display = 'grid';
-    node.style.gridTemplate = `repeat(${height}, 1fr) / repeat(${width}, 1fr)`
+    node.style.gridTemplate = `repeat(${height}, 1fr) / repeat(${width}, 1fr)`;
 }

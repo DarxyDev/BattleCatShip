@@ -1198,7 +1198,7 @@ function addGridBoardProperties(node){
     const width = _game_state__WEBPACK_IMPORTED_MODULE_0__["default"].get.game.boardWidth();
     const height = _game_state__WEBPACK_IMPORTED_MODULE_0__["default"].get.game.boardHeight();
     node.style.display = 'grid';
-    node.style.gridTemplate = `repeat(${height}, 1fr) / repeat(${width}, 1fr)`
+    node.style.gridTemplate = `repeat(${height}, 1fr) / repeat(${width}, 1fr)`;
 }
 
 /***/ }),
@@ -1241,36 +1241,66 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function initMainGameScene(){
+
+const scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.initScene)('TEMPLATE_main-game');
+
+function initMainGameScene() {
     return scene;
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initMainGameScene);
 
-const scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.initScene)('TEMPLATE_main-game');
+//function objects
+const players = {
+    p1: _game_state__WEBPACK_IMPORTED_MODULE_0__["default"].p1,
+    p2: _game_state__WEBPACK_IMPORTED_MODULE_0__["default"].p2,
+}
 const gameWindows = {
-    p1: {
-        defense: new DefenseGameWindow(),
-        offense: new OffenseGameWindow(),
+    p1:{
+        offense: new OffenseGameWindow(players.p1),
+        defense: new DefenseGameWindow(players.p1)
     },
-    p2: {
-        defense: new DefenseGameWindow(),
-        offense: new OffenseGameWindow(),
+    p2:{
+         offense: new OffenseGameWindow(players.p2),
+         defense: new DefenseGameWindow(players.p2)
     }
 }
-function DefenseGameWindow(){
-    const parentNode = scene.querySelector("[gameID='gameBox-left']");
-    const tiles = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.generateGameTiles)();
+const setDisplayObj = new SetDisplayObj();
 
+
+function SetDisplayObj() {
+    const gameBox1 = scene.querySelector("[gameID='gameBox-left']");
+    const gameBox2 = scene.querySelector("[gameID='gameBox-right']");
+    (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.addGridBoardProperties)(gameBox1);
+    (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.addGridBoardProperties)(gameBox2);
+    this.first = (gameWindow) => {
+        const tileArray = gameWindow.getTileArray();
+        replaceTilesIn(gameBox1, tileArray)
+    }
+    this.second = (gameWindow) => {
+        const tileArray = gameWindow.getTileArray();
+        replaceTilesIn(gameBox2, tileArray)
+    }
+    function replaceTilesIn(gameBox, tileArray){
+        gameBox.textContent = '';
+        tileArray.forEach(tile=>{
+            gameBox.appendChild(tile);
+        })
+    }
+}
+
+function DefenseGameWindow(playerObj) {
+    const tiles = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.generateGameTiles)()
+    this.getTileArray = () => tiles;
     this.receiveAttack = receiveAttack;
 
-    function receiveAttack(coords){
+    function receiveAttack(coords) {
 
     }
 }
-function OffenseGameWindow(){
+function OffenseGameWindow() {
     const parentNode = scene.querySelector("[gameID='gameBox-right']");
     this.placeAttack = placeAttack;
-    function placeAttack(coords){
+    function placeAttack(coords) {
 
     }
 }
@@ -1987,7 +2017,7 @@ const scenes = _scripts_scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].ge
 
 //sceneManager.loadScene(scenes.main.titleScreen);
 
-// sceneManager.loadScene(scenes.p1.piecePlacement)
+//sceneManager.loadScene(scenes.p1.piecePlacement)
 (0,_scripts_game_state__WEBPACK_IMPORTED_MODULE_3__.setDummyUnits)();
 _scripts_scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].loadScene(scenes.main.game);
 

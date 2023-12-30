@@ -9,6 +9,6 @@ const scenes = sceneManager.getScenes();
 
 //sceneManager.loadScene(scenes.main.titleScreen);
 
-// sceneManager.loadScene(scenes.p1.piecePlacement)
+//sceneManager.loadScene(scenes.p1.piecePlacement)
 setDummyUnits();
 sceneManager.loadScene(scenes.main.game);
