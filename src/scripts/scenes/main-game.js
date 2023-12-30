@@ -2,44 +2,35 @@ import gameState from "../game-state";
 import { generateGameTiles, initScene } from "../scene-manager";
 
 function initMainGameScene(){
-    return createScene();
+    return scene;
 }
 export default initMainGameScene;
 
-const moves = {
-    p1:{
-        recieveAttack:()=>{},
+const scene = initScene('TEMPLATE_main-game');
+const gameWindows = {
+    p1: {
+        defense: new DefenseGameWindow(),
+        offense: new OffenseGameWindow(),
     },
-    p2:{
-        recieveAttack:()=>{},
+    p2: {
+        defense: new DefenseGameWindow(),
+        offense: new OffenseGameWindow(),
     }
 }
+function DefenseGameWindow(){
+    const parentNode = scene.querySelector("[gameID='gameBox-left']");
+    const tiles = generateGameTiles();
 
-function createScene(){
-    const scene = initScene('TEMPLATE_main-game');
+    this.receiveAttack = receiveAttack;
 
-    const defenseObj = new DefenseGameWindow();
-    const offenseObj = new OffenseGameWindow();
+    function receiveAttack(coords){
 
-    //draw tiles + tile behavior
-    //place ships
-    return scene;
-
-    function DefenseGameWindow(){
-        const parentNode = scene.querySelector("[gameID='gameBox-left']");
-        const tiles = generateGameTiles(parentNode);
-
-        this.receiveAttack = receiveAttack;
-
-        function receiveAttack(coords){
-
-        }
     }
-    function OffenseGameWindow(){
-        const parentNode = scene.querySelector("[gameID='gameBox-right']");
+}
+function OffenseGameWindow(){
+    const parentNode = scene.querySelector("[gameID='gameBox-right']");
+    this.placeAttack = placeAttack;
+    function placeAttack(coords){
 
-        function placeAttack(coords){
-            
-        }
     }
 }

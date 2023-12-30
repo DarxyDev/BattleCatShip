@@ -1031,7 +1031,7 @@ function unitFactory(length) {
 
 function get2DIndex(rowLength, x, y) {
     let a, b;
-    if(x.x && x.y){ //if using coordObj, convert to coordArray
+    if(x.x && x.y){ //Allows using coordObj
         x = [x.x,x.y];
     }
     if (x[0] === undefined) {
@@ -1101,16 +1101,17 @@ function playerFactory(name, type = 'human') {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   addGridBoardProperties: () => (/* binding */ addGridBoardProperties),
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
 /* harmony export */   generateGameTiles: () => (/* binding */ generateGameTiles),
 /* harmony export */   initScene: () => (/* binding */ initScene)
 /* harmony export */ });
-/* harmony import */ var _scenes_blinder__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./scenes/blinder */ "./src/scripts/scenes/blinder.js");
-/* harmony import */ var _scenes_title_screen__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./scenes/title-screen */ "./src/scripts/scenes/title-screen.js");
-/* harmony import */ var _scenes_player_select__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scenes/player-select */ "./src/scripts/scenes/player-select.js");
-/* harmony import */ var _scenes_piece_placement__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scenes/piece-placement */ "./src/scripts/scenes/piece-placement.js");
-/* harmony import */ var _scenes_main_game__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./scenes/main-game */ "./src/scripts/scenes/main-game.js");
-/* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./game-state */ "./src/scripts/game-state.js");
+/* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./game-state */ "./src/scripts/game-state.js");
+/* harmony import */ var _scenes_blinder__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./scenes/blinder */ "./src/scripts/scenes/blinder.js");
+/* harmony import */ var _scenes_title_screen__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scenes/title-screen */ "./src/scripts/scenes/title-screen.js");
+/* harmony import */ var _scenes_player_select__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scenes/player-select */ "./src/scripts/scenes/player-select.js");
+/* harmony import */ var _scenes_piece_placement__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./scenes/piece-placement */ "./src/scripts/scenes/piece-placement.js");
+/* harmony import */ var _scenes_main_game__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./scenes/main-game */ "./src/scripts/scenes/main-game.js");
 
 
 
@@ -1126,7 +1127,7 @@ let scenes = {
     p1: {},
     p2: {},
 };
-const blinderScene = (0,_scenes_blinder__WEBPACK_IMPORTED_MODULE_0__["default"])();
+const blinderScene = (0,_scenes_blinder__WEBPACK_IMPORTED_MODULE_1__["default"])();
 let currentScene;
 const gameWindow = document.getElementById('gameWindow');
 const sceneManager = {
@@ -1152,10 +1153,10 @@ function loadScene(sceneNode) {
 }
 
 function initializeScenes() {
-    scenes.main.titleScreen = (0,_scenes_title_screen__WEBPACK_IMPORTED_MODULE_1__["default"])();
-    scenes.main.playerSelect = (0,_scenes_player_select__WEBPACK_IMPORTED_MODULE_2__["default"])();
-    [scenes.p1.piecePlacement, scenes.p2.piecePlacement] = (0,_scenes_piece_placement__WEBPACK_IMPORTED_MODULE_3__["default"])();
-    scenes.main.game = (0,_scenes_main_game__WEBPACK_IMPORTED_MODULE_4__["default"])();
+    scenes.main.titleScreen = (0,_scenes_title_screen__WEBPACK_IMPORTED_MODULE_2__["default"])();
+    scenes.main.playerSelect = (0,_scenes_player_select__WEBPACK_IMPORTED_MODULE_3__["default"])();
+    [scenes.p1.piecePlacement, scenes.p2.piecePlacement] = (0,_scenes_piece_placement__WEBPACK_IMPORTED_MODULE_4__["default"])();
+    scenes.main.game = (0,_scenes_main_game__WEBPACK_IMPORTED_MODULE_5__["default"])();
     //initMainGame();
     //initGameOver();
 }
@@ -1177,25 +1178,25 @@ function initScene(templateID) {
 }
 function generateGameTiles(parentNode) {
     const tileArr = [];
-    const numTilesX = _game_state__WEBPACK_IMPORTED_MODULE_5__["default"].get.game.boardWidth();
-    const numTilesY = _game_state__WEBPACK_IMPORTED_MODULE_5__["default"].get.game.boardHeight();
-    _addGridBoardProperties(parentNode);
+    const numTilesX = _game_state__WEBPACK_IMPORTED_MODULE_0__["default"].get.game.boardWidth();
+    const numTilesY = _game_state__WEBPACK_IMPORTED_MODULE_0__["default"].get.game.boardHeight();
+    if(parentNode) addGridBoardProperties(parentNode);
     for (let y = 0; y < numTilesY; y++) {
         for (let x = 0; x < numTilesX; x++) {
             const tile = document.createElement('div');
             tile.classList.add('board-tile');
             tile.setAttribute('posX',x);
             tile.setAttribute('posY',y);
-            parentNode.appendChild(tile);
+            if(parentNode) parentNode.appendChild(tile);
             tileArr.push(tile);
         }
     }
     return tileArr;
 }
 
-function _addGridBoardProperties(node){
-    const width = _game_state__WEBPACK_IMPORTED_MODULE_5__["default"].get.game.boardWidth();
-    const height = _game_state__WEBPACK_IMPORTED_MODULE_5__["default"].get.game.boardHeight();
+function addGridBoardProperties(node){
+    const width = _game_state__WEBPACK_IMPORTED_MODULE_0__["default"].get.game.boardWidth();
+    const height = _game_state__WEBPACK_IMPORTED_MODULE_0__["default"].get.game.boardHeight();
     node.style.display = 'grid';
     node.style.gridTemplate = `repeat(${height}, 1fr) / repeat(${width}, 1fr)`
 }
@@ -1241,45 +1242,36 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function initMainGameScene(){
-    return createScene();
+    return scene;
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initMainGameScene);
 
-const moves = {
-    p1:{
-        recieveAttack:()=>{},
+const scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.initScene)('TEMPLATE_main-game');
+const gameWindows = {
+    p1: {
+        defense: new DefenseGameWindow(),
+        offense: new OffenseGameWindow(),
     },
-    p2:{
-        recieveAttack:()=>{},
+    p2: {
+        defense: new DefenseGameWindow(),
+        offense: new OffenseGameWindow(),
     }
 }
+function DefenseGameWindow(){
+    const parentNode = scene.querySelector("[gameID='gameBox-left']");
+    const tiles = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.generateGameTiles)();
 
-function createScene(){
-    const scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.initScene)('TEMPLATE_main-game');
+    this.receiveAttack = receiveAttack;
 
-    const defenseObj = new DefenseGameWindow();
-    const offenseObj = new OffenseGameWindow();
+    function receiveAttack(coords){
 
-    //draw tiles + tile behavior
-    //place ships
-    return scene;
-
-    function DefenseGameWindow(){
-        const parentNode = scene.querySelector("[gameID='gameBox-left']");
-        const tiles = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.generateGameTiles)(parentNode);
-
-        this.receiveAttack = receiveAttack;
-
-        function receiveAttack(coords){
-
-        }
     }
-    function OffenseGameWindow(){
-        const parentNode = scene.querySelector("[gameID='gameBox-right']");
+}
+function OffenseGameWindow(){
+    const parentNode = scene.querySelector("[gameID='gameBox-right']");
+    this.placeAttack = placeAttack;
+    function placeAttack(coords){
 
-        function placeAttack(coords){
-            
-        }
     }
 }
 
@@ -1995,9 +1987,9 @@ const scenes = _scripts_scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].ge
 
 //sceneManager.loadScene(scenes.main.titleScreen);
 
-_scripts_scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].loadScene(scenes.p1.piecePlacement)
-// setDummyUnits();
-// sceneManager.loadScene(scenes.main.game);
+// sceneManager.loadScene(scenes.p1.piecePlacement)
+(0,_scripts_game_state__WEBPACK_IMPORTED_MODULE_3__.setDummyUnits)();
+_scripts_scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].loadScene(scenes.main.game);
 
 })();
 

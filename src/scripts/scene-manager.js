@@ -1,9 +1,9 @@
+import gameState from "./game-state";
 import initBlinder from "./scenes/blinder";
 import initTitleScreen from "./scenes/title-screen";
 import initPlayerSelect from "./scenes/player-select";
 import initPiecePlacement from "./scenes/piece-placement";
 import initMainGameScene from "./scenes/main-game";
-import gameState from "./game-state";
 //import playerFactory from "./player-factory";
 //import gameState from "./game-state";
 //import gamePieces from "./game-pieces";
@@ -52,7 +52,7 @@ function addBlinder(){
 
 //exports
 
-export { initScene, generateGameTiles };
+export { initScene, generateGameTiles, addGridBoardProperties };
 
 function initScene(templateID) {
     let template = document.getElementById(templateID);
@@ -66,21 +66,21 @@ function generateGameTiles(parentNode) {
     const tileArr = [];
     const numTilesX = gameState.get.game.boardWidth();
     const numTilesY = gameState.get.game.boardHeight();
-    _addGridBoardProperties(parentNode);
+    if(parentNode) addGridBoardProperties(parentNode);
     for (let y = 0; y < numTilesY; y++) {
         for (let x = 0; x < numTilesX; x++) {
             const tile = document.createElement('div');
             tile.classList.add('board-tile');
             tile.setAttribute('posX',x);
             tile.setAttribute('posY',y);
-            parentNode.appendChild(tile);
+            if(parentNode) parentNode.appendChild(tile);
             tileArr.push(tile);
         }
     }
     return tileArr;
 }
 
-function _addGridBoardProperties(node){
+function addGridBoardProperties(node){
     const width = gameState.get.game.boardWidth();
     const height = gameState.get.game.boardHeight();
     node.style.display = 'grid';

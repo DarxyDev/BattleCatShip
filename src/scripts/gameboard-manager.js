@@ -81,7 +81,7 @@ function unitFactory(length) {
 
 function get2DIndex(rowLength, x, y) {
     let a, b;
-    if(x.x && x.y){ //if using coordObj, convert to coordArray
+    if(x.x && x.y){ //Allows using coordObj
         x = [x.x,x.y];
     }
     if (x[0] === undefined) {
