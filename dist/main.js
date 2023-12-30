@@ -987,10 +987,10 @@ function gameboardFactory(width = 10, height = 10) {
         removeUnit: (unit) => {
             _boardArray.forEach(value => { if (value === unit) value = false; })
         },
-        checkCoordEmpty: (coord) => {
+        getUnitOnCoord: (coord) => {
             const index = get2DIndex(width, coord);
-            if (_boardArray[index]) return false;
-            return true;
+            if (_boardArray[index]) return _boardArray[index];
+            return false;
         },
         receiveAttack: (coord) => {
             const i = get2DIndex(width, coord);
@@ -1241,69 +1241,79 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
+////////////////////Exports///////////////////////////
 const scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.initScene)('TEMPLATE_main-game');
 
 function initMainGameScene() {
     return scene;
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initMainGameScene);
+//////////////////////////////////////////////////////
 
-//function objects
+//data objects
 const players = {
     p1: _game_state__WEBPACK_IMPORTED_MODULE_0__["default"].p1,
     p2: _game_state__WEBPACK_IMPORTED_MODULE_0__["default"].p2,
 }
 const gameWindows = {
-    p1:{
+    p1: {
         offense: new OffenseGameWindow(players.p1),
         defense: new DefenseGameWindow(players.p1)
     },
-    p2:{
-         offense: new OffenseGameWindow(players.p2),
-         defense: new DefenseGameWindow(players.p2)
+    p2: {
+        offense: new OffenseGameWindow(players.p2),
+        defense: new DefenseGameWindow(players.p2)
     }
 }
-const setDisplayObj = new SetDisplayObj();
+// function objects
 
-
-function SetDisplayObj() {
+const setDisplayObj = new function () {
     const gameBox1 = scene.querySelector("[gameID='gameBox-left']");
     const gameBox2 = scene.querySelector("[gameID='gameBox-right']");
     (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.addGridBoardProperties)(gameBox1);
     (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.addGridBoardProperties)(gameBox2);
     this.first = (gameWindow) => {
-        const tileArray = gameWindow.getTileArray();
+        const tileArray = gameWindow.getTileNodeArray();
         replaceTilesIn(gameBox1, tileArray)
     }
     this.second = (gameWindow) => {
-        const tileArray = gameWindow.getTileArray();
+        const tileArray = gameWindow.getTileNodeArray();
         replaceTilesIn(gameBox2, tileArray)
     }
-    function replaceTilesIn(gameBox, tileArray){
+    function replaceTilesIn(gameBox, tileArray) {
         gameBox.textContent = '';
-        tileArray.forEach(tile=>{
+        tileArray.forEach(tile => {
             gameBox.appendChild(tile);
         })
     }
 }
 
 function DefenseGameWindow(playerObj) {
-    const tiles = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.generateGameTiles)()
-    this.getTileArray = () => tiles;
-    this.receiveAttack = receiveAttack;
-
-    function receiveAttack(coords) {
-
-    }
-}
-function OffenseGameWindow() {
-    const parentNode = scene.querySelector("[gameID='gameBox-right']");
-    this.placeAttack = placeAttack;
-    function placeAttack(coords) {
+    const tileNodes = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.generateGameTiles)()
+    const tiles = getTileObjArray(tileNodes);
+    const gameboard = playerObj.get.gameboard();
+    //public fn
+    this.getTileNodeArray = () => tileNodes;
+    this.receiveAttack = (coords) => {
 
     }
 }
+function OffenseGameWindow(playerObj) {
+    const tileNodes = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.generateGameTiles)();
+    const gameboard = playerObj.get.gameboard();
+    const tiles = [];
+    this.getTileNodeArray = () => tileNodes;
+    this.placeAttack = (coords) => {
+
+    }
+}
+function getTileObjArray() {
+    function TileObj(tileNode) {
+        this.getNode = () => tileNode;
+
+    }
+}
+//
 
 /***/ }),
 

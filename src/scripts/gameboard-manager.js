@@ -37,10 +37,10 @@ function gameboardFactory(width = 10, height = 10) {
         removeUnit: (unit) => {
             _boardArray.forEach(value => { if (value === unit) value = false; })
         },
-        checkCoordEmpty: (coord) => {
+        getUnitOnCoord: (coord) => {
             const index = get2DIndex(width, coord);
-            if (_boardArray[index]) return false;
-            return true;
+            if (_boardArray[index]) return _boardArray[index];
+            return false;
         },
         receiveAttack: (coord) => {
             const i = get2DIndex(width, coord);
