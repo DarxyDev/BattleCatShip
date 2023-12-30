@@ -168,7 +168,7 @@ function createScene(playerRef) {
                         }
                         if (!placeUnit()) break;
                         tile.selectedTile.unSelect();
-                        highlightAllplacements()
+                        if(!tile.unit.getUnit())highlightAllplacements()
                         STATES.current = STATES.pickTile;
 
                         break;

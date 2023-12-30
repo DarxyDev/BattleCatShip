@@ -1,4 +1,5 @@
 import { gameboardFactory, unitFactory } from "./gameboard-manager";
+import sceneManager from "./scene-manager";
 
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
@@ -106,3 +107,20 @@ function _createUnitArray() {
     }
     return unitArray;
 }
+
+function setDummyUnits(){
+    console.log('setting dummy units');
+    const gameboardArray = [
+        gameState.p1.get.gameboard(),
+        gameState.p2.get.gameboard()
+    ];
+    let offset = 0;
+    const units = gameState.p1.get.units();
+    gameboardArray.forEach(gb =>{
+        for(let i = offset; i < units.length + offset; i++){
+            gb.placeUnit(units[i - offset],[0,i]);
+        }
+        offset++;
+    })
+}
+export {setDummyUnits};

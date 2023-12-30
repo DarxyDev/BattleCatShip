@@ -15,6 +15,7 @@ function gameboardFactory(width = 10, height = 10) {
             height: () => { return height },
         },
         placeUnit: (unit, coord, rotated) => {
+            if(coord.x && coord.y) coord = [coord.x, coord.y]; //allows coord obj instead of array
             for (let i = 0; i < unit.get.length(); i++) {
                 let j = rotated ?
                     get2DIndex(width, coord[0], coord[1] + i) :
@@ -80,6 +81,9 @@ function unitFactory(length) {
 
 function get2DIndex(rowLength, x, y) {
     let a, b;
+    if(x.x && x.y){ //if using coordObj, convert to coordArray
+        x = [x.x,x.y];
+    }
     if (x[0] === undefined) {
         a = x;
         b = y;
