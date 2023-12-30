@@ -794,6 +794,28 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
+/***/ "./src/scripts/class-manager.js":
+/*!**************************************!*\
+  !*** ./src/scripts/class-manager.js ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CLASSES: () => (/* binding */ CLASSES)
+/* harmony export */ });
+const CLASSES = {
+    unit: 'tile-has-unit',
+    lowHighlight: 'tile-highlight-low',
+    highHighlight: 'tile-highlight-high',
+    invalidHighlight: 'tile-highlight-invalid',
+    removableUnit: 'tile-removable-unit',
+};
+
+
+
+/***/ }),
+
 /***/ "./src/scripts/game-state.js":
 /*!***********************************!*\
   !*** ./src/scripts/game-state.js ***!
@@ -862,7 +884,7 @@ const gameState = {
     },
     p1: _generatePlayerObj(),
     p2: _generatePlayerObj(),
-    p0: { //here for intelisense
+    p0: { //here for intellisense
         get: {
             player: () => {},
             units: () => {},
@@ -923,7 +945,7 @@ function setDummyUnits(){
         gameState.p1.get.gameboard(),
         gameState.p2.get.gameboard()
     ];
-    let offset = 0;
+    let offset = 1;
     const units = gameState.p1.get.units();
     gameboardArray.forEach(gb =>{
         for(let i = offset; i < units.length + offset; i++){
@@ -965,7 +987,7 @@ function gameboardFactory(width = 10, height = 10) {
             height: () => { return height },
         },
         placeUnit: (unit, coord, rotated) => {
-            if(coord.x && coord.y) coord = [coord.x, coord.y]; //allows coord obj instead of array
+            if(coord.x !== undefined) coord = [coord.x, coord.y]; //allows coord obj instead of array
             for (let i = 0; i < unit.get.length(); i++) {
                 let j = rotated ?
                     get2DIndex(width, coord[0], coord[1] + i) :
@@ -980,7 +1002,6 @@ function gameboardFactory(width = 10, height = 10) {
                     get2DIndex(width, coord[0] + i, coord[1]);
                 _boardArray[j] = unit;
             }
-
             _unitsRemaining++;
             return true;
         },
@@ -1031,7 +1052,7 @@ function unitFactory(length) {
 
 function get2DIndex(rowLength, x, y) {
     let a, b;
-    if(x.x && x.y){ //Allows using coordObj
+    if(x.x !== undefined){ //Allows using coordObj
         x = [x.x,x.y];
     }
     if (x[0] === undefined) {
@@ -1236,24 +1257,31 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../game-state */ "./src/scripts/game-state.js");
-/* harmony import */ var _scene_manager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../scene-manager */ "./src/scripts/scene-manager.js");
+/* harmony import */ var _class_manager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../class-manager */ "./src/scripts/class-manager.js");
+/* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../game-state */ "./src/scripts/game-state.js");
+/* harmony import */ var _scene_manager__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../scene-manager */ "./src/scripts/scene-manager.js");
+
 
 
 
 ////////////////////Exports///////////////////////////
-const scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.initScene)('TEMPLATE_main-game');
-
+const scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.initScene)('TEMPLATE_main-game');
+scene.sceneOnLoad = ()=>{
+    gameWindows.p1.defense.displayUnits();
+}
 function initMainGameScene() {
     return scene;
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initMainGameScene);
 //////////////////////////////////////////////////////
 
+//static
+
+
 //data objects
 const players = {
-    p1: _game_state__WEBPACK_IMPORTED_MODULE_0__["default"].p1,
-    p2: _game_state__WEBPACK_IMPORTED_MODULE_0__["default"].p2,
+    p1: _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p1,
+    p2: _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2,
 }
 const gameWindows = {
     p1: {
@@ -1265,53 +1293,85 @@ const gameWindows = {
         defense: new DefenseGameWindow(players.p2)
     }
 }
-// function objects
 
+// function objects
 const setDisplayObj = new function () {
     const gameBox1 = scene.querySelector("[gameID='gameBox-left']");
     const gameBox2 = scene.querySelector("[gameID='gameBox-right']");
-    (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.addGridBoardProperties)(gameBox1);
-    (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.addGridBoardProperties)(gameBox2);
+    (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.addGridBoardProperties)(gameBox1);
+    (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.addGridBoardProperties)(gameBox2);
     this.first = (gameWindow) => {
         const tileArray = gameWindow.getTileNodeArray();
-        replaceTilesIn(gameBox1, tileArray)
+        _replaceTilesIn(gameBox1, tileArray)
     }
     this.second = (gameWindow) => {
         const tileArray = gameWindow.getTileNodeArray();
-        replaceTilesIn(gameBox2, tileArray)
+        _replaceTilesIn(gameBox2, tileArray)
     }
-    function replaceTilesIn(gameBox, tileArray) {
+    function _replaceTilesIn(gameBox, tileArray) {
         gameBox.textContent = '';
         tileArray.forEach(tile => {
             gameBox.appendChild(tile);
         })
     }
 }
-
+/// 
+setDisplayObj.first(gameWindows.p1.defense); //for testing purposes
+setDisplayObj.second(gameWindows.p1.offense);
+console.log('remove later');
+///
 function DefenseGameWindow(playerObj) {
-    const tileNodes = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.generateGameTiles)()
+    //init
+    const tileNodes = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.generateGameTiles)();
     const tiles = getTileObjArray(tileNodes);
     const gameboard = playerObj.get.gameboard();
+
     //public fn
     this.getTileNodeArray = () => tileNodes;
-    this.receiveAttack = (coords) => {
+    this.receiveAttack = (gameWindow, coords) => {
 
+    }
+    this.displayUnits = () => {
+        tiles.forEach(tile =>{
+            const coord = tile.getCoord();
+            const unit = gameboard.getUnitOnCoord(coord);
+            if(unit) tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unit);
+        })
     }
 }
 function OffenseGameWindow(playerObj) {
-    const tileNodes = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_1__.generateGameTiles)();
-    const gameboard = playerObj.get.gameboard();
+    const tileNodes = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.generateGameTiles)();
     const tiles = [];
+    const gameboard = playerObj.get.gameboard();
     this.getTileNodeArray = () => tileNodes;
-    this.placeAttack = (coords) => {
+    this.sendAttack = (coords) => {
 
     }
 }
-function getTileObjArray() {
+function getTileObjArray(tileNodeArray) {
+    const tileObjArray = [];
+    tileNodeArray.forEach(tileNode => {
+        tileObjArray.push(new TileObj(tileNode));
+    })
     function TileObj(tileNode) {
+        const coordObj = {
+            x: +tileNode.getAttribute('posX'),
+            y: +tileNode.getAttribute('posY')
+        }
         this.getNode = () => tileNode;
-
+        this.getCoord = () => coordObj;
+        const tempClasses = [];
+        this.addTempClass = (className) => {
+            tempClasses.push(className);
+            tileNode.classList.add(className);
+        }
+        this.addClass = (className) => tileNode.classList.add(className);
+        this.removeTempClasses = () => {
+            while (tempClasses.length > 0)
+                tileNode.classList.remove(tempClasses.pop());
+        }
     }
+    return tileObjArray;
 }
 //
 
@@ -1329,6 +1389,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _scene_manager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scene-manager */ "./src/scripts/scene-manager.js");
 /* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../game-state */ "./src/scripts/game-state.js");
+/* harmony import */ var _class_manager__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../class-manager */ "./src/scripts/class-manager.js");
+
 
 
 
@@ -1347,14 +1409,6 @@ function initPiecePlacement() {
 const PIECE_COUNT = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.pieceCount();
 const BOARD_WIDTH = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.boardWidth();
 const BOARD_HEIGHT = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.boardHeight();
-
-const CLASSES = {
-    unit: 'tile-has-unit',
-    lowHighlight: 'tile-highlight-low',
-    highHighlight: 'tile-highlight-high',
-    invalidHighlight: 'tile-highlight-invalid',
-    removableUnit: 'tile-removable-unit',
-};
 
 const STATES = {
     current: 1,
@@ -1440,22 +1494,22 @@ function createScene(playerRef) {
                     },
                 },
                 highlight: {
-                    selectable: () => { addHighlight(activeHoverTiles, CLASSES.lowHighlight); },
-                    invalid: () => { addHighlight(activeHoverTiles, CLASSES.invalidHighlight); },
-                    validPlaceUnit: () => { addHighlight(activeHoverTiles, CLASSES.highHighlight) },
-                    removableUnit: () => { addHighlight(activeHoverTiles, CLASSES.removableUnit); },
+                    selectable: () => { addHighlight(activeHoverTiles, _class_manager__WEBPACK_IMPORTED_MODULE_2__.CLASSES.lowHighlight); },
+                    invalid: () => { addHighlight(activeHoverTiles, _class_manager__WEBPACK_IMPORTED_MODULE_2__.CLASSES.invalidHighlight); },
+                    validPlaceUnit: () => { addHighlight(activeHoverTiles, _class_manager__WEBPACK_IMPORTED_MODULE_2__.CLASSES.highHighlight) },
+                    removableUnit: () => { addHighlight(activeHoverTiles, _class_manager__WEBPACK_IMPORTED_MODULE_2__.CLASSES.removableUnit); },
                 },
                 selectedTile: {
                     unSelect: () => {
                         if (!selectedTile) return console.log('no selected tile');
-                        selectedTile.getNode().classList.remove(CLASSES.highHighlight);
+                        selectedTile.getNode().classList.remove(_class_manager__WEBPACK_IMPORTED_MODULE_2__.CLASSES.highHighlight);
                         selectedTile = undefined;
                     },
                     selectThis: () => {
                         if (selectedTile) return false;
                         if (tile.unit.getUnit()) return false;
                         selectedTile = tile;
-                        tileNode.classList.add(CLASSES.highHighlight);
+                        tileNode.classList.add(_class_manager__WEBPACK_IMPORTED_MODULE_2__.CLASSES.highHighlight);
                         return true;
                     },
                 },
@@ -1539,7 +1593,7 @@ function createScene(playerRef) {
 
                             for (length--; length >= minLength && !unitObj.getUnitOfLength(length); length--) {
                                 tileObj = tileArr.pop();
-                                tileObj.getNode().classList.remove(CLASSES.invalidHighlight);
+                                tileObj.getNode().classList.remove(_class_manager__WEBPACK_IMPORTED_MODULE_2__.CLASSES.invalidHighlight);
                             }
                             return tileObj = false;
                         }
@@ -2022,13 +2076,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+(0,_scripts_game_state__WEBPACK_IMPORTED_MODULE_3__.setDummyUnits)();
 _scripts_scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].initializeScenes();
 const scenes = _scripts_scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].getScenes();
 
 //sceneManager.loadScene(scenes.main.titleScreen);
 
 //sceneManager.loadScene(scenes.p1.piecePlacement)
-(0,_scripts_game_state__WEBPACK_IMPORTED_MODULE_3__.setDummyUnits)();
 _scripts_scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].loadScene(scenes.main.game);
 
 })();

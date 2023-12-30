@@ -53,7 +53,7 @@ const gameState = {
     },
     p1: _generatePlayerObj(),
     p2: _generatePlayerObj(),
-    p0: { //here for intelisense
+    p0: { //here for intellisense
         get: {
             player: () => {},
             units: () => {},
@@ -114,7 +114,7 @@ function setDummyUnits(){
         gameState.p1.get.gameboard(),
         gameState.p2.get.gameboard()
     ];
-    let offset = 0;
+    let offset = 1;
     const units = gameState.p1.get.units();
     gameboardArray.forEach(gb =>{
         for(let i = offset; i < units.length + offset; i++){

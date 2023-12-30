@@ -1,6 +1,7 @@
 import sceneManager, { initScene } from "../scene-manager";
 import { generateGameTiles } from "../scene-manager";
 import gameState from "../game-state";
+import { CLASSES } from "../class-manager";
 
 //export scene to sceneManager
 function initPiecePlacement() {
@@ -16,14 +17,6 @@ export default initPiecePlacement
 const PIECE_COUNT = gameState.get.game.pieceCount();
 const BOARD_WIDTH = gameState.get.game.boardWidth();
 const BOARD_HEIGHT = gameState.get.game.boardHeight();
-
-const CLASSES = {
-    unit: 'tile-has-unit',
-    lowHighlight: 'tile-highlight-low',
-    highHighlight: 'tile-highlight-high',
-    invalidHighlight: 'tile-highlight-invalid',
-    removableUnit: 'tile-removable-unit',
-};
 
 const STATES = {
     current: 1,
