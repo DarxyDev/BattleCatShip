@@ -170,6 +170,9 @@ h3 {
 .pad {
     padding: var(--SIZE_defaultPadding);
 }
+.hover-shade:hover{
+    opacity:.5;
+}
 
 .scene-container {
     width: 100%;
@@ -228,7 +231,25 @@ h3 {
 .tile-removable-unit{
     opacity: .5;
 }
-/*              */
+/* main game */
+.unit-miss{
+    background-color: var(--TINT_dark);
+}
+.unit-hit{
+    background-color: var(--TINT_green_light);
+}
+.unit-sunk{
+    background-color: var(--TINT_red_light);
+}
+.tile-miss{
+    background-color: var(--TINT_dark);
+}
+.tile-hit{
+    background-color: var(--TINT_green_light);
+}
+.tile-sunk{
+    background-color: var(--TINT_red_light);
+}
 .red-border {
     border: 1px solid red;
 }
@@ -258,7 +279,7 @@ h3 {
     to {
         opacity: 0%;
     }
-}`, "",{"version":3,"sources":["webpack://./src/styles/style.css"],"names":[],"mappings":"AAAA;IACI,mBAAmB;IACnB,0BAA0B;IAC1B,wBAAwB;IACxB,kCAAkC;;IAElC,+BAA+B;IAC/B,kCAAkC;IAClC,oCAAoC;IACpC,wCAAwC;IACxC,uCAAuC;IACvC,qCAAqC;IACrC,yCAAyC;;IAEzC,wBAAwB;IACxB,4BAA4B;AAChC;;AAEA;IACI,YAAY;IACZ,WAAW;IACX,yDAAyE;IACzE,oBAAoB;IACpB,6BAA6B;AACjC;;AAEA;IACI,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,cAAc;AAClB;;AAEA;IACI,cAAc;AAClB;;AAEA;IACI,kBAAkB;IAClB,WAAW;IACX,YAAY;IACZ,kCAAkC;AACtC;AACA;IACI,kBAAkB;IAClB,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,aAAa;IACb,sBAAsB;IACtB,uBAAuB;IACvB,mBAAmB;AACvB;;AAEA;IACI,aAAa;IACb,uBAAuB;IACvB,mBAAmB;AACvB;;AAEA;IACI,2BAA2B;AAC/B;;AAEA;IACI,mCAAmC;AACvC;;AAEA;IACI,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,kBAAkB;IAClB,mCAAmC;AACvC;;AAEA;IACI,UAAU;IACV,eAAe;AACnB;;AAEA;IACI,WAAW;IACX,YAAY;IACZ,iBAAiB;IACjB,sBAAsB;AAC1B;AACA;IACI,iBAAiB;IACjB,MAAM;IACN,KAAK;IACL,UAAU;IACV,WAAW;IACX,sBAAsB;IACtB,aAAa;AACjB;AACA,kBAAkB;AAClB;IACI,2CAA2C;AAC/C;;AAEA;IACI,4BAA4B;IAC5B,WAAW;AACf;;AAEA;IACI,4BAA4B;AAChC;;AAEA;IACI,8BAA8B;AAClC;;AAEA;IACI,8BAA8B;AAClC;AACA;IACI,wBAAwB;AAC5B;AACA;IACI,WAAW;AACf;AACA,iBAAiB;AACjB;IACI,qBAAqB;AACzB;;AAEA;IACI,iBAAiB;AACrB;;AAEA;IACI,iBAAiB;AACrB;;AAEA,eAAe;AACf;IACI,sCAAsC;AAC1C;;AAEA;IACI;QACI,aAAa;IACjB;;IAEA;QACI;IACJ;;IAEA;QACI,WAAW;IACf;AACJ","sourcesContent":[":root {\r\n    --COL_mainBG: black;\r\n    --COL_gameBG: antiquewhite;\r\n    --COL_defaultText: white;\r\n    --COL_altDefaultText: antiquewhite;\r\n\r\n    --TINT_dark: rgba(0, 0, 0, .75);\r\n    --TINT_lowDark: rgba(0, 0, 0, .25);\r\n    --TINT_light: rgba(0, 254, 246, 0.2);\r\n    --TINT_green_light: rgba(0, 255, 0, 0.2);\r\n    --TINT_green_dark: rgba(0, 255, 0, 0.8);\r\n    --TINT_red_light: rgba(255, 0, 0, .2);\r\n    --TINT_brown_light: rgba(139, 69, 19, .5);\r\n\r\n    --SIZE_defaultGap: 1.5em;\r\n    --SIZE_defaultPadding: 1.5em;\r\n}\r\n\r\nhtml {\r\n    height: 100%;\r\n    width: 100%;\r\n    background-image: url('./../images/cat-black-moon-pattern-repeating.png');\r\n    background-size: 33%;\r\n    color: var(--COL_defaultText);\r\n}\r\n\r\nbody {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\nh1 {\r\n    font-size: 4em;\r\n}\r\n\r\nh3 {\r\n    font-size: 2em;\r\n}\r\n\r\n#gameWindow {\r\n    position: relative;\r\n    width: 100%;\r\n    height: 100%;\r\n    background-color: var(--TINT_dark);\r\n}\r\n.fullscreen {\r\n    position: absolute;\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.fl-col-center {\r\n    display: flex;\r\n    flex-direction: column;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.fl-center {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.gap {\r\n    gap: var(--SIZE_defaultGap);\r\n}\r\n\r\n.pad {\r\n    padding: var(--SIZE_defaultPadding);\r\n}\r\n\r\n.scene-container {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.section-container {\r\n    position: relative;\r\n    background-color: var(--TINT_light);\r\n}\r\n\r\n.quarter-box {\r\n    width: 25%;\r\n    aspect-ratio: 1;\r\n}\r\n\r\n.board-tile {\r\n    width: 100%;\r\n    height: 100%;\r\n    border: 1px solid;\r\n    box-sizing: border-box;\r\n}\r\n.blinder{\r\n    position:absolute;\r\n    left:0;\r\n    top:0;\r\n    width:100%;\r\n    height:100%;\r\n    background-color:black;\r\n    z-index:99999;\r\n}\r\n/*Piece Placement*/\r\n.pPlacement-tile:hover {\r\n    border: 3px solid var(--COL_altDefaultText);\r\n}\r\n\r\n.tile-has-unit{\r\n    background-color: blueviolet;\r\n    border:none;\r\n}\r\n\r\n.tile-highlight-low{\r\n    background-color: lightGreen;\r\n}\r\n\r\n.tile-highlight-high{\r\n    background-color: rgb(0,200,0);\r\n}\r\n\r\n.tile-highlight-invalid{\r\n    background-color: rgb(0,100,0);\r\n}\r\n.tile-placed-unit{\r\n    background-color: yellow;\r\n}\r\n.tile-removable-unit{\r\n    opacity: .5;\r\n}\r\n/*              */\r\n.red-border {\r\n    border: 1px solid red;\r\n}\r\n\r\n.border {\r\n    border: 1px solid;\r\n}\r\n\r\n.border-2px {\r\n    border: 2px solid;\r\n}\r\n\r\n/* Animations */\r\n.blink {\r\n    animation: 2s infinite alternate blink;\r\n}\r\n\r\n@keyframes blink {\r\n    from {\r\n        opacity: 100%;\r\n    }\r\n\r\n    33% {\r\n        opacity: 100%\r\n    }\r\n\r\n    to {\r\n        opacity: 0%;\r\n    }\r\n}"],"sourceRoot":""}]);
+}`, "",{"version":3,"sources":["webpack://./src/styles/style.css"],"names":[],"mappings":"AAAA;IACI,mBAAmB;IACnB,0BAA0B;IAC1B,wBAAwB;IACxB,kCAAkC;;IAElC,+BAA+B;IAC/B,kCAAkC;IAClC,oCAAoC;IACpC,wCAAwC;IACxC,uCAAuC;IACvC,qCAAqC;IACrC,yCAAyC;;IAEzC,wBAAwB;IACxB,4BAA4B;AAChC;;AAEA;IACI,YAAY;IACZ,WAAW;IACX,yDAAyE;IACzE,oBAAoB;IACpB,6BAA6B;AACjC;;AAEA;IACI,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,cAAc;AAClB;;AAEA;IACI,cAAc;AAClB;;AAEA;IACI,kBAAkB;IAClB,WAAW;IACX,YAAY;IACZ,kCAAkC;AACtC;AACA;IACI,kBAAkB;IAClB,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,aAAa;IACb,sBAAsB;IACtB,uBAAuB;IACvB,mBAAmB;AACvB;;AAEA;IACI,aAAa;IACb,uBAAuB;IACvB,mBAAmB;AACvB;;AAEA;IACI,2BAA2B;AAC/B;;AAEA;IACI,mCAAmC;AACvC;AACA;IACI,UAAU;AACd;;AAEA;IACI,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,kBAAkB;IAClB,mCAAmC;AACvC;;AAEA;IACI,UAAU;IACV,eAAe;AACnB;;AAEA;IACI,WAAW;IACX,YAAY;IACZ,iBAAiB;IACjB,sBAAsB;AAC1B;AACA;IACI,iBAAiB;IACjB,MAAM;IACN,KAAK;IACL,UAAU;IACV,WAAW;IACX,sBAAsB;IACtB,aAAa;AACjB;AACA,kBAAkB;AAClB;IACI,2CAA2C;AAC/C;;AAEA;IACI,4BAA4B;IAC5B,WAAW;AACf;;AAEA;IACI,4BAA4B;AAChC;;AAEA;IACI,8BAA8B;AAClC;;AAEA;IACI,8BAA8B;AAClC;AACA;IACI,wBAAwB;AAC5B;AACA;IACI,WAAW;AACf;AACA,cAAc;AACd;IACI,kCAAkC;AACtC;AACA;IACI,yCAAyC;AAC7C;AACA;IACI,uCAAuC;AAC3C;AACA;IACI,kCAAkC;AACtC;AACA;IACI,yCAAyC;AAC7C;AACA;IACI,uCAAuC;AAC3C;AACA;IACI,qBAAqB;AACzB;;AAEA;IACI,iBAAiB;AACrB;;AAEA;IACI,iBAAiB;AACrB;;AAEA,eAAe;AACf;IACI,sCAAsC;AAC1C;;AAEA;IACI;QACI,aAAa;IACjB;;IAEA;QACI;IACJ;;IAEA;QACI,WAAW;IACf;AACJ","sourcesContent":[":root {\r\n    --COL_mainBG: black;\r\n    --COL_gameBG: antiquewhite;\r\n    --COL_defaultText: white;\r\n    --COL_altDefaultText: antiquewhite;\r\n\r\n    --TINT_dark: rgba(0, 0, 0, .75);\r\n    --TINT_lowDark: rgba(0, 0, 0, .25);\r\n    --TINT_light: rgba(0, 254, 246, 0.2);\r\n    --TINT_green_light: rgba(0, 255, 0, 0.2);\r\n    --TINT_green_dark: rgba(0, 255, 0, 0.8);\r\n    --TINT_red_light: rgba(255, 0, 0, .2);\r\n    --TINT_brown_light: rgba(139, 69, 19, .5);\r\n\r\n    --SIZE_defaultGap: 1.5em;\r\n    --SIZE_defaultPadding: 1.5em;\r\n}\r\n\r\nhtml {\r\n    height: 100%;\r\n    width: 100%;\r\n    background-image: url('./../images/cat-black-moon-pattern-repeating.png');\r\n    background-size: 33%;\r\n    color: var(--COL_defaultText);\r\n}\r\n\r\nbody {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\nh1 {\r\n    font-size: 4em;\r\n}\r\n\r\nh3 {\r\n    font-size: 2em;\r\n}\r\n\r\n#gameWindow {\r\n    position: relative;\r\n    width: 100%;\r\n    height: 100%;\r\n    background-color: var(--TINT_dark);\r\n}\r\n.fullscreen {\r\n    position: absolute;\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.fl-col-center {\r\n    display: flex;\r\n    flex-direction: column;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.fl-center {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.gap {\r\n    gap: var(--SIZE_defaultGap);\r\n}\r\n\r\n.pad {\r\n    padding: var(--SIZE_defaultPadding);\r\n}\r\n.hover-shade:hover{\r\n    opacity:.5;\r\n}\r\n\r\n.scene-container {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.section-container {\r\n    position: relative;\r\n    background-color: var(--TINT_light);\r\n}\r\n\r\n.quarter-box {\r\n    width: 25%;\r\n    aspect-ratio: 1;\r\n}\r\n\r\n.board-tile {\r\n    width: 100%;\r\n    height: 100%;\r\n    border: 1px solid;\r\n    box-sizing: border-box;\r\n}\r\n.blinder{\r\n    position:absolute;\r\n    left:0;\r\n    top:0;\r\n    width:100%;\r\n    height:100%;\r\n    background-color:black;\r\n    z-index:99999;\r\n}\r\n/*Piece Placement*/\r\n.pPlacement-tile:hover {\r\n    border: 3px solid var(--COL_altDefaultText);\r\n}\r\n\r\n.tile-has-unit{\r\n    background-color: blueviolet;\r\n    border:none;\r\n}\r\n\r\n.tile-highlight-low{\r\n    background-color: lightGreen;\r\n}\r\n\r\n.tile-highlight-high{\r\n    background-color: rgb(0,200,0);\r\n}\r\n\r\n.tile-highlight-invalid{\r\n    background-color: rgb(0,100,0);\r\n}\r\n.tile-placed-unit{\r\n    background-color: yellow;\r\n}\r\n.tile-removable-unit{\r\n    opacity: .5;\r\n}\r\n/* main game */\r\n.unit-miss{\r\n    background-color: var(--TINT_dark);\r\n}\r\n.unit-hit{\r\n    background-color: var(--TINT_green_light);\r\n}\r\n.unit-sunk{\r\n    background-color: var(--TINT_red_light);\r\n}\r\n.tile-miss{\r\n    background-color: var(--TINT_dark);\r\n}\r\n.tile-hit{\r\n    background-color: var(--TINT_green_light);\r\n}\r\n.tile-sunk{\r\n    background-color: var(--TINT_red_light);\r\n}\r\n.red-border {\r\n    border: 1px solid red;\r\n}\r\n\r\n.border {\r\n    border: 1px solid;\r\n}\r\n\r\n.border-2px {\r\n    border: 2px solid;\r\n}\r\n\r\n/* Animations */\r\n.blink {\r\n    animation: 2s infinite alternate blink;\r\n}\r\n\r\n@keyframes blink {\r\n    from {\r\n        opacity: 100%;\r\n    }\r\n\r\n    33% {\r\n        opacity: 100%\r\n    }\r\n\r\n    to {\r\n        opacity: 0%;\r\n    }\r\n}"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -810,6 +831,15 @@ const CLASSES = {
     highHighlight: 'tile-highlight-high',
     invalidHighlight: 'tile-highlight-invalid',
     removableUnit: 'tile-removable-unit',
+    hoverShade: 'hover-shade',
+
+    unitHit:'unit-hit',
+    unitMiss:'unit-miss',
+    unitSunk:'unit-sunk',
+
+    tileHit:'tile-hit',
+    tileMiss:'tile-miss',
+    tileSunk:'tile-sunk',
 };
 
 
@@ -882,8 +912,8 @@ const gameState = {
             }
         },
     },
-    p1: _generatePlayerObj(),
-    p2: _generatePlayerObj(),
+    p1: _generatePlayerObj('p1'),
+    p2: _generatePlayerObj('p2'),
     p0: { //here for intellisense
         get: {
             player: () => {},
@@ -897,21 +927,17 @@ const gameState = {
     },
 };
 
-
-_generatePlayerObj(1);
-_generatePlayerObj(2);
-
-function _generatePlayerObj() {
+function _generatePlayerObj(playerRef) {
 
     let _player;
     const _gameboard = (0,_gameboard_manager__WEBPACK_IMPORTED_MODULE_0__.gameboardFactory)(BOARD_WIDTH, BOARD_HEIGHT);
     const _units = _createUnitArray();
-
     const playerObj = {
         get: {
             player: () => _player,
             units: () => _units,
             gameboard: () => _gameboard,
+            playerRef: () => playerRef,
         },
         set: {
             player: (player) => {
@@ -1238,7 +1264,8 @@ __webpack_require__.r(__webpack_exports__);
 
 function initBlinder(){
     const scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_0__.initScene)('TEMPLATE_blinder');
-    scene.addEventListener('click',()=>{
+    scene.addEventListener('click',(e)=>{
+        e.preventDefault(); //untested, should be fine
         scene.remove();
     })
     return scene;
@@ -1266,8 +1293,9 @@ __webpack_require__.r(__webpack_exports__);
 
 ////////////////////Exports///////////////////////////
 const scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.initScene)('TEMPLATE_main-game');
-scene.sceneOnLoad = ()=>{
+scene.sceneOnLoad = () => {
     gameWindows.p1.defense.displayUnits();
+    gameWindows.p2.defense.displayUnits();
 }
 function initMainGameScene() {
     return scene;
@@ -1276,21 +1304,26 @@ function initMainGameScene() {
 //////////////////////////////////////////////////////
 
 //static
-
+const attackStates = {
+    hit: 'hit',
+    miss: 'miss',
+    sunk: 'sunk',
+    error: false,
+}
 
 //data objects
-const players = {
+const playerObjs = {
     p1: _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p1,
     p2: _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2,
 }
 const gameWindows = {
     p1: {
-        offense: new OffenseGameWindow(players.p1),
-        defense: new DefenseGameWindow(players.p1)
+        offense: new OffenseGameWindow(playerObjs.p1),
+        defense: new DefenseGameWindow(playerObjs.p1)
     },
     p2: {
-        offense: new OffenseGameWindow(players.p2),
-        defense: new DefenseGameWindow(players.p2)
+        offense: new OffenseGameWindow(playerObjs.p2),
+        defense: new DefenseGameWindow(playerObjs.p2)
     }
 }
 
@@ -1306,7 +1339,7 @@ const setDisplayObj = new function () {
     }
     this.second = (gameWindow) => {
         const tileArray = gameWindow.getTileNodeArray();
-        _replaceTilesIn(gameBox2, tileArray)
+        _replaceTilesIn(gameBox2, tileArray);
     }
     function _replaceTilesIn(gameBox, tileArray) {
         gameBox.textContent = '';
@@ -1316,62 +1349,171 @@ const setDisplayObj = new function () {
     }
 }
 /// 
-setDisplayObj.first(gameWindows.p1.defense); //for testing purposes
+setDisplayObj.first(gameWindows.p2.defense); //for testing purposes
 setDisplayObj.second(gameWindows.p1.offense);
-console.log('remove later');
+console.log('change layouts here later');
 ///
 function DefenseGameWindow(playerObj) {
     //init
     const tileNodes = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.generateGameTiles)();
     const tiles = getTileObjArray(tileNodes);
     const gameboard = playerObj.get.gameboard();
-
+    const enemyRef = getEnemyPlayerRef(playerObj);
+    const unitTileArr = [];
+    //event listeners
+    // tileNodes.forEach(node =>{
+    //     node.addEventListener('click', (e)=>{
+    //         //may not be needed
+    //     })
+    // })
     //public fn
     this.getTileNodeArray = () => tileNodes;
-    this.receiveAttack = (gameWindow, coords) => {
-
-    }
     this.displayUnits = () => {
-        tiles.forEach(tile =>{
+        tiles.forEach(tile => {
             const coord = tile.getCoord();
             const unit = gameboard.getUnitOnCoord(coord);
-            if(unit) tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unit);
+            if (unit) tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unit);
         })
+    }
+    this.receiveAttack = (coord) => {
+        const unit = gameboard.getUnitOnCoord(coord);
+        const attackState = gameboard.receiveAttack(coord);
+        const index = getIndexFromCoord(coord);
+        const tile = tiles[index];
+
+        switch (attackState) {
+            case attackStates.hit:
+                tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unitHit);
+                pushUnitTileArr(unit, tile)
+                break;
+            case attackStates.miss:
+                tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unitMiss);
+                break;
+            case attackStates.sunk:
+                tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unitSunk);
+                const tileArr = getUnitTileArr(unit).tileArr;
+                tileArr.forEach(tile => { tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unitSunk); });
+                console.log(unitTileArr)
+                return new AttackObj(attackState, tileArr);
+                ///
+                break;
+            case attackStates.error:
+                console.log('Error attackState');
+                break;
+            default:
+                console.log(`Attack state ${attackState} was unexpected.`);
+        }
+        return new AttackObj(attackState);
+    }
+    //private fn
+    function AttackObj(attackState, affectedTiles) {
+        const affectedIndexes = [];
+        if (affectedTiles)
+            affectedTiles.forEach(tile => {
+                affectedIndexes.push(tile.getIndex())
+            })
+        this.attackState = attackState;
+        this.affectedIndexes = affectedIndexes;
+    }
+    function UnitTileObj(unit, tile) {
+        const tileArr = [tile];
+        this.unit = unit;
+        this.tileArr = tileArr;
+        this.pushTile = (tile) => { tileArr.push(tile) };
+    }
+    function pushUnitTileArr(unit, tile) {
+        for (let i = 0; i < unitTileArr.length; i++)
+            if (unit === unitTileArr[i].unit)
+                return unitTileArr[i].pushTile(tile);
+        unitTileArr.push(new UnitTileObj(unit, tile));
+    }
+    function getUnitTileArr(unit) {
+        for (let i = 0; i < unitTileArr.length; i++)
+            if (unitTileArr[i].unit === unit)
+                return unitTileArr[i];
     }
 }
 function OffenseGameWindow(playerObj) {
+    //init
     const tileNodes = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.generateGameTiles)();
-    const tiles = [];
+    const tiles = getTileObjArray(tileNodes);
     const gameboard = playerObj.get.gameboard();
-    this.getTileNodeArray = () => tileNodes;
-    this.sendAttack = (coords) => {
+    const enemyRef = getEnemyPlayerRef(playerObj);
+    //event listeners
+    tiles.forEach(tile => {
+        const node = tile.getNode();
+        const coord = tile.getCoord();
+        node.addEventListener('click', (e) => {
+            const attackObj = sendAttack(coord);
 
+            switch (attackObj.attackState) {
+                case attackStates.hit:
+                    tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.tileHit);
+                    break;
+                case attackStates.miss:
+                    tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.tileMiss);
+                    break;
+                case attackStates.sunk:
+                    tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.tileSunk);
+                    console.log(attackObj)
+                    attackObj.affectedIndexes.forEach(index => {
+                        const tile = tiles[index];
+                        tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.tileSunk)
+                    })
+                    console.log('gets wrong tiles, might need to change to indexes')
+                    console.log('need to do more after sunk');
+                    break;
+                case attackStates.error:
+                    console.log('Error attackState');
+                    break;
+                default:
+                    console.log(`Attack state ${attackState} was unexpected.`);
+            }
+        })
+    })
+
+    //public fn
+    this.getTileNodeArray = () => tileNodes;
+    //private fn
+    const sendAttack = (coords) => {
+        return gameWindows[enemyRef].defense.receiveAttack(coords);
     }
 }
 function getTileObjArray(tileNodeArray) {
     const tileObjArray = [];
-    tileNodeArray.forEach(tileNode => {
-        tileObjArray.push(new TileObj(tileNode));
-    })
-    function TileObj(tileNode) {
+
+    for (let i = 0; i < tileNodeArray.length; i++)
+        tileObjArray.push(new TileObj(tileNodeArray[i], i));
+
+    return tileObjArray;
+    //private
+    function TileObj(tileNode, index) {
         const coordObj = {
             x: +tileNode.getAttribute('posX'),
             y: +tileNode.getAttribute('posY')
         }
         this.getNode = () => tileNode;
         this.getCoord = () => coordObj;
+        this.getIndex = () => index;
         const tempClasses = [];
         this.addTempClass = (className) => {
             tempClasses.push(className);
             tileNode.classList.add(className);
         }
-        this.addClass = (className) => tileNode.classList.add(className);
         this.removeTempClasses = () => {
             while (tempClasses.length > 0)
                 tileNode.classList.remove(tempClasses.pop());
         }
+        this.addClass = (className) => tileNode.classList.add(className);
     }
-    return tileObjArray;
+}
+//
+function getEnemyPlayerRef(playerObj) {
+    let playerRef = playerObj.get.playerRef();
+    return playerRef === 'p1' ? 'p2' : 'p1';
+}
+function getIndexFromCoord(coord) {
+    return coord.x + (coord.y * _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.boardWidth());
 }
 //
 

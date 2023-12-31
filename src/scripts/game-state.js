@@ -51,8 +51,8 @@ const gameState = {
             }
         },
     },
-    p1: _generatePlayerObj(),
-    p2: _generatePlayerObj(),
+    p1: _generatePlayerObj('p1'),
+    p2: _generatePlayerObj('p2'),
     p0: { //here for intellisense
         get: {
             player: () => {},
@@ -66,21 +66,17 @@ const gameState = {
     },
 };
 
-
-_generatePlayerObj(1);
-_generatePlayerObj(2);
-
-function _generatePlayerObj() {
+function _generatePlayerObj(playerRef) {
 
     let _player;
     const _gameboard = gameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
     const _units = _createUnitArray();
-
     const playerObj = {
         get: {
             player: () => _player,
             units: () => _units,
             gameboard: () => _gameboard,
+            playerRef: () => playerRef,
         },
         set: {
             player: (player) => {
