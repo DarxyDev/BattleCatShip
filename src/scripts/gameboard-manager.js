@@ -43,7 +43,6 @@ function gameboardFactory(width = 10, height = 10) {
         },
         receiveAttack: (coord) => {
             const i = get2DIndex(width, coord);
-
             if (_hitArray[i]) return false;
             _hitArray[i] = true;
 

@@ -111,8 +111,13 @@ function setDummyUnits(){
         gameState.p2.get.gameboard()
     ];
     let offset = 1;
-    const units = gameState.p1.get.units();
+    let units = gameState.p1.get.units();
     gameboardArray.forEach(gb =>{
+        if(gb === gameState.p1.get.gameboard()){
+            units = gameState.p1.get.units()
+        }else{
+            units = gameState.p2.get.units()
+        }
         for(let i = offset; i < units.length + offset; i++){
             gb.placeUnit(units[i - offset],[0,i]);
         }
