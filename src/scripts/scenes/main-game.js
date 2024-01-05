@@ -1,6 +1,7 @@
 import { CLASSES } from "../class-manager";
 import gameState from "../game-state";
 import { generateGameTiles, initScene, addGridBoardProperties } from "../scene-manager";
+import sceneManager from "../scene-manager";
 
 ////////////////////Exports///////////////////////////
 const scene = initScene('TEMPLATE_main-game');
@@ -15,7 +16,8 @@ function initMainGameScene() {
 }
 export default initMainGameScene;
 //////////////////////////////////////////////////////
-
+//boolean state
+let waiting = false; //flag for between turns. waits for click to end turn.
 //static
 const attackStates = {
     hit: 'hit',
@@ -54,7 +56,7 @@ const setDisplayObj = new function () {
         _first(gameWindows.p2.defense);
         _second(gameWindows.p2.offense);
     }
-    this.custom = (first, second)=>{
+    this.custom = (first, second) => {
         _first(first);
         _second(second);
     }
@@ -95,8 +97,7 @@ function DefenseGameWindow(playerObj) {
         const attackState = gameboard.receiveAttack(coord);
         const index = getIndexFromCoord(coord);
         const tile = tiles[index];
-        
-        console.log(gameboard.get.boardArray())
+
         switch (attackState) {
             case attackStates.hit:
                 tile.addClass(CLASSES.unitHit);
@@ -141,7 +142,6 @@ function DefenseGameWindow(playerObj) {
             if (unit === unitTileArr[i].unit)
                 return unitTileArr[i].pushTile(tile);
         unitTileArr.push(new UnitTileObj(unit, tile));
-        console.log(unitTileArr)
     }
     function getUnitTileArr(unit) {
         for (let i = 0; i < unitTileArr.length; i++)
@@ -161,6 +161,7 @@ function OffenseGameWindow(playerObj) {
         const node = tile.getNode();
         const coord = tile.getCoord();
         node.addEventListener('click', (e) => {
+            if (waiting) return;
             const attackObj = sendAttack(coord);
             switch (attackObj.attackState) {
                 case attackStates.hit:
@@ -184,14 +185,6 @@ function OffenseGameWindow(playerObj) {
                 default:
                     console.log(`Attack state ${attackState} was unexpected.`);
             }
-            // const pRef = gameState.get.scene.currentPlayer();
-            // if (pRef === 'p1') {
-            //     setDisplayObj.p2();
-            //     gameState.set.scene.setCurrentPlayer('p2');
-            // } else {
-            //     setDisplayObj.p1();
-            //     gameState.set.scene.setCurrentPlayer('p1');
-            // }
             nextTurn();
         })
     })
@@ -240,11 +233,19 @@ function getIndexFromCoord(coord) {
     return coord.x + (coord.y * gameState.get.game.boardWidth());
 }
 //
-function nextTurn(){
-    if(gameState.get.game.isSinglePlayer()){
+function nextTurn() {
+    if (gameState.get.game.isSinglePlayer()) {
         console.log('not set up for single player');
         return;
     }
-    const playerRef = gameState.set.scene.swapPlayers();
-    setDisplayObj[playerRef]();
+    waiting = true;
+    setTimeout(() => { //without timeout it fires immediately
+        document.addEventListener('click', _continue, { once: true });
+    }, 1); 
+    function _continue() {
+        sceneManager.addBlinder();
+        const playerRef = gameState.set.scene.swapPlayers();
+        setDisplayObj[playerRef]();
+        waiting = false;
+    }
 }

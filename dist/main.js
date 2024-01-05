@@ -1295,6 +1295,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 ////////////////////Exports///////////////////////////
 const scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.initScene)('TEMPLATE_main-game');
 scene.sceneOnLoad = () => {
@@ -1308,7 +1309,8 @@ function initMainGameScene() {
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initMainGameScene);
 //////////////////////////////////////////////////////
-
+//boolean state
+let waiting = false; //flag for between turns. waits for click to end turn.
 //static
 const attackStates = {
     hit: 'hit',
@@ -1347,7 +1349,7 @@ const setDisplayObj = new function () {
         _first(gameWindows.p2.defense);
         _second(gameWindows.p2.offense);
     }
-    this.custom = (first, second)=>{
+    this.custom = (first, second) => {
         _first(first);
         _second(second);
     }
@@ -1388,8 +1390,7 @@ function DefenseGameWindow(playerObj) {
         const attackState = gameboard.receiveAttack(coord);
         const index = getIndexFromCoord(coord);
         const tile = tiles[index];
-        
-        console.log(gameboard.get.boardArray())
+
         switch (attackState) {
             case attackStates.hit:
                 tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unitHit);
@@ -1434,7 +1435,6 @@ function DefenseGameWindow(playerObj) {
             if (unit === unitTileArr[i].unit)
                 return unitTileArr[i].pushTile(tile);
         unitTileArr.push(new UnitTileObj(unit, tile));
-        console.log(unitTileArr)
     }
     function getUnitTileArr(unit) {
         for (let i = 0; i < unitTileArr.length; i++)
@@ -1454,6 +1454,7 @@ function OffenseGameWindow(playerObj) {
         const node = tile.getNode();
         const coord = tile.getCoord();
         node.addEventListener('click', (e) => {
+            if (waiting) return;
             const attackObj = sendAttack(coord);
             switch (attackObj.attackState) {
                 case attackStates.hit:
@@ -1477,14 +1478,6 @@ function OffenseGameWindow(playerObj) {
                 default:
                     console.log(`Attack state ${attackState} was unexpected.`);
             }
-            // const pRef = gameState.get.scene.currentPlayer();
-            // if (pRef === 'p1') {
-            //     setDisplayObj.p2();
-            //     gameState.set.scene.setCurrentPlayer('p2');
-            // } else {
-            //     setDisplayObj.p1();
-            //     gameState.set.scene.setCurrentPlayer('p1');
-            // }
             nextTurn();
         })
     })
@@ -1533,13 +1526,21 @@ function getIndexFromCoord(coord) {
     return coord.x + (coord.y * _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.boardWidth());
 }
 //
-function nextTurn(){
-    if(_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer()){
+function nextTurn() {
+    if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer()) {
         console.log('not set up for single player');
         return;
     }
-    const playerRef = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.scene.swapPlayers();
-    setDisplayObj[playerRef]();
+    waiting = true;
+    setTimeout(() => { //without timeout it fires immediately
+        document.addEventListener('click', _continue, { once: true });
+    }, 1); 
+    function _continue() {
+        _scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].addBlinder();
+        const playerRef = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.scene.swapPlayers();
+        setDisplayObj[playerRef]();
+        waiting = false;
+    }
 }
 
 /***/ }),
