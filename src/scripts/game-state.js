@@ -73,7 +73,7 @@ function _generatePlayerObj(playerRef) {
     const _units = _createUnitArray();
     const playerObj = {
         get: {
-            player: () => _player,
+            player: () => _player !== undefined ? _player : playerRef,
             units: () => _units,
             gameboard: () => _gameboard,
             playerRef: () => playerRef,

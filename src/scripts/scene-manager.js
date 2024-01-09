@@ -13,7 +13,7 @@ let scenes = {
     p1: {},
     p2: {},
 };
-const blinderScene = initBlinder();
+const blinderObj = initBlinder();
 let currentScene;
 const gameWindow = document.getElementById('gameWindow');
 const sceneManager = {
@@ -46,8 +46,11 @@ function initializeScenes() {
     //initMainGame();
     //initGameOver();
 }
-function addBlinder(){
-    gameWindow.appendChild(blinderScene);
+function addBlinder(text = undefined){
+    gameWindow.appendChild(blinderObj.scene);
+    if(text !== undefined){
+        blinderObj.setText(text);
+    }
 }
 
 //exports

@@ -9,6 +9,7 @@ scene.sceneOnLoad = () => {
     gameWindows.p1.defense.displayUnits();
     gameWindows.p2.defense.displayUnits();
     gameState.set.scene.setCurrentPlayer('p1');
+    textBoxObj.displayPlayerTurn();
     setDisplayObj.p1();
 }
 function initMainGameScene() {
@@ -75,7 +76,22 @@ const setDisplayObj = new function () {
         })
     }
 }
-
+const textBoxObj = new function(){
+    const textBox = scene.querySelector("[gameID='textBox']");
+    this.clearText = ()=>{textBox.textContent = ''};
+    this.setText = (text)=>{textBox.textContent = text};
+    this.displayPlayerTurn = ()=>{
+        const pRef = gameState.get.scene.currentPlayer();
+        const name = playerObjs[pRef].get.player();
+        this.setText(`${name}'s turn.`)
+    }
+    this.turnResult = (result)=>{
+        this.setText(result);
+    }
+    this.addNewLineText = (text) =>{
+        textBox.innerHTML += '<br>' + text;
+    }
+}
 function DefenseGameWindow(playerObj) {
     //init
     const tileNodes = generateGameTiles();
@@ -185,6 +201,7 @@ function OffenseGameWindow(playerObj) {
                 default:
                     console.log(`Attack state ${attackState} was unexpected.`);
             }
+            textBoxObj.turnResult(attackObj.attackState);
             nextTurn();
         })
     })
@@ -238,14 +255,17 @@ function nextTurn() {
         console.log('not set up for single player');
         return;
     }
+    textBoxObj.addNewLineText('\r\n Click anywhere to continue.')
     waiting = true;
     setTimeout(() => { //without timeout it fires immediately
         document.addEventListener('click', _continue, { once: true });
     }, 1); 
     function _continue() {
-        sceneManager.addBlinder();
         const playerRef = gameState.set.scene.swapPlayers();
+        const name = playerObjs[playerRef].get.player();
+        sceneManager.addBlinder(`${name} click to start your turn.`);
         setDisplayObj[playerRef]();
         waiting = false;
+        textBoxObj.displayPlayerTurn();
     }
 }

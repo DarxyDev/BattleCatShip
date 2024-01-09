@@ -55,7 +55,13 @@ h3 {
     justify-content: center;
     align-items: center;
 }
-
+.full-size{
+    width:100%;
+    height:100%;
+}
+.w100{
+    width:100%;
+}
 .fl-center {
     display: flex;
     justify-content: center;
@@ -160,7 +166,12 @@ h3 {
 .border-2px {
     border: 2px solid;
 }
-
+.text-box{
+    font-size:2rem;
+    line-height: 3rem;
+    background-color: var(--TINT_dark);
+    text-align: center;
+}
 /* Animations */
 .blink {
     animation: 2s infinite alternate blink;

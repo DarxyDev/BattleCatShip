@@ -45,9 +45,12 @@
     </template>
     <template id="TEMPLATE_main-game">
         <div class="scene-container">
-            <div class="fl-center gap pad">
-                <div class="section-container quarter-box border grid-board-container" gameID="gameBox-left"></div>
-                <div class="section-container quarter-box border grid-board-container" gameID="gameBox-right"></div>
+            <div class="fl-col-center gap pad">
+                <div class="fl-center gap pad w100">
+                    <div class="section-container quarter-box border grid-board-container" gameID="gameBox-left"></div>
+                    <div class="section-container quarter-box border grid-board-container" gameID="gameBox-right"></div>
+                </div>
+                <div class="text-box" gameID="textBox">test</div>
             </div>
         </div>
     </template>
@@ -55,7 +58,9 @@
         <div class="scene-container"></div>
     </template>
     <template id="TEMPLATE_blinder">
-        <div class="scene-container blinder"></div>
+        <div class="scene-container blinder fl-center">
+            <div class="text-box" blinderID="textBox"></div>
+        </div>
     </template>
 </body>
 

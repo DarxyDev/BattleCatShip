@@ -156,7 +156,13 @@ h3 {
     justify-content: center;
     align-items: center;
 }
-
+.full-size{
+    width:100%;
+    height:100%;
+}
+.w100{
+    width:100%;
+}
 .fl-center {
     display: flex;
     justify-content: center;
@@ -261,7 +267,12 @@ h3 {
 .border-2px {
     border: 2px solid;
 }
-
+.text-box{
+    font-size:2rem;
+    line-height: 3rem;
+    background-color: var(--TINT_dark);
+    text-align: center;
+}
 /* Animations */
 .blink {
     animation: 2s infinite alternate blink;
@@ -279,7 +290,7 @@ h3 {
     to {
         opacity: 0%;
     }
-}`, "",{"version":3,"sources":["webpack://./src/styles/style.css"],"names":[],"mappings":"AAAA;IACI,mBAAmB;IACnB,0BAA0B;IAC1B,wBAAwB;IACxB,kCAAkC;;IAElC,+BAA+B;IAC/B,kCAAkC;IAClC,oCAAoC;IACpC,wCAAwC;IACxC,uCAAuC;IACvC,qCAAqC;IACrC,yCAAyC;;IAEzC,wBAAwB;IACxB,4BAA4B;AAChC;;AAEA;IACI,YAAY;IACZ,WAAW;IACX,yDAAyE;IACzE,oBAAoB;IACpB,6BAA6B;AACjC;;AAEA;IACI,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,cAAc;AAClB;;AAEA;IACI,cAAc;AAClB;;AAEA;IACI,kBAAkB;IAClB,WAAW;IACX,YAAY;IACZ,kCAAkC;AACtC;AACA;IACI,kBAAkB;IAClB,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,aAAa;IACb,sBAAsB;IACtB,uBAAuB;IACvB,mBAAmB;AACvB;;AAEA;IACI,aAAa;IACb,uBAAuB;IACvB,mBAAmB;AACvB;;AAEA;IACI,2BAA2B;AAC/B;;AAEA;IACI,mCAAmC;AACvC;AACA;IACI,UAAU;AACd;;AAEA;IACI,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,kBAAkB;IAClB,mCAAmC;AACvC;;AAEA;IACI,UAAU;IACV,eAAe;AACnB;;AAEA;IACI,WAAW;IACX,YAAY;IACZ,iBAAiB;IACjB,sBAAsB;AAC1B;AACA;IACI,iBAAiB;IACjB,MAAM;IACN,KAAK;IACL,UAAU;IACV,WAAW;IACX,sBAAsB;IACtB,aAAa;AACjB;AACA,kBAAkB;AAClB;IACI,2CAA2C;AAC/C;;AAEA;IACI,4BAA4B;IAC5B,WAAW;AACf;;AAEA;IACI,4BAA4B;AAChC;;AAEA;IACI,8BAA8B;AAClC;;AAEA;IACI,8BAA8B;AAClC;AACA;IACI,wBAAwB;AAC5B;AACA;IACI,WAAW;AACf;AACA,cAAc;AACd;IACI,kCAAkC;AACtC;AACA;IACI,yCAAyC;AAC7C;AACA;IACI,uCAAuC;AAC3C;AACA;IACI,kCAAkC;AACtC;AACA;IACI,yCAAyC;AAC7C;AACA;IACI,uCAAuC;AAC3C;AACA;IACI,qBAAqB;AACzB;;AAEA;IACI,iBAAiB;AACrB;;AAEA;IACI,iBAAiB;AACrB;;AAEA,eAAe;AACf;IACI,sCAAsC;AAC1C;;AAEA;IACI;QACI,aAAa;IACjB;;IAEA;QACI;IACJ;;IAEA;QACI,WAAW;IACf;AACJ","sourcesContent":[":root {\r\n    --COL_mainBG: black;\r\n    --COL_gameBG: antiquewhite;\r\n    --COL_defaultText: white;\r\n    --COL_altDefaultText: antiquewhite;\r\n\r\n    --TINT_dark: rgba(0, 0, 0, .75);\r\n    --TINT_lowDark: rgba(0, 0, 0, .25);\r\n    --TINT_light: rgba(0, 254, 246, 0.2);\r\n    --TINT_green_light: rgba(0, 255, 0, 0.2);\r\n    --TINT_green_dark: rgba(0, 255, 0, 0.8);\r\n    --TINT_red_light: rgba(255, 0, 0, .2);\r\n    --TINT_brown_light: rgba(139, 69, 19, .5);\r\n\r\n    --SIZE_defaultGap: 1.5em;\r\n    --SIZE_defaultPadding: 1.5em;\r\n}\r\n\r\nhtml {\r\n    height: 100%;\r\n    width: 100%;\r\n    background-image: url('./../images/cat-black-moon-pattern-repeating.png');\r\n    background-size: 33%;\r\n    color: var(--COL_defaultText);\r\n}\r\n\r\nbody {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\nh1 {\r\n    font-size: 4em;\r\n}\r\n\r\nh3 {\r\n    font-size: 2em;\r\n}\r\n\r\n#gameWindow {\r\n    position: relative;\r\n    width: 100%;\r\n    height: 100%;\r\n    background-color: var(--TINT_dark);\r\n}\r\n.fullscreen {\r\n    position: absolute;\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.fl-col-center {\r\n    display: flex;\r\n    flex-direction: column;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.fl-center {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.gap {\r\n    gap: var(--SIZE_defaultGap);\r\n}\r\n\r\n.pad {\r\n    padding: var(--SIZE_defaultPadding);\r\n}\r\n.hover-shade:hover{\r\n    opacity:.5;\r\n}\r\n\r\n.scene-container {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.section-container {\r\n    position: relative;\r\n    background-color: var(--TINT_light);\r\n}\r\n\r\n.quarter-box {\r\n    width: 25%;\r\n    aspect-ratio: 1;\r\n}\r\n\r\n.board-tile {\r\n    width: 100%;\r\n    height: 100%;\r\n    border: 1px solid;\r\n    box-sizing: border-box;\r\n}\r\n.blinder{\r\n    position:absolute;\r\n    left:0;\r\n    top:0;\r\n    width:100%;\r\n    height:100%;\r\n    background-color:black;\r\n    z-index:99999;\r\n}\r\n/*Piece Placement*/\r\n.pPlacement-tile:hover {\r\n    border: 3px solid var(--COL_altDefaultText);\r\n}\r\n\r\n.tile-has-unit{\r\n    background-color: blueviolet;\r\n    border:none;\r\n}\r\n\r\n.tile-highlight-low{\r\n    background-color: lightGreen;\r\n}\r\n\r\n.tile-highlight-high{\r\n    background-color: rgb(0,200,0);\r\n}\r\n\r\n.tile-highlight-invalid{\r\n    background-color: rgb(0,100,0);\r\n}\r\n.tile-placed-unit{\r\n    background-color: yellow;\r\n}\r\n.tile-removable-unit{\r\n    opacity: .5;\r\n}\r\n/* main game */\r\n.unit-miss{\r\n    background-color: var(--TINT_dark);\r\n}\r\n.unit-hit{\r\n    background-color: var(--TINT_green_light);\r\n}\r\n.unit-sunk{\r\n    background-color: var(--TINT_red_light);\r\n}\r\n.tile-miss{\r\n    background-color: var(--TINT_dark);\r\n}\r\n.tile-hit{\r\n    background-color: var(--TINT_green_light);\r\n}\r\n.tile-sunk{\r\n    background-color: var(--TINT_red_light);\r\n}\r\n.red-border {\r\n    border: 1px solid red;\r\n}\r\n\r\n.border {\r\n    border: 1px solid;\r\n}\r\n\r\n.border-2px {\r\n    border: 2px solid;\r\n}\r\n\r\n/* Animations */\r\n.blink {\r\n    animation: 2s infinite alternate blink;\r\n}\r\n\r\n@keyframes blink {\r\n    from {\r\n        opacity: 100%;\r\n    }\r\n\r\n    33% {\r\n        opacity: 100%\r\n    }\r\n\r\n    to {\r\n        opacity: 0%;\r\n    }\r\n}"],"sourceRoot":""}]);
+}`, "",{"version":3,"sources":["webpack://./src/styles/style.css"],"names":[],"mappings":"AAAA;IACI,mBAAmB;IACnB,0BAA0B;IAC1B,wBAAwB;IACxB,kCAAkC;;IAElC,+BAA+B;IAC/B,kCAAkC;IAClC,oCAAoC;IACpC,wCAAwC;IACxC,uCAAuC;IACvC,qCAAqC;IACrC,yCAAyC;;IAEzC,wBAAwB;IACxB,4BAA4B;AAChC;;AAEA;IACI,YAAY;IACZ,WAAW;IACX,yDAAyE;IACzE,oBAAoB;IACpB,6BAA6B;AACjC;;AAEA;IACI,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,cAAc;AAClB;;AAEA;IACI,cAAc;AAClB;;AAEA;IACI,kBAAkB;IAClB,WAAW;IACX,YAAY;IACZ,kCAAkC;AACtC;AACA;IACI,kBAAkB;IAClB,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,aAAa;IACb,sBAAsB;IACtB,uBAAuB;IACvB,mBAAmB;AACvB;AACA;IACI,UAAU;IACV,WAAW;AACf;AACA;IACI,UAAU;AACd;AACA;IACI,aAAa;IACb,uBAAuB;IACvB,mBAAmB;AACvB;;AAEA;IACI,2BAA2B;AAC/B;;AAEA;IACI,mCAAmC;AACvC;AACA;IACI,UAAU;AACd;;AAEA;IACI,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,kBAAkB;IAClB,mCAAmC;AACvC;;AAEA;IACI,UAAU;IACV,eAAe;AACnB;;AAEA;IACI,WAAW;IACX,YAAY;IACZ,iBAAiB;IACjB,sBAAsB;AAC1B;AACA;IACI,iBAAiB;IACjB,MAAM;IACN,KAAK;IACL,UAAU;IACV,WAAW;IACX,sBAAsB;IACtB,aAAa;AACjB;AACA,kBAAkB;AAClB;IACI,2CAA2C;AAC/C;;AAEA;IACI,4BAA4B;IAC5B,WAAW;AACf;;AAEA;IACI,4BAA4B;AAChC;;AAEA;IACI,8BAA8B;AAClC;;AAEA;IACI,8BAA8B;AAClC;AACA;IACI,wBAAwB;AAC5B;AACA;IACI,WAAW;AACf;AACA,cAAc;AACd;IACI,kCAAkC;AACtC;AACA;IACI,yCAAyC;AAC7C;AACA;IACI,uCAAuC;AAC3C;AACA;IACI,kCAAkC;AACtC;AACA;IACI,yCAAyC;AAC7C;AACA;IACI,uCAAuC;AAC3C;AACA;IACI,qBAAqB;AACzB;;AAEA;IACI,iBAAiB;AACrB;;AAEA;IACI,iBAAiB;AACrB;AACA;IACI,cAAc;IACd,iBAAiB;IACjB,kCAAkC;IAClC,kBAAkB;AACtB;AACA,eAAe;AACf;IACI,sCAAsC;AAC1C;;AAEA;IACI;QACI,aAAa;IACjB;;IAEA;QACI;IACJ;;IAEA;QACI,WAAW;IACf;AACJ","sourcesContent":[":root {\r\n    --COL_mainBG: black;\r\n    --COL_gameBG: antiquewhite;\r\n    --COL_defaultText: white;\r\n    --COL_altDefaultText: antiquewhite;\r\n\r\n    --TINT_dark: rgba(0, 0, 0, .75);\r\n    --TINT_lowDark: rgba(0, 0, 0, .25);\r\n    --TINT_light: rgba(0, 254, 246, 0.2);\r\n    --TINT_green_light: rgba(0, 255, 0, 0.2);\r\n    --TINT_green_dark: rgba(0, 255, 0, 0.8);\r\n    --TINT_red_light: rgba(255, 0, 0, .2);\r\n    --TINT_brown_light: rgba(139, 69, 19, .5);\r\n\r\n    --SIZE_defaultGap: 1.5em;\r\n    --SIZE_defaultPadding: 1.5em;\r\n}\r\n\r\nhtml {\r\n    height: 100%;\r\n    width: 100%;\r\n    background-image: url('./../images/cat-black-moon-pattern-repeating.png');\r\n    background-size: 33%;\r\n    color: var(--COL_defaultText);\r\n}\r\n\r\nbody {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\nh1 {\r\n    font-size: 4em;\r\n}\r\n\r\nh3 {\r\n    font-size: 2em;\r\n}\r\n\r\n#gameWindow {\r\n    position: relative;\r\n    width: 100%;\r\n    height: 100%;\r\n    background-color: var(--TINT_dark);\r\n}\r\n.fullscreen {\r\n    position: absolute;\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.fl-col-center {\r\n    display: flex;\r\n    flex-direction: column;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n.full-size{\r\n    width:100%;\r\n    height:100%;\r\n}\r\n.w100{\r\n    width:100%;\r\n}\r\n.fl-center {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n\r\n.gap {\r\n    gap: var(--SIZE_defaultGap);\r\n}\r\n\r\n.pad {\r\n    padding: var(--SIZE_defaultPadding);\r\n}\r\n.hover-shade:hover{\r\n    opacity:.5;\r\n}\r\n\r\n.scene-container {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.section-container {\r\n    position: relative;\r\n    background-color: var(--TINT_light);\r\n}\r\n\r\n.quarter-box {\r\n    width: 25%;\r\n    aspect-ratio: 1;\r\n}\r\n\r\n.board-tile {\r\n    width: 100%;\r\n    height: 100%;\r\n    border: 1px solid;\r\n    box-sizing: border-box;\r\n}\r\n.blinder{\r\n    position:absolute;\r\n    left:0;\r\n    top:0;\r\n    width:100%;\r\n    height:100%;\r\n    background-color:black;\r\n    z-index:99999;\r\n}\r\n/*Piece Placement*/\r\n.pPlacement-tile:hover {\r\n    border: 3px solid var(--COL_altDefaultText);\r\n}\r\n\r\n.tile-has-unit{\r\n    background-color: blueviolet;\r\n    border:none;\r\n}\r\n\r\n.tile-highlight-low{\r\n    background-color: lightGreen;\r\n}\r\n\r\n.tile-highlight-high{\r\n    background-color: rgb(0,200,0);\r\n}\r\n\r\n.tile-highlight-invalid{\r\n    background-color: rgb(0,100,0);\r\n}\r\n.tile-placed-unit{\r\n    background-color: yellow;\r\n}\r\n.tile-removable-unit{\r\n    opacity: .5;\r\n}\r\n/* main game */\r\n.unit-miss{\r\n    background-color: var(--TINT_dark);\r\n}\r\n.unit-hit{\r\n    background-color: var(--TINT_green_light);\r\n}\r\n.unit-sunk{\r\n    background-color: var(--TINT_red_light);\r\n}\r\n.tile-miss{\r\n    background-color: var(--TINT_dark);\r\n}\r\n.tile-hit{\r\n    background-color: var(--TINT_green_light);\r\n}\r\n.tile-sunk{\r\n    background-color: var(--TINT_red_light);\r\n}\r\n.red-border {\r\n    border: 1px solid red;\r\n}\r\n\r\n.border {\r\n    border: 1px solid;\r\n}\r\n\r\n.border-2px {\r\n    border: 2px solid;\r\n}\r\n.text-box{\r\n    font-size:2rem;\r\n    line-height: 3rem;\r\n    background-color: var(--TINT_dark);\r\n    text-align: center;\r\n}\r\n/* Animations */\r\n.blink {\r\n    animation: 2s infinite alternate blink;\r\n}\r\n\r\n@keyframes blink {\r\n    from {\r\n        opacity: 100%;\r\n    }\r\n\r\n    33% {\r\n        opacity: 100%\r\n    }\r\n\r\n    to {\r\n        opacity: 0%;\r\n    }\r\n}"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -934,7 +945,7 @@ function _generatePlayerObj(playerRef) {
     const _units = _createUnitArray();
     const playerObj = {
         get: {
-            player: () => _player,
+            player: () => _player !== undefined ? _player : playerRef,
             units: () => _units,
             gameboard: () => _gameboard,
             playerRef: () => playerRef,
@@ -1178,7 +1189,7 @@ let scenes = {
     p1: {},
     p2: {},
 };
-const blinderScene = (0,_scenes_blinder__WEBPACK_IMPORTED_MODULE_1__["default"])();
+const blinderObj = (0,_scenes_blinder__WEBPACK_IMPORTED_MODULE_1__["default"])();
 let currentScene;
 const gameWindow = document.getElementById('gameWindow');
 const sceneManager = {
@@ -1211,8 +1222,11 @@ function initializeScenes() {
     //initMainGame();
     //initGameOver();
 }
-function addBlinder(){
-    gameWindow.appendChild(blinderScene);
+function addBlinder(text = undefined){
+    gameWindow.appendChild(blinderObj.scene);
+    if(text !== undefined){
+        blinderObj.setText(text);
+    }
 }
 
 //exports
@@ -1268,11 +1282,16 @@ __webpack_require__.r(__webpack_exports__);
 
 function initBlinder(){
     const scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_0__.initScene)('TEMPLATE_blinder');
+    const textBox = scene.querySelector("[blinderID='textBox']");
     scene.addEventListener('click',(e)=>{
         e.preventDefault(); //untested, should be fine
+        setText('');
         scene.remove();
     })
-    return scene;
+    function setText(text){
+        textBox.textContent = text;
+    }
+    return {scene, setText}
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initBlinder);
 
@@ -1302,6 +1321,7 @@ scene.sceneOnLoad = () => {
     gameWindows.p1.defense.displayUnits();
     gameWindows.p2.defense.displayUnits();
     _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.scene.setCurrentPlayer('p1');
+    textBoxObj.displayPlayerTurn();
     setDisplayObj.p1();
 }
 function initMainGameScene() {
@@ -1368,7 +1388,22 @@ const setDisplayObj = new function () {
         })
     }
 }
-
+const textBoxObj = new function(){
+    const textBox = scene.querySelector("[gameID='textBox']");
+    this.clearText = ()=>{textBox.textContent = ''};
+    this.setText = (text)=>{textBox.textContent = text};
+    this.displayPlayerTurn = ()=>{
+        const pRef = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.scene.currentPlayer();
+        const name = playerObjs[pRef].get.player();
+        this.setText(`${name}'s turn.`)
+    }
+    this.turnResult = (result)=>{
+        this.setText(result);
+    }
+    this.addNewLineText = (text) =>{
+        textBox.innerHTML += '<br>' + text;
+    }
+}
 function DefenseGameWindow(playerObj) {
     //init
     const tileNodes = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.generateGameTiles)();
@@ -1478,6 +1513,7 @@ function OffenseGameWindow(playerObj) {
                 default:
                     console.log(`Attack state ${attackState} was unexpected.`);
             }
+            textBoxObj.turnResult(attackObj.attackState);
             nextTurn();
         })
     })
@@ -1531,15 +1567,18 @@ function nextTurn() {
         console.log('not set up for single player');
         return;
     }
+    textBoxObj.addNewLineText('\r\n Click anywhere to continue.')
     waiting = true;
     setTimeout(() => { //without timeout it fires immediately
         document.addEventListener('click', _continue, { once: true });
     }, 1); 
     function _continue() {
-        _scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].addBlinder();
         const playerRef = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.scene.swapPlayers();
+        const name = playerObjs[playerRef].get.player();
+        _scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].addBlinder(`${name} click to start your turn.`);
         setDisplayObj[playerRef]();
         waiting = false;
+        textBoxObj.displayPlayerTurn();
     }
 }
 
