@@ -1,32 +1,47 @@
 import gameState from "./game-state";
 
-function aiFactory(difficulty = 'easy') {
-    let _gameboard;
+function aiFactory(settings) {
+    let _gameboard = settings.gameboard;
+    let _unitArray = settings.unitArray;
+    let _difficulty = settings.difficulty;
     const _prevMoves = [];
     const aiObj = {
-        get: {
-            attackCoords: () => {
-                let coord;
-                switch (difficulty) {
-                    case 'easy':
-                        coord = _getEasyAttackCoords();
-                        break;
-                    case 'medium':
-                        coord = _getMediumAttackCoords();
-                        break;
-                    case 'hard':
-                        coord = _getHardAttackCoords();
-                        break;
-                    default:
-                        return new Error(`${config().get.difficulty()} is an invalid difficulty.`);
-                }
-                _prevMoves.push(coord);
-                return coord;
-            },
+        getAttackCoords: () => {
+            let coord;
+            switch (_difficulty) {
+                case 'easy':
+                    coord = _getEasyAttackCoords();
+                    break;
+                case 'medium':
+                    coord = _getMediumAttackCoords();
+                    break;
+                case 'hard':
+                    coord = _getHardAttackCoords();
+                    break;
+                default:
+                    return console.log(`${_difficulty} is invalid.`)
+            }
+            _prevMoves.push(coord);
+            return coord;
         },
-        set: {
-            gameboard: (gameboard) => { _gameboard = gameboard },
+        getAttackIndex:()=>{
+            const coords = aiObj.getAttackCoords();
+            const width = _gameboard.get.width();
+            return (coords[1] * width) + coords[0];
         },
+        placeShips: () => {
+            const boardHeight = _gameboard.get.height();
+            const boardWidth = _gameboard.get.width();
+            _unitArray.forEach(unit => {
+                let x, y, rotated;
+                do {
+                    x = Math.round(Math.random() * boardWidth);
+                    y = Math.round(Math.random() * boardHeight);
+                    rotated = Math.random() < .5;
+                } while (!_gameboard.placeUnit(unit, [x, y], rotated))
+            })
+
+        }
     }
 
     return aiObj;

@@ -1,10 +1,11 @@
+import { aiFactory } from "./AI-mechanics";
 import { gameboardFactory, unitFactory } from "./gameboard-manager";
 import sceneManager from "./scene-manager";
 
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
 const PIECE_COUNT = 5;
-const PIECE_LENGTH_ARRAY = [0, 0, 0, 1, 0, 0, 0]; //index == piece length  value == piece count of said length
+const PIECE_LENGTH_ARRAY = [0, 0, 0, 3, 0, 0, 0]; //index == piece length  value == piece count of said length
 let _isSinglePlayer;
 
 let _currentPlayer = 'p1';
@@ -39,7 +40,6 @@ const gameState = {
         },
         scene: {
             swapPlayers: () => {
-                if (_isSinglePlayer) return _currentPlayer;
                 if (_currentPlayer === 'p1') _currentPlayer = 'p2';
                 else _currentPlayer = 'p1';
                 return _currentPlayer;
@@ -71,6 +71,7 @@ function _generatePlayerObj(playerRef) {
     let _player;
     const _gameboard = gameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
     const _units = _createUnitArray();
+    const _ai = aiFactory({gameboard:_gameboard,unitArray:_units, difficulty:'easy'});
     const playerObj = {
         get: {
             player: () => _player !== undefined ? _player : playerRef,
@@ -87,6 +88,11 @@ function _generatePlayerObj(playerRef) {
                 if (_gameboard !== undefined) return console.log('gameboard already set. Returning.');
                 _gameboard = gameboard;
             },
+        },
+        ai:{
+            getAttackCoords: _ai.getAttackCoords,
+            getAttackIndex: _ai.getAttackIndex,
+            placeShips: _ai.placeShips,
         },
     };
     return playerObj;

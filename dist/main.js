@@ -840,33 +840,48 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./game-state */ "./src/scripts/game-state.js");
 
 
-function aiFactory(difficulty = 'easy') {
-    let _gameboard;
+function aiFactory(settings) {
+    let _gameboard = settings.gameboard;
+    let _unitArray = settings.unitArray;
+    let _difficulty = settings.difficulty;
     const _prevMoves = [];
     const aiObj = {
-        get: {
-            attackCoords: () => {
-                let coord;
-                switch (difficulty) {
-                    case 'easy':
-                        coord = _getEasyAttackCoords();
-                        break;
-                    case 'medium':
-                        coord = _getMediumAttackCoords();
-                        break;
-                    case 'hard':
-                        coord = _getHardAttackCoords();
-                        break;
-                    default:
-                        return new Error(`${config().get.difficulty()} is an invalid difficulty.`);
-                }
-                _prevMoves.push(coord);
-                return coord;
-            },
+        getAttackCoords: () => {
+            let coord;
+            switch (_difficulty) {
+                case 'easy':
+                    coord = _getEasyAttackCoords();
+                    break;
+                case 'medium':
+                    coord = _getMediumAttackCoords();
+                    break;
+                case 'hard':
+                    coord = _getHardAttackCoords();
+                    break;
+                default:
+                    return console.log(`${_difficulty} is invalid.`)
+            }
+            _prevMoves.push(coord);
+            return coord;
         },
-        set: {
-            gameboard: (gameboard) => { _gameboard = gameboard },
+        getAttackIndex:()=>{
+            const coords = aiObj.getAttackCoords();
+            const width = _gameboard.get.width();
+            return (coords[1] * width) + coords[0];
         },
+        placeShips: () => {
+            const boardHeight = _gameboard.get.height();
+            const boardWidth = _gameboard.get.width();
+            _unitArray.forEach(unit => {
+                let x, y, rotated;
+                do {
+                    x = Math.round(Math.random() * boardWidth);
+                    y = Math.round(Math.random() * boardHeight);
+                    rotated = Math.random() < .5;
+                } while (!_gameboard.placeUnit(unit, [x, y], rotated))
+            })
+
+        }
     }
 
     return aiObj;
@@ -962,15 +977,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
 /* harmony export */   setDummyUnits: () => (/* binding */ setDummyUnits)
 /* harmony export */ });
-/* harmony import */ var _gameboard_manager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./gameboard-manager */ "./src/scripts/gameboard-manager.js");
-/* harmony import */ var _scene_manager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./scene-manager */ "./src/scripts/scene-manager.js");
+/* harmony import */ var _AI_mechanics__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AI-mechanics */ "./src/scripts/AI-mechanics.js");
+/* harmony import */ var _gameboard_manager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./gameboard-manager */ "./src/scripts/gameboard-manager.js");
+/* harmony import */ var _scene_manager__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scene-manager */ "./src/scripts/scene-manager.js");
+
 
 
 
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
 const PIECE_COUNT = 5;
-const PIECE_LENGTH_ARRAY = [0, 0, 0, 1, 0, 0, 0]; //index == piece length  value == piece count of said length
+const PIECE_LENGTH_ARRAY = [0, 0, 0, 3, 0, 0, 0]; //index == piece length  value == piece count of said length
 let _isSinglePlayer;
 
 let _currentPlayer = 'p1';
@@ -1005,7 +1022,6 @@ const gameState = {
         },
         scene: {
             swapPlayers: () => {
-                if (_isSinglePlayer) return _currentPlayer;
                 if (_currentPlayer === 'p1') _currentPlayer = 'p2';
                 else _currentPlayer = 'p1';
                 return _currentPlayer;
@@ -1035,8 +1051,9 @@ const gameState = {
 function _generatePlayerObj(playerRef) {
 
     let _player;
-    const _gameboard = (0,_gameboard_manager__WEBPACK_IMPORTED_MODULE_0__.gameboardFactory)(BOARD_WIDTH, BOARD_HEIGHT);
+    const _gameboard = (0,_gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.gameboardFactory)(BOARD_WIDTH, BOARD_HEIGHT);
     const _units = _createUnitArray();
+    const _ai = (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({gameboard:_gameboard,unitArray:_units, difficulty:'easy'});
     const playerObj = {
         get: {
             player: () => _player !== undefined ? _player : playerRef,
@@ -1054,6 +1071,11 @@ function _generatePlayerObj(playerRef) {
                 _gameboard = gameboard;
             },
         },
+        ai:{
+            getAttackCoords: _ai.getAttackCoords,
+            getAttackIndex: _ai.getAttackIndex,
+            placeShips: _ai.placeShips,
+        },
     };
     return playerObj;
 }
@@ -1064,7 +1086,7 @@ function _createUnitArray() {
     const unitArray = [];
     for (let unitLength = 0; unitLength < PIECE_LENGTH_ARRAY.length; unitLength++) {
         for (let unitCount = PIECE_LENGTH_ARRAY[unitLength]; unitCount > 0; unitCount--) {
-            unitArray.push((0,_gameboard_manager__WEBPACK_IMPORTED_MODULE_0__.unitFactory)(unitLength));
+            unitArray.push((0,_gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.unitFactory)(unitLength));
         }
     }
     return unitArray;
@@ -1219,9 +1241,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _AI_mechanics__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AI-mechanics */ "./src/scripts/AI-mechanics.js");
-
-
 function playerFactory(name, type = 'human') {
     let _games = 0;
     let _wins = 0;
@@ -1241,11 +1260,7 @@ function playerFactory(name, type = 'human') {
                 _streak++;
             }
             else _streak = 0;
-        }
-    }
-    if(type === 'computer'){
-        const ai = (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)();
-        player.get.moveCoords = ()=>{ai.get.attackCoords()};
+        },
     }
 
     return player;
@@ -1612,10 +1627,10 @@ function OffenseGameWindow(playerObj) {
                 default:
                     console.log(`Attack state ${attackState} was unexpected.`);
             }
-            if (enemyGameboard.isGameOver()){
+            if (enemyGameboard.isGameOver()) {
                 _game_state__WEBPACK_IMPORTED_MODULE_1__["default"][enemyRef].get.player().addGamePlayed(false);
                 playerObj.get.player().addGamePlayed(true); //untested
-                 textBoxObj.setText('You win!');
+                textBoxObj.setText('You win!');
             }
             else {
                 textBoxObj.turnResult(attackObj.attackState);
@@ -1669,8 +1684,16 @@ function getIndexFromCoord(coord) {
 }
 //
 function nextTurn() {
+    const playerRef = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.scene.swapPlayers();
+    console.log(playerRef)
     if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer()) {
-        console.log('player.get.moveCoords(). then do it.');
+        if (playerRef === 'p2') {
+            const index = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.ai.getAttackIndex();
+            const tileNode = gameWindows.p2.offense.getTileNodeArray()[index];
+            tileNode.click();
+        }else {
+            console.log('my turn?');
+        }
         return;
     }
     textBoxObj.addNewLineText('Click anywhere to continue.')
@@ -1679,7 +1702,6 @@ function nextTurn() {
         document.addEventListener('click', _continue, { once: true });
     }, 1);
     function _continue() {
-        const playerRef = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.scene.swapPlayers();
         const name = playerObjs[playerRef].get.player().get.name();
         _scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].addBlinder(`${name} click to start your turn.`);
         setDisplayObj[playerRef]();
@@ -2011,18 +2033,15 @@ function createScene(playerRef) {
         })
         const scenes = _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].getScenes();
         if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer() || playerRef === 'p2') {
+            _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.ai.placeShips();
             const name = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p1.get.player().get.name();
             _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].addBlinder(`First turn: ${name}`);
             _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(scenes.main.game);
-            const aiPlayer = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.get.player();
-            const aiBoard = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.get.gameboard();
-            console.log(aiPlayer);
-            console.log(aiBoard);
         } else {
             const name = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.get.player().get.name();
             _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].addBlinder(`${name}'s turn. Click to continue.`);
             scenes.p2.piecePlacement = createScene('p2');
-            _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(pPlaceScenes.p2);
+            _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(scenes.p2.piecePlacement);
         }
     }
 

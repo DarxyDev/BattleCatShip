@@ -200,10 +200,10 @@ function OffenseGameWindow(playerObj) {
                 default:
                     console.log(`Attack state ${attackState} was unexpected.`);
             }
-            if (enemyGameboard.isGameOver()){
+            if (enemyGameboard.isGameOver()) {
                 gameState[enemyRef].get.player().addGamePlayed(false);
                 playerObj.get.player().addGamePlayed(true); //untested
-                 textBoxObj.setText('You win!');
+                textBoxObj.setText('You win!');
             }
             else {
                 textBoxObj.turnResult(attackObj.attackState);
@@ -257,8 +257,16 @@ function getIndexFromCoord(coord) {
 }
 //
 function nextTurn() {
+    const playerRef = gameState.set.scene.swapPlayers();
+    console.log(playerRef)
     if (gameState.get.game.isSinglePlayer()) {
-        console.log('player.get.moveCoords(). then do it.');
+        if (playerRef === 'p2') {
+            const index = gameState.p2.ai.getAttackIndex();
+            const tileNode = gameWindows.p2.offense.getTileNodeArray()[index];
+            tileNode.click();
+        }else {
+            console.log('my turn?');
+        }
         return;
     }
     textBoxObj.addNewLineText('Click anywhere to continue.')
@@ -267,7 +275,6 @@ function nextTurn() {
         document.addEventListener('click', _continue, { once: true });
     }, 1);
     function _continue() {
-        const playerRef = gameState.set.scene.swapPlayers();
         const name = playerObjs[playerRef].get.player().get.name();
         sceneManager.addBlinder(`${name} click to start your turn.`);
         setDisplayObj[playerRef]();

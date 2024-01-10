@@ -306,18 +306,15 @@ function createScene(playerRef) {
         })
         const scenes = sceneManager.getScenes();
         if (gameState.get.game.isSinglePlayer() || playerRef === 'p2') {
+            gameState.p2.ai.placeShips();
             const name = gameState.p1.get.player().get.name();
             sceneManager.addBlinder(`First turn: ${name}`);
             sceneManager.loadScene(scenes.main.game);
-            const aiPlayer = gameState.p2.get.player();
-            const aiBoard = gameState.p2.get.gameboard();
-            console.log(aiPlayer);
-            console.log(aiBoard);
         } else {
             const name = gameState.p2.get.player().get.name();
             sceneManager.addBlinder(`${name}'s turn. Click to continue.`);
             scenes.p2.piecePlacement = createScene('p2');
-            sceneManager.loadScene(pPlaceScenes.p2);
+            sceneManager.loadScene(scenes.p2.piecePlacement);
         }
     }
 
