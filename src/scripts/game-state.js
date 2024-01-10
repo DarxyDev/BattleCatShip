@@ -4,7 +4,7 @@ import sceneManager from "./scene-manager";
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
 const PIECE_COUNT = 5;
-const PIECE_LENGTH_ARRAY = [0, 0, 1, 1, 1, 1, 1]; //index == piece length  value == piece count of said length
+const PIECE_LENGTH_ARRAY = [0, 0, 0, 1, 0, 0, 0]; //index == piece length  value == piece count of said length
 let _isSinglePlayer;
 
 let _currentPlayer = 'p1';

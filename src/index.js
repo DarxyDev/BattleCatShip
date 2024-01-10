@@ -5,11 +5,11 @@ import sceneManager from './scripts/scene-manager';
 import { setDummyUnits } from './scripts/game-state';
 
 
-setDummyUnits();
+//setDummyUnits();
 sceneManager.initializeScenes();
 const scenes = sceneManager.getScenes();
 
-//sceneManager.loadScene(scenes.main.titleScreen);
+sceneManager.loadScene(scenes.main.titleScreen);
 
 //sceneManager.loadScene(scenes.p1.piecePlacement)
-sceneManager.loadScene(scenes.main.game);
+// sceneManager.loadScene(scenes.main.game);

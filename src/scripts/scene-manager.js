@@ -41,7 +41,7 @@ function loadScene(sceneNode) {
 function initializeScenes() {
     scenes.main.titleScreen = initTitleScreen();
     scenes.main.playerSelect = initPlayerSelect();
-    [scenes.p1.piecePlacement, scenes.p2.piecePlacement] = initPiecePlacement();
+    scenes.p1.piecePlacement = initPiecePlacement(); 
     scenes.main.game = initMainGameScene();
     //initMainGame();
     //initGameOver();

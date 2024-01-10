@@ -19,7 +19,7 @@ function initPlayerSelect() {
         if (name === '') name = 'Player1';
         let type = 'human';
         let player = playerFactory(name, type);
-        gameState.set.player1.player(player);
+        gameState.p1.set.player(player);
 
         //p2
         if (singlePlayer) {
@@ -31,7 +31,7 @@ function initPlayerSelect() {
             if (name === '') name = 'Player 2';
         }
         player = playerFactory(name, type);
-        gameState.set.player2.player(player);
+        gameState.p2.set.player(player)
         //
         gameState.set.game.isSinglePlayer(singlePlayer);
         sceneManager.loadScene(sceneManager.getScenes().p1.piecePlacement);

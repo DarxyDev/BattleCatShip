@@ -5,11 +5,7 @@ import { CLASSES } from "../class-manager";
 
 //export scene to sceneManager
 function initPiecePlacement() {
-    const scenes = {};
-    scenes.p1 = createScene('p1');
-    if (gameState.get.game.isSinglePlayer()) scenes.p2 = null;
-    else scenes.p2 = createScene('p2');
-    return [scenes.p1, scenes.p2];
+    return createScene('p1');
 }
 export default initPiecePlacement
 
@@ -161,7 +157,7 @@ function createScene(playerRef) {
                         }
                         if (!placeUnit()) break;
                         tile.selectedTile.unSelect();
-                        if(!tile.unit.getUnit())highlightAllplacements()
+                        if (!tile.unit.getUnit()) highlightAllplacements()
                         STATES.current = STATES.pickTile;
 
                         break;
@@ -309,10 +305,19 @@ function createScene(playerRef) {
             }
         })
         const scenes = sceneManager.getScenes();
-        if (gameState.get.game.isSinglePlayer() || playerRef === 'p2') sceneManager.loadScene(scenes.main.game)
-        else {
-            sceneManager.addBlinder();
-            sceneManager.loadScene(scenes.p2.piecePlacement)
+        if (gameState.get.game.isSinglePlayer() || playerRef === 'p2') {
+            const name = gameState.p1.get.player().get.name();
+            sceneManager.addBlinder(`First turn: ${name}`);
+            sceneManager.loadScene(scenes.main.game);
+            const aiPlayer = gameState.p2.get.player();
+            const aiBoard = gameState.p2.get.gameboard();
+            console.log(aiPlayer);
+            console.log(aiBoard);
+        } else {
+            const name = gameState.p2.get.player().get.name();
+            sceneManager.addBlinder(`${name}'s turn. Click to continue.`);
+            scenes.p2.piecePlacement = createScene('p2');
+            sceneManager.loadScene(pPlaceScenes.p2);
         }
     }
 

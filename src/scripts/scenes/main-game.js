@@ -76,19 +76,19 @@ const setDisplayObj = new function () {
         })
     }
 }
-const textBoxObj = new function(){
+const textBoxObj = new function () {
     const textBox = scene.querySelector("[gameID='textBox']");
-    this.clearText = ()=>{textBox.textContent = ''};
-    this.setText = (text)=>{textBox.textContent = text};
-    this.displayPlayerTurn = ()=>{
+    this.clearText = () => { textBox.textContent = '' };
+    this.setText = (text) => { textBox.textContent = text };
+    this.displayPlayerTurn = () => {
         const pRef = gameState.get.scene.currentPlayer();
-        const name = playerObjs[pRef].get.player();
+        const name = playerObjs[pRef].get.player().get.name();
         this.setText(`${name}'s turn.`)
     }
-    this.turnResult = (result)=>{
+    this.turnResult = (result) => {
         this.setText(result);
     }
-    this.addNewLineText = (text) =>{
+    this.addNewLineText = (text) => {
         textBox.innerHTML += '<br>' + text;
     }
 }
@@ -192,7 +192,6 @@ function OffenseGameWindow(playerObj) {
                         const tile = tiles[index];
                         tile.addClass(CLASSES.tileSunk)
                     });
-                    if (enemyGameboard.isGameOver()) console.log('You WIN!')
                     break;
                 case attackStates.error:
                     console.log('Error attackState');
@@ -201,8 +200,15 @@ function OffenseGameWindow(playerObj) {
                 default:
                     console.log(`Attack state ${attackState} was unexpected.`);
             }
-            textBoxObj.turnResult(attackObj.attackState);
-            nextTurn();
+            if (enemyGameboard.isGameOver()){
+                gameState[enemyRef].get.player().addGamePlayed(false);
+                playerObj.get.player().addGamePlayed(true); //untested
+                 textBoxObj.setText('You win!');
+            }
+            else {
+                textBoxObj.turnResult(attackObj.attackState);
+                nextTurn();
+            }
         })
     })
 
@@ -252,17 +258,17 @@ function getIndexFromCoord(coord) {
 //
 function nextTurn() {
     if (gameState.get.game.isSinglePlayer()) {
-        console.log('not set up for single player');
+        console.log('player.get.moveCoords(). then do it.');
         return;
     }
-    textBoxObj.addNewLineText('\r\n Click anywhere to continue.')
+    textBoxObj.addNewLineText('Click anywhere to continue.')
     waiting = true;
     setTimeout(() => { //without timeout it fires immediately
         document.addEventListener('click', _continue, { once: true });
-    }, 1); 
+    }, 1);
     function _continue() {
         const playerRef = gameState.set.scene.swapPlayers();
-        const name = playerObjs[playerRef].get.player();
+        const name = playerObjs[playerRef].get.player().get.name();
         sceneManager.addBlinder(`${name} click to start your turn.`);
         setDisplayObj[playerRef]();
         waiting = false;

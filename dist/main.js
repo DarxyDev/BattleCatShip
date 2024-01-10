@@ -826,6 +826,100 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
+/***/ "./src/scripts/AI-mechanics.js":
+/*!*************************************!*\
+  !*** ./src/scripts/AI-mechanics.js ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   aiFactory: () => (/* binding */ aiFactory),
+/* harmony export */   checkCoordUnique: () => (/* binding */ checkCoordUnique)
+/* harmony export */ });
+/* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./game-state */ "./src/scripts/game-state.js");
+
+
+function aiFactory(difficulty = 'easy') {
+    let _gameboard;
+    const _prevMoves = [];
+    const aiObj = {
+        get: {
+            attackCoords: () => {
+                let coord;
+                switch (difficulty) {
+                    case 'easy':
+                        coord = _getEasyAttackCoords();
+                        break;
+                    case 'medium':
+                        coord = _getMediumAttackCoords();
+                        break;
+                    case 'hard':
+                        coord = _getHardAttackCoords();
+                        break;
+                    default:
+                        return new Error(`${config().get.difficulty()} is an invalid difficulty.`);
+                }
+                _prevMoves.push(coord);
+                return coord;
+            },
+        },
+        set: {
+            gameboard: (gameboard) => { _gameboard = gameboard },
+        },
+    }
+
+    return aiObj;
+
+    function _getEasyAttackCoords() {
+        const width = _gameboard.get.width();
+        const height = _gameboard.get.height();
+        let x = Math.round(Math.random() * (width - 1));
+        let y = Math.round(Math.random() * (height - 1));
+
+        if (_prevMoves.length <= 0) return [x, y];
+        if (_prevMoves.length >= height * width) return false;
+
+        while (_coordWasUsed([x, y], _prevMoves)) { //not sure I like how this works, might make array of possible moves and 
+            if (Math.random() > .5)                 // remove moves as they are used
+                x = (x + 1) % width;
+            else y = (y + 1) % height;
+        }
+        return [x, y];
+    }
+    function _getMediumAttackCoords() {
+        alert('implement hard ai first'); return;
+        // if (Math.random() < config.get.mediumDifficultyScale())
+        //     return _getHardAttackCoords();
+        // return _getEasyAttackCoords();
+    }
+    function _getHardAttackCoords() {
+        alert('hard ai not implemented');
+    }
+}
+
+function checkCoordUnique(coord1, coord2) {
+    if ((coord1[0] === coord2[0]) &&
+        (coord1[1] === coord2[1]))
+        return false;
+    return true;
+}
+
+
+
+function _coordWasUsed(coord, prevCoordArr) {
+    let result = false;
+    prevCoordArr.forEach(cArr => {
+        if (!checkCoordUnique(cArr, coord))
+            return result = true;
+    })
+    return result;
+}
+
+
+
+/***/ }),
+
 /***/ "./src/scripts/class-manager.js":
 /*!**************************************!*\
   !*** ./src/scripts/class-manager.js ***!
@@ -876,7 +970,7 @@ __webpack_require__.r(__webpack_exports__);
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
 const PIECE_COUNT = 5;
-const PIECE_LENGTH_ARRAY = [0, 0, 1, 1, 1, 1, 1]; //index == piece length  value == piece count of said length
+const PIECE_LENGTH_ARRAY = [0, 0, 0, 1, 0, 0, 0]; //index == piece length  value == piece count of said length
 let _isSinglePlayer;
 
 let _currentPlayer = 'p1';
@@ -1125,11 +1219,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+/* harmony import */ var _AI_mechanics__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AI-mechanics */ "./src/scripts/AI-mechanics.js");
+
+
 function playerFactory(name, type = 'human') {
     let _games = 0;
     let _wins = 0;
     let _streak = 0;
-
     const player = {
         get: {
             name: () => { return name; },
@@ -1146,6 +1242,10 @@ function playerFactory(name, type = 'human') {
             }
             else _streak = 0;
         }
+    }
+    if(type === 'computer'){
+        const ai = (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)();
+        player.get.moveCoords = ()=>{ai.get.attackCoords()};
     }
 
     return player;
@@ -1217,7 +1317,7 @@ function loadScene(sceneNode) {
 function initializeScenes() {
     scenes.main.titleScreen = (0,_scenes_title_screen__WEBPACK_IMPORTED_MODULE_2__["default"])();
     scenes.main.playerSelect = (0,_scenes_player_select__WEBPACK_IMPORTED_MODULE_3__["default"])();
-    [scenes.p1.piecePlacement, scenes.p2.piecePlacement] = (0,_scenes_piece_placement__WEBPACK_IMPORTED_MODULE_4__["default"])();
+    scenes.p1.piecePlacement = (0,_scenes_piece_placement__WEBPACK_IMPORTED_MODULE_4__["default"])(); 
     scenes.main.game = (0,_scenes_main_game__WEBPACK_IMPORTED_MODULE_5__["default"])();
     //initMainGame();
     //initGameOver();
@@ -1388,19 +1488,19 @@ const setDisplayObj = new function () {
         })
     }
 }
-const textBoxObj = new function(){
+const textBoxObj = new function () {
     const textBox = scene.querySelector("[gameID='textBox']");
-    this.clearText = ()=>{textBox.textContent = ''};
-    this.setText = (text)=>{textBox.textContent = text};
-    this.displayPlayerTurn = ()=>{
+    this.clearText = () => { textBox.textContent = '' };
+    this.setText = (text) => { textBox.textContent = text };
+    this.displayPlayerTurn = () => {
         const pRef = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.scene.currentPlayer();
-        const name = playerObjs[pRef].get.player();
+        const name = playerObjs[pRef].get.player().get.name();
         this.setText(`${name}'s turn.`)
     }
-    this.turnResult = (result)=>{
+    this.turnResult = (result) => {
         this.setText(result);
     }
-    this.addNewLineText = (text) =>{
+    this.addNewLineText = (text) => {
         textBox.innerHTML += '<br>' + text;
     }
 }
@@ -1504,7 +1604,6 @@ function OffenseGameWindow(playerObj) {
                         const tile = tiles[index];
                         tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.tileSunk)
                     });
-                    if (enemyGameboard.isGameOver()) console.log('You WIN!')
                     break;
                 case attackStates.error:
                     console.log('Error attackState');
@@ -1513,8 +1612,15 @@ function OffenseGameWindow(playerObj) {
                 default:
                     console.log(`Attack state ${attackState} was unexpected.`);
             }
-            textBoxObj.turnResult(attackObj.attackState);
-            nextTurn();
+            if (enemyGameboard.isGameOver()){
+                _game_state__WEBPACK_IMPORTED_MODULE_1__["default"][enemyRef].get.player().addGamePlayed(false);
+                playerObj.get.player().addGamePlayed(true); //untested
+                 textBoxObj.setText('You win!');
+            }
+            else {
+                textBoxObj.turnResult(attackObj.attackState);
+                nextTurn();
+            }
         })
     })
 
@@ -1564,17 +1670,17 @@ function getIndexFromCoord(coord) {
 //
 function nextTurn() {
     if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer()) {
-        console.log('not set up for single player');
+        console.log('player.get.moveCoords(). then do it.');
         return;
     }
-    textBoxObj.addNewLineText('\r\n Click anywhere to continue.')
+    textBoxObj.addNewLineText('Click anywhere to continue.')
     waiting = true;
     setTimeout(() => { //without timeout it fires immediately
         document.addEventListener('click', _continue, { once: true });
-    }, 1); 
+    }, 1);
     function _continue() {
         const playerRef = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.scene.swapPlayers();
-        const name = playerObjs[playerRef].get.player();
+        const name = playerObjs[playerRef].get.player().get.name();
         _scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].addBlinder(`${name} click to start your turn.`);
         setDisplayObj[playerRef]();
         waiting = false;
@@ -1604,11 +1710,7 @@ __webpack_require__.r(__webpack_exports__);
 
 //export scene to sceneManager
 function initPiecePlacement() {
-    const scenes = {};
-    scenes.p1 = createScene('p1');
-    if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer()) scenes.p2 = null;
-    else scenes.p2 = createScene('p2');
-    return [scenes.p1, scenes.p2];
+    return createScene('p1');
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initPiecePlacement);
 
@@ -1760,7 +1862,7 @@ function createScene(playerRef) {
                         }
                         if (!placeUnit()) break;
                         tile.selectedTile.unSelect();
-                        if(!tile.unit.getUnit())highlightAllplacements()
+                        if (!tile.unit.getUnit()) highlightAllplacements()
                         STATES.current = STATES.pickTile;
 
                         break;
@@ -1908,10 +2010,19 @@ function createScene(playerRef) {
             }
         })
         const scenes = _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].getScenes();
-        if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer() || playerRef === 'p2') _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(scenes.main.game)
-        else {
-            _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].addBlinder();
-            _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(scenes.p2.piecePlacement)
+        if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer() || playerRef === 'p2') {
+            const name = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p1.get.player().get.name();
+            _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].addBlinder(`First turn: ${name}`);
+            _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(scenes.main.game);
+            const aiPlayer = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.get.player();
+            const aiBoard = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.get.gameboard();
+            console.log(aiPlayer);
+            console.log(aiBoard);
+        } else {
+            const name = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.get.player().get.name();
+            _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].addBlinder(`${name}'s turn. Click to continue.`);
+            scenes.p2.piecePlacement = createScene('p2');
+            _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(pPlaceScenes.p2);
         }
     }
 
@@ -2063,7 +2174,7 @@ function initPlayerSelect() {
         if (name === '') name = 'Player1';
         let type = 'human';
         let player = (0,_player_factory__WEBPACK_IMPORTED_MODULE_1__["default"])(name, type);
-        _game_state__WEBPACK_IMPORTED_MODULE_2__["default"].set.player1.player(player);
+        _game_state__WEBPACK_IMPORTED_MODULE_2__["default"].p1.set.player(player);
 
         //p2
         if (singlePlayer) {
@@ -2075,7 +2186,7 @@ function initPlayerSelect() {
             if (name === '') name = 'Player 2';
         }
         player = (0,_player_factory__WEBPACK_IMPORTED_MODULE_1__["default"])(name, type);
-        _game_state__WEBPACK_IMPORTED_MODULE_2__["default"].set.player2.player(player);
+        _game_state__WEBPACK_IMPORTED_MODULE_2__["default"].p2.set.player(player)
         //
         _game_state__WEBPACK_IMPORTED_MODULE_2__["default"].set.game.isSinglePlayer(singlePlayer);
         _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(_scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].getScenes().p1.piecePlacement);
@@ -2284,14 +2395,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-(0,_scripts_game_state__WEBPACK_IMPORTED_MODULE_3__.setDummyUnits)();
+//setDummyUnits();
 _scripts_scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].initializeScenes();
 const scenes = _scripts_scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].getScenes();
 
-//sceneManager.loadScene(scenes.main.titleScreen);
+_scripts_scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].loadScene(scenes.main.titleScreen);
 
 //sceneManager.loadScene(scenes.p1.piecePlacement)
-_scripts_scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].loadScene(scenes.main.game);
+// sceneManager.loadScene(scenes.main.game);
 
 })();
 
