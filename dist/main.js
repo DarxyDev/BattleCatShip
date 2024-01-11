@@ -863,7 +863,6 @@ function aiFactory(settings) {
 
         const directions = ['up', 'down', 'left', 'right'];
         this.getNearCoord = (lastIndex) => {
-            console.log(directions)
             if (directions.length <= 0){
                 if(_prevMoveObjs[lastIndex-1]) return _prevMoveObjs[lastIndex - 1].getNearCoord();
                 else{
@@ -873,8 +872,8 @@ function aiFactory(settings) {
             }
             let x = coord[0];
             let y = coord[1];
-            let index;
-            const direction = directions[Math.round(Math.random() * directions.length)];
+            let index = Math.round(Math.random() * (directions.length - 1));
+            const direction = directions[index];
             switch (direction) {
                 case 'up':
                     index = directions.indexOf('up');
@@ -940,8 +939,8 @@ function aiFactory(settings) {
             _unitArray.forEach(unit => {
                 let x, y, rotated;
                 do {
-                    x = Math.round(Math.random() * boardWidth);
-                    y = Math.round(Math.random() * boardHeight);
+                    x = Math.round(Math.random() * (boardWidth - 1));
+                    y = Math.round(Math.random() * (boardHeight - 1));
                     rotated = Math.random() < .5;
                 } while (!_gameboard.placeUnit(unit, [x, y], rotated))
             })
@@ -1066,7 +1065,7 @@ __webpack_require__.r(__webpack_exports__);
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
 const PIECE_COUNT = 5;
-const PIECE_LENGTH_ARRAY = [0, 0, 1, 1, 1, 1, 2]; //index == piece length  value == piece count of said length
+const PIECE_LENGTH_ARRAY = [0, 0, 0, 0, 0, 0, 0, 0, 5]; //index == piece length  value == piece count of said length
 let _isSinglePlayer;
 
 let _currentPlayer = 'p1';
@@ -1206,7 +1205,6 @@ function setDummyUnits(){
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Gameboard: () => (/* binding */ Gameboard),
-/* harmony export */   get2DIndex: () => (/* binding */ get2DIndex),
 /* harmony export */   unitFactory: () => (/* binding */ unitFactory)
 /* harmony export */ });
 function Gameboard(width = 10, height = 10) {
@@ -1227,16 +1225,15 @@ function Gameboard(width = 10, height = 10) {
         if (coord.x !== undefined) coord = [coord.x, coord.y]; //allows coord obj instead of array
         for (let i = 0; i < unit.get.length(); i++) {
             let j = rotated ?
-                get2DIndex(width, coord[0], coord[1] + i) :
-                get2DIndex(width, coord[0] + i, coord[1]);
-            if (j instanceof Error ||
-                _boardArray[j])
-                return false;
+                get2DIndex(coord[0], coord[1] + i) :
+                get2DIndex(coord[0] + i, coord[1]);
+            if (j === false) return false;
+            if (_boardArray[j]) return false;
         }
         for (let i = 0; i < unit.get.length(); i++) {
             let j = rotated ?
-                get2DIndex(width, coord[0], coord[1] + i) :
-                get2DIndex(width, coord[0] + i, coord[1]);
+                get2DIndex(coord[0], coord[1] + i) :
+                get2DIndex(coord[0] + i, coord[1]);
             _boardArray[j] = unit;
         }
         _unitsRemaining++;
@@ -1246,12 +1243,12 @@ function Gameboard(width = 10, height = 10) {
         _boardArray.forEach(value => { if (value === unit) value = false; })
     }
     this.getUnitOnCoord = (coord) => {
-        const index = get2DIndex(width, coord);
+        const index = get2DIndex(coord);
         if (_boardArray[index]) return _boardArray[index];
         return false;
     }
     this.receiveAttack = (coord) => {
-        const i = get2DIndex(width, coord);
+        const i = get2DIndex(coord);
         if (_hitArray[i]) return false;
         _hitArray[i] = true;
 
@@ -1265,6 +1262,28 @@ function Gameboard(width = 10, height = 10) {
         return 'hit';
     }
     this.isGameOver = () => { return _unitsRemaining <= 0 }
+
+    function get2DIndex(x, y) {
+        let a, b;
+        if (x.x !== undefined) { //Allows using coordObj
+            x = [x.x, x.y];
+        }
+        if (x[0] === undefined) {
+            a = x;
+            b = y;
+        } else {
+            a = x[0];
+            b = x[1];
+        }
+        if (a >= width)
+            return false;
+        if (b >= height)
+            return false
+        if ((a < 0) ||
+            (b < 0))
+            return false;
+        return a * width + b;
+    }
 }
 
 let _unitID = 1000;
@@ -1284,25 +1303,7 @@ function unitFactory(length) {
     return unit;
 }
 
-function get2DIndex(rowLength, x, y) {
-    let a, b;
-    if (x.x !== undefined) { //Allows using coordObj
-        x = [x.x, x.y];
-    }
-    if (x[0] === undefined) {
-        a = x;
-        b = y;
-    } else {
-        a = x[0];
-        b = x[1];
-    }
-    if (a >= rowLength)
-        return new Error('Index out of bounds of rowLength.');
-    if ((a < 0) ||
-        (b < 0))
-        return new Error('Index can not be negative.');
-    return a * rowLength + b;
-}
+
 
 
 

@@ -16,16 +16,15 @@ function Gameboard(width = 10, height = 10) {
         if (coord.x !== undefined) coord = [coord.x, coord.y]; //allows coord obj instead of array
         for (let i = 0; i < unit.get.length(); i++) {
             let j = rotated ?
-                get2DIndex(width, coord[0], coord[1] + i) :
-                get2DIndex(width, coord[0] + i, coord[1]);
-            if (j instanceof Error ||
-                _boardArray[j])
-                return false;
+                get2DIndex(coord[0], coord[1] + i) :
+                get2DIndex(coord[0] + i, coord[1]);
+            if (j === false) return false;
+            if (_boardArray[j]) return false;
         }
         for (let i = 0; i < unit.get.length(); i++) {
             let j = rotated ?
-                get2DIndex(width, coord[0], coord[1] + i) :
-                get2DIndex(width, coord[0] + i, coord[1]);
+                get2DIndex(coord[0], coord[1] + i) :
+                get2DIndex(coord[0] + i, coord[1]);
             _boardArray[j] = unit;
         }
         _unitsRemaining++;
@@ -35,12 +34,12 @@ function Gameboard(width = 10, height = 10) {
         _boardArray.forEach(value => { if (value === unit) value = false; })
     }
     this.getUnitOnCoord = (coord) => {
-        const index = get2DIndex(width, coord);
+        const index = get2DIndex(coord);
         if (_boardArray[index]) return _boardArray[index];
         return false;
     }
     this.receiveAttack = (coord) => {
-        const i = get2DIndex(width, coord);
+        const i = get2DIndex(coord);
         if (_hitArray[i]) return false;
         _hitArray[i] = true;
 
@@ -54,6 +53,28 @@ function Gameboard(width = 10, height = 10) {
         return 'hit';
     }
     this.isGameOver = () => { return _unitsRemaining <= 0 }
+
+    function get2DIndex(x, y) {
+        let a, b;
+        if (x.x !== undefined) { //Allows using coordObj
+            x = [x.x, x.y];
+        }
+        if (x[0] === undefined) {
+            a = x;
+            b = y;
+        } else {
+            a = x[0];
+            b = x[1];
+        }
+        if (a >= width)
+            return false;
+        if (b >= height)
+            return false
+        if ((a < 0) ||
+            (b < 0))
+            return false;
+        return a * width + b;
+    }
 }
 
 let _unitID = 1000;
@@ -73,24 +94,6 @@ function unitFactory(length) {
     return unit;
 }
 
-function get2DIndex(rowLength, x, y) {
-    let a, b;
-    if (x.x !== undefined) { //Allows using coordObj
-        x = [x.x, x.y];
-    }
-    if (x[0] === undefined) {
-        a = x;
-        b = y;
-    } else {
-        a = x[0];
-        b = x[1];
-    }
-    if (a >= rowLength)
-        return new Error('Index out of bounds of rowLength.');
-    if ((a < 0) ||
-        (b < 0))
-        return new Error('Index can not be negative.');
-    return a * rowLength + b;
-}
 
-export { Gameboard, unitFactory, get2DIndex };
+
+export { Gameboard, unitFactory };

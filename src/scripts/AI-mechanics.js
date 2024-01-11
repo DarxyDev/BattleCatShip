@@ -23,7 +23,6 @@ function aiFactory(settings) {
 
         const directions = ['up', 'down', 'left', 'right'];
         this.getNearCoord = (lastIndex) => {
-            console.log(directions)
             if (directions.length <= 0){
                 if(_prevMoveObjs[lastIndex-1]) return _prevMoveObjs[lastIndex - 1].getNearCoord();
                 else{
@@ -33,8 +32,8 @@ function aiFactory(settings) {
             }
             let x = coord[0];
             let y = coord[1];
-            let index;
-            const direction = directions[Math.round(Math.random() * directions.length)];
+            let index = Math.round(Math.random() * (directions.length - 1));
+            const direction = directions[index];
             switch (direction) {
                 case 'up':
                     index = directions.indexOf('up');
@@ -100,8 +99,8 @@ function aiFactory(settings) {
             _unitArray.forEach(unit => {
                 let x, y, rotated;
                 do {
-                    x = Math.round(Math.random() * boardWidth);
-                    y = Math.round(Math.random() * boardHeight);
+                    x = Math.round(Math.random() * (boardWidth - 1));
+                    y = Math.round(Math.random() * (boardHeight - 1));
                     rotated = Math.random() < .5;
                 } while (!_gameboard.placeUnit(unit, [x, y], rotated))
             })
