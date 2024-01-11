@@ -987,10 +987,11 @@ __webpack_require__.r(__webpack_exports__);
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
 const PIECE_COUNT = 5;
-const PIECE_LENGTH_ARRAY = [0, 0, 0, 3, 0, 0, 0]; //index == piece length  value == piece count of said length
+const PIECE_LENGTH_ARRAY = [0, 0, 1, , 0, 0, 0]; //index == piece length  value == piece count of said length
 let _isSinglePlayer;
 
 let _currentPlayer = 'p1';
+let _isGameOver = false;
 
 //todo: change gamestate get/sets to individual objects with get/set and all references
 const gameState = {
@@ -1000,6 +1001,7 @@ const gameState = {
             boardWidth: () => BOARD_WIDTH,
             boardHeight: () => BOARD_HEIGHT,
             pieceCount: () => PIECE_COUNT,
+            isGameOver: () => _isGameOver,
         },
         scene: {
             currentPlayer: () => _currentPlayer,
@@ -1018,7 +1020,8 @@ const gameState = {
                     return;
                 }
                 _isSinglePlayer = bool;
-            }
+            },
+            isGameOver:(bool) => {_isGameOver = bool},
         },
         scene: {
             swapPlayers: () => {
@@ -1051,7 +1054,7 @@ const gameState = {
 function _generatePlayerObj(playerRef) {
 
     let _player;
-    const _gameboard = (0,_gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.gameboardFactory)(BOARD_WIDTH, BOARD_HEIGHT);
+    const _gameboard = new _gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.Gameboard(BOARD_WIDTH, BOARD_HEIGHT);
     const _units = _createUnitArray();
     const _ai = (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({gameboard:_gameboard,unitArray:_units, difficulty:'easy'});
     const playerObj = {
@@ -1124,70 +1127,66 @@ function setDummyUnits(){
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   gameboardFactory: () => (/* binding */ gameboardFactory),
+/* harmony export */   Gameboard: () => (/* binding */ Gameboard),
 /* harmony export */   get2DIndex: () => (/* binding */ get2DIndex),
 /* harmony export */   unitFactory: () => (/* binding */ unitFactory)
 /* harmony export */ });
-function gameboardFactory(width = 10, height = 10) {
+function Gameboard(width = 10, height = 10) {
     let _unitsRemaining = 0;
     const boardSize = width * height;
     const _boardArray = [];
     for (let i = 0; i < boardSize; i++) _boardArray.push(false);
     const _hitArray = [];
     for (let i = 0; i < boardSize; i++) _hitArray.push(false);
-
-    const gameboard = {
-        get: {
-            unitsRemaining: () => { return _unitsRemaining },
-            boardArray: () => { return _boardArray },
-            hitArray: () => { return _hitArray },
-            width: () => { return width },
-            height: () => { return height },
-        },
-        placeUnit: (unit, coord, rotated) => {
-            if(coord.x !== undefined) coord = [coord.x, coord.y]; //allows coord obj instead of array
-            for (let i = 0; i < unit.get.length(); i++) {
-                let j = rotated ?
-                    get2DIndex(width, coord[0], coord[1] + i) :
-                    get2DIndex(width, coord[0] + i, coord[1]);
-                if (j instanceof Error ||
-                    _boardArray[j])
-                    return false;
-            }
-            for (let i = 0; i < unit.get.length(); i++) {
-                let j = rotated ?
-                    get2DIndex(width, coord[0], coord[1] + i) :
-                    get2DIndex(width, coord[0] + i, coord[1]);
-                _boardArray[j] = unit;
-            }
-            _unitsRemaining++;
-            return true;
-        },
-        removeUnit: (unit) => {
-            _boardArray.forEach(value => { if (value === unit) value = false; })
-        },
-        getUnitOnCoord: (coord) => {
-            const index = get2DIndex(width, coord);
-            if (_boardArray[index]) return _boardArray[index];
-            return false;
-        },
-        receiveAttack: (coord) => {
-            const i = get2DIndex(width, coord);
-            if (_hitArray[i]) return false;
-            _hitArray[i] = true;
-
-            const unit = _boardArray[i];
-            if (!unit) return 'miss';
-            unit.hit();
-            if (unit.isSunk()) {
-                _unitsRemaining--;
-                return 'sunk';
-            }
-            return 'hit';
-        },
-        isGameOver: () => { return _unitsRemaining <= 0 },
+    this.get = {
+        unitsRemaining: () => { return _unitsRemaining },
+        boardArray: () => { return _boardArray },
+        hitArray: () => { return _hitArray },
+        width: () => { return width },
+        height: () => { return height },
     }
-    return gameboard;
+    this.placeUnit = (unit, coord, rotated) => {
+        if (coord.x !== undefined) coord = [coord.x, coord.y]; //allows coord obj instead of array
+        for (let i = 0; i < unit.get.length(); i++) {
+            let j = rotated ?
+                get2DIndex(width, coord[0], coord[1] + i) :
+                get2DIndex(width, coord[0] + i, coord[1]);
+            if (j instanceof Error ||
+                _boardArray[j])
+                return false;
+        }
+        for (let i = 0; i < unit.get.length(); i++) {
+            let j = rotated ?
+                get2DIndex(width, coord[0], coord[1] + i) :
+                get2DIndex(width, coord[0] + i, coord[1]);
+            _boardArray[j] = unit;
+        }
+        _unitsRemaining++;
+        return true;
+    }
+    this.removeUnit = (unit) => {
+        _boardArray.forEach(value => { if (value === unit) value = false; })
+    }
+    this.getUnitOnCoord = (coord) => {
+        const index = get2DIndex(width, coord);
+        if (_boardArray[index]) return _boardArray[index];
+        return false;
+    }
+    this.receiveAttack = (coord) => {
+        const i = get2DIndex(width, coord);
+        if (_hitArray[i]) return false;
+        _hitArray[i] = true;
+
+        const unit = _boardArray[i];
+        if (!unit) return 'miss';
+        unit.hit();
+        if (unit.isSunk()) {
+            _unitsRemaining--;
+            return 'sunk';
+        }
+        return 'hit';
+    }
+    this.isGameOver = () => { return _unitsRemaining <= 0 }
 }
 
 let _unitID = 1000;
@@ -1209,8 +1208,8 @@ function unitFactory(length) {
 
 function get2DIndex(rowLength, x, y) {
     let a, b;
-    if(x.x !== undefined){ //Allows using coordObj
-        x = [x.x,x.y];
+    if (x.x !== undefined) { //Allows using coordObj
+        x = [x.x, x.y];
     }
     if (x[0] === undefined) {
         a = x;
@@ -1437,15 +1436,15 @@ scene.sceneOnLoad = () => {
     gameWindows.p2.defense.displayUnits();
     _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.scene.setCurrentPlayer('p1');
     textBoxObj.displayPlayerTurn();
-    setDisplayObj.p1();
+    if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer()) setDisplayObj.singplePlayer();
+    else setDisplayObj.multiplayer();
 }
 function initMainGameScene() {
     return scene;
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initMainGameScene);
 //////////////////////////////////////////////////////
-//boolean state
-let waiting = false; //flag for between turns. waits for click to end turn.
+
 //static
 const attackStates = {
     hit: 'hit',
@@ -1476,12 +1475,20 @@ const setDisplayObj = new function () {
     const gameBox2 = scene.querySelector("[gameID='gameBox-right']");
     (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.addGridBoardProperties)(gameBox1);
     (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.addGridBoardProperties)(gameBox2);
-    this.p1 = () => {
+    // this.p1 = () => {
+    //     _first(gameWindows.p1.defense);
+    //     _second(gameWindows.p1.offense);
+    // }
+    // this.p2 = () => {
+    //     _first(gameWindows.p2.defense);
+    //     _second(gameWindows.p2.offense);
+    // }
+    this.singplePlayer = () => {
         _first(gameWindows.p1.defense);
         _second(gameWindows.p1.offense);
     }
-    this.p2 = () => {
-        _first(gameWindows.p2.defense);
+    this.multiplayer = () => {
+        _first(gameWindows.p1.offense);
         _second(gameWindows.p2.offense);
     }
     this.custom = (first, second) => {
@@ -1604,7 +1611,9 @@ function OffenseGameWindow(playerObj) {
         const node = tile.getNode();
         const coord = tile.getCoord();
         node.addEventListener('click', (e) => {
-            if (waiting) return;
+            if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.scene.currentPlayer() == enemyRef
+                || _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isGameOver()) return;
+
             const attackObj = sendAttack(coord);
             switch (attackObj.attackState) {
                 case attackStates.hit:
@@ -1628,8 +1637,9 @@ function OffenseGameWindow(playerObj) {
                     console.log(`Attack state ${attackState} was unexpected.`);
             }
             if (enemyGameboard.isGameOver()) {
+                _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.game.isGameOver(true);
                 _game_state__WEBPACK_IMPORTED_MODULE_1__["default"][enemyRef].get.player().addGamePlayed(false);
-                playerObj.get.player().addGamePlayed(true); //untested
+                playerObj.get.player().addGamePlayed(true);
                 textBoxObj.setText('You win!');
             }
             else {
@@ -1679,35 +1689,27 @@ function getEnemyPlayerRef(playerObj) {
     let playerRef = playerObj.get.playerRef();
     return playerRef === 'p1' ? 'p2' : 'p1';
 }
+function getPlayerName(playerObj) {
+    if (playerObj === 'p1') playerObj = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p1;
+    if (playerObj === 'p2') playerObj = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2;
+    return playerObj.get.player().get.name();
+}
 function getIndexFromCoord(coord) {
     return coord.x + (coord.y * _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.boardWidth());
 }
 //
 function nextTurn() {
     const playerRef = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.scene.swapPlayers();
-    console.log(playerRef)
     if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer()) {
         if (playerRef === 'p2') {
             const index = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.ai.getAttackIndex();
             const tileNode = gameWindows.p2.offense.getTileNodeArray()[index];
             tileNode.click();
-        }else {
-            console.log('my turn?');
+        } else {
+
         }
-        return;
     }
-    textBoxObj.addNewLineText('Click anywhere to continue.')
-    waiting = true;
-    setTimeout(() => { //without timeout it fires immediately
-        document.addEventListener('click', _continue, { once: true });
-    }, 1);
-    function _continue() {
-        const name = playerObjs[playerRef].get.player().get.name();
-        _scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].addBlinder(`${name} click to start your turn.`);
-        setDisplayObj[playerRef]();
-        waiting = false;
-        textBoxObj.displayPlayerTurn();
-    }
+    textBoxObj.addNewLineText(`${_game_state__WEBPACK_IMPORTED_MODULE_1__["default"][playerRef].get.player().get.name()}'s turn.`)
 }
 
 /***/ }),
@@ -2031,17 +2033,20 @@ function createScene(playerRef) {
                 console.log('Error: trying to place unit on occupied tile.');
             }
         })
+
         const scenes = _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].getScenes();
-        if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer() || playerRef === 'p2') {
+        if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer()) {
             _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.ai.placeShips();
-            const name = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p1.get.player().get.name();
-            _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].addBlinder(`First turn: ${name}`);
             _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(scenes.main.game);
+            return;
+        }
+        if (playerRef === 'p2') {
+            _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(scenes.main.game);
+            return;
         } else {
-            const name = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.get.player().get.name();
-            _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].addBlinder(`${name}'s turn. Click to continue.`);
             scenes.p2.piecePlacement = createScene('p2');
             _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(scenes.p2.piecePlacement);
+            return;
         }
     }
 

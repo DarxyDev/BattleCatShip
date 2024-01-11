@@ -304,17 +304,20 @@ function createScene(playerRef) {
                 console.log('Error: trying to place unit on occupied tile.');
             }
         })
+
         const scenes = sceneManager.getScenes();
-        if (gameState.get.game.isSinglePlayer() || playerRef === 'p2') {
+        if (gameState.get.game.isSinglePlayer()) {
             gameState.p2.ai.placeShips();
-            const name = gameState.p1.get.player().get.name();
-            sceneManager.addBlinder(`First turn: ${name}`);
             sceneManager.loadScene(scenes.main.game);
+            return;
+        }
+        if (playerRef === 'p2') {
+            sceneManager.loadScene(scenes.main.game);
+            return;
         } else {
-            const name = gameState.p2.get.player().get.name();
-            sceneManager.addBlinder(`${name}'s turn. Click to continue.`);
             scenes.p2.piecePlacement = createScene('p2');
             sceneManager.loadScene(scenes.p2.piecePlacement);
+            return;
         }
     }
 

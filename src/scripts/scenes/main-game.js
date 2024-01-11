@@ -10,15 +10,15 @@ scene.sceneOnLoad = () => {
     gameWindows.p2.defense.displayUnits();
     gameState.set.scene.setCurrentPlayer('p1');
     textBoxObj.displayPlayerTurn();
-    setDisplayObj.p1();
+    if (gameState.get.game.isSinglePlayer()) setDisplayObj.singplePlayer();
+    else setDisplayObj.multiplayer();
 }
 function initMainGameScene() {
     return scene;
 }
 export default initMainGameScene;
 //////////////////////////////////////////////////////
-//boolean state
-let waiting = false; //flag for between turns. waits for click to end turn.
+
 //static
 const attackStates = {
     hit: 'hit',
@@ -49,12 +49,20 @@ const setDisplayObj = new function () {
     const gameBox2 = scene.querySelector("[gameID='gameBox-right']");
     addGridBoardProperties(gameBox1);
     addGridBoardProperties(gameBox2);
-    this.p1 = () => {
+    // this.p1 = () => {
+    //     _first(gameWindows.p1.defense);
+    //     _second(gameWindows.p1.offense);
+    // }
+    // this.p2 = () => {
+    //     _first(gameWindows.p2.defense);
+    //     _second(gameWindows.p2.offense);
+    // }
+    this.singplePlayer = () => {
         _first(gameWindows.p1.defense);
         _second(gameWindows.p1.offense);
     }
-    this.p2 = () => {
-        _first(gameWindows.p2.defense);
+    this.multiplayer = () => {
+        _first(gameWindows.p1.offense);
         _second(gameWindows.p2.offense);
     }
     this.custom = (first, second) => {
@@ -177,7 +185,9 @@ function OffenseGameWindow(playerObj) {
         const node = tile.getNode();
         const coord = tile.getCoord();
         node.addEventListener('click', (e) => {
-            if (waiting) return;
+            if (gameState.get.scene.currentPlayer() == enemyRef
+                || gameState.get.game.isGameOver()) return;
+
             const attackObj = sendAttack(coord);
             switch (attackObj.attackState) {
                 case attackStates.hit:
@@ -201,8 +211,9 @@ function OffenseGameWindow(playerObj) {
                     console.log(`Attack state ${attackState} was unexpected.`);
             }
             if (enemyGameboard.isGameOver()) {
+                gameState.set.game.isGameOver(true);
                 gameState[enemyRef].get.player().addGamePlayed(false);
-                playerObj.get.player().addGamePlayed(true); //untested
+                playerObj.get.player().addGamePlayed(true);
                 textBoxObj.setText('You win!');
             }
             else {
@@ -252,33 +263,25 @@ function getEnemyPlayerRef(playerObj) {
     let playerRef = playerObj.get.playerRef();
     return playerRef === 'p1' ? 'p2' : 'p1';
 }
+function getPlayerName(playerObj) {
+    if (playerObj === 'p1') playerObj = gameState.p1;
+    if (playerObj === 'p2') playerObj = gameState.p2;
+    return playerObj.get.player().get.name();
+}
 function getIndexFromCoord(coord) {
     return coord.x + (coord.y * gameState.get.game.boardWidth());
 }
 //
 function nextTurn() {
     const playerRef = gameState.set.scene.swapPlayers();
-    console.log(playerRef)
     if (gameState.get.game.isSinglePlayer()) {
         if (playerRef === 'p2') {
             const index = gameState.p2.ai.getAttackIndex();
             const tileNode = gameWindows.p2.offense.getTileNodeArray()[index];
             tileNode.click();
-        }else {
-            console.log('my turn?');
+        } else {
+
         }
-        return;
     }
-    textBoxObj.addNewLineText('Click anywhere to continue.')
-    waiting = true;
-    setTimeout(() => { //without timeout it fires immediately
-        document.addEventListener('click', _continue, { once: true });
-    }, 1);
-    function _continue() {
-        const name = playerObjs[playerRef].get.player().get.name();
-        sceneManager.addBlinder(`${name} click to start your turn.`);
-        setDisplayObj[playerRef]();
-        waiting = false;
-        textBoxObj.displayPlayerTurn();
-    }
+    textBoxObj.addNewLineText(`${gameState[playerRef].get.player().get.name()}'s turn.`)
 }

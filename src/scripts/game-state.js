@@ -1,14 +1,15 @@
 import { aiFactory } from "./AI-mechanics";
-import { gameboardFactory, unitFactory } from "./gameboard-manager";
+import { Gameboard, unitFactory } from "./gameboard-manager";
 import sceneManager from "./scene-manager";
 
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
 const PIECE_COUNT = 5;
-const PIECE_LENGTH_ARRAY = [0, 0, 0, 3, 0, 0, 0]; //index == piece length  value == piece count of said length
+const PIECE_LENGTH_ARRAY = [0, 0, 1, , 0, 0, 0]; //index == piece length  value == piece count of said length
 let _isSinglePlayer;
 
 let _currentPlayer = 'p1';
+let _isGameOver = false;
 
 //todo: change gamestate get/sets to individual objects with get/set and all references
 const gameState = {
@@ -18,6 +19,7 @@ const gameState = {
             boardWidth: () => BOARD_WIDTH,
             boardHeight: () => BOARD_HEIGHT,
             pieceCount: () => PIECE_COUNT,
+            isGameOver: () => _isGameOver,
         },
         scene: {
             currentPlayer: () => _currentPlayer,
@@ -36,7 +38,8 @@ const gameState = {
                     return;
                 }
                 _isSinglePlayer = bool;
-            }
+            },
+            isGameOver:(bool) => {_isGameOver = bool},
         },
         scene: {
             swapPlayers: () => {
@@ -69,7 +72,7 @@ const gameState = {
 function _generatePlayerObj(playerRef) {
 
     let _player;
-    const _gameboard = gameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
+    const _gameboard = new Gameboard(BOARD_WIDTH, BOARD_HEIGHT);
     const _units = _createUnitArray();
     const _ai = aiFactory({gameboard:_gameboard,unitArray:_units, difficulty:'easy'});
     const playerObj = {
