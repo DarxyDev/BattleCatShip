@@ -138,7 +138,6 @@ function DefenseGameWindow(playerObj) {
                 ///
                 break;
             case attackStates.error:
-                console.log('Error attackState');
                 break;
             default:
                 console.log(`Attack state ${attackState} was unexpected.`);
@@ -183,12 +182,16 @@ function OffenseGameWindow(playerObj) {
     //event listeners
     tiles.forEach(tile => {
         const node = tile.getNode();
-        const coord = tile.getCoord();
-        node.addEventListener('click', (e) => {
+        node.addEventListener('click', tileOnClick)
+        tile.attack = tileOnClick;
+
+        function tileOnClick(e) {
             if (gameState.get.scene.currentPlayer() == enemyRef
                 || gameState.get.game.isGameOver()) return;
 
+            const coord = tile.getCoord();
             const attackObj = sendAttack(coord);
+
             switch (attackObj.attackState) {
                 case attackStates.hit:
                     tile.addClass(CLASSES.tileHit);
@@ -204,7 +207,6 @@ function OffenseGameWindow(playerObj) {
                     });
                     break;
                 case attackStates.error:
-                    console.log('Error attackState');
                     return;
                     break;
                 default:
@@ -220,11 +222,13 @@ function OffenseGameWindow(playerObj) {
                 textBoxObj.turnResult(attackObj.attackState);
                 nextTurn();
             }
-        })
+            return attackObj.attackState;
+        }
     })
 
     //public fn
     this.getTileNodeArray = () => tileNodes;
+    this.getTileFromIndex = (index) => tiles[index];
     //private fn
     const sendAttack = (coords) => {
         return gameWindows[enemyRef].defense.receiveAttack(coords);
@@ -276,9 +280,7 @@ function nextTurn() {
     const playerRef = gameState.set.scene.swapPlayers();
     if (gameState.get.game.isSinglePlayer()) {
         if (playerRef === 'p2') {
-            const index = gameState.p2.ai.getAttackIndex();
-            const tileNode = gameWindows.p2.offense.getTileNodeArray()[index];
-            tileNode.click();
+            gameState.p2.ai.sendAttack(gameWindows.p2.offense.getTileFromIndex);
         } else {
 
         }
