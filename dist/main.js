@@ -849,58 +849,64 @@ function aiFactory(settings) {
 
 
     let _shipHunting = false;
+    const directions = ['left', 'down', 'right', 'up'];
+    let lastMoveDirection = false;
+    let nextMoveDirection = false;
 
     const _prevMoveObjs = [];
+    const _hitMoveObjs = [];
+
     function MoveObj(coord, result) {
-        const wasHit =
-            result === 'hit'
-                || result === 'sunk'
-                ? true : false;
+        const wasHit = result === 'hit' || result === 'sunk' ? true : false;
 
         this.getCoord = () => coord;
         this.wasHit = () => wasHit;
         this.attackResult = () => result;
+        let clearedNear = false;
+        this.clearedNear = () => clearedNear;
 
         const directions = ['up', 'down', 'left', 'right'];
         this.getNearCoord = (lastIndex) => {
-            if (directions.length <= 0){
-                if(_prevMoveObjs[lastIndex-1]) return _prevMoveObjs[lastIndex - 1].getNearCoord();
-                else{
+            if (directions.length <= 0) {
+                clearedNear = true;
+                if (_prevMoveObjs[lastIndex - 1]) return _prevMoveObjs[lastIndex - 1].getNearCoord();
+                else {
                     'Something went wrong.'
-                    return _getEasyAttackCoords();
+                    return _getRandomAttackCoords();
                 }
             }
-            let x = coord[0];
-            let y = coord[1];
+            let newCoord;
             let index = Math.round(Math.random() * (directions.length - 1));
             const direction = directions[index];
             switch (direction) {
-                case 'up':
-                    index = directions.indexOf('up');
-                    directions.splice(index, 1);
-                    y++;
+                case 'up': newCoord = this.getUpCoord();
                     break;
-                case 'down':
-                    index = directions.indexOf('down');
-                    directions.splice(index, 1);
-                    y--;
+                case 'down': newCoord = this.getDownCoord();
                     break;
-                case 'left':
-                    index = directions.indexOf('left');
-                    directions.splice(index, 1);
-                    x--;
+                case 'left': newCoord = this.getLeftCoord();
                     break;
-                case 'right':
-                    index = directions.indexOf('right');
-                    directions.splice(index, 1);
-                    x++;
+                case 'right': newCoord = this.getRightCoord();
                     break;
                 default:
                     console.log("shouldn't happen");
+                    newCoord = false;
             }
-            if(!checkValidAttackCoord([x,y])) return this.getNearCoord(lastIndex);
-            return [x,y];
+            index = directions.indexOf(direction);
+            if (index >= 0)
+                directions.splice(index, 1);
+            if (newCoord === false) return this.getNearCoord(lastIndex);
+            return newCoord;
         };
+        this.getLeftCoord = (distance = 1) => getModCoord(-distance, 0);
+        this.getRightCoord = (distance = 1) => getModCoord(distance, 0);
+        this.getUpCoord = (distance = 1) => getModCoord(0, distance);
+        this.getDownCoord = (distance = 1) => getModCoord(0, -distance);
+        function getModCoord(modX, modY) {
+            let x = coord[0] + modX;
+            let y = coord[1] + modY;
+            if (checkValidAttackCoord([x, y])) return [x, y];
+            return false;
+        }
     }
 
     function getAttackCoords() {
@@ -924,11 +930,13 @@ function aiFactory(settings) {
     const aiObj = {
         sendAttack: (getTileFromIndex) => {
             const coords = getAttackCoords();
+            console.log(coords);
             const width = _gameboard.get.width();
             const index = (coords[1] * width) + coords[0];
             const tile = getTileFromIndex(index);
             const attackResult = tile.attack();
             _prevMoveObjs.push(new MoveObj(coords, attackResult));
+            if (attackResult && attackResult !== 'miss') _hitMoveObjs.push(new MoveObj(coords, attackResult));
             if (attackResult === 'hit') _shipHunting = true;
             if (attackResult === 'sunk') _shipHunting = false;
 
@@ -950,7 +958,7 @@ function aiFactory(settings) {
 
     return aiObj;
 
-    function _getEasyAttackCoords() {
+    function _getRandomAttackCoords() {
         const width = _gameboard.get.width();
         const height = _gameboard.get.height();
         let x = Math.round(Math.random() * (width - 1));
@@ -966,16 +974,82 @@ function aiFactory(settings) {
         }
         return [x, y];
     }
-    function _getMediumAttackCoords() {
-        if (Math.random() < MED_DIFF_SCALE)
-            return _getHardAttackCoords();
-        return _getEasyAttackCoords();
-    }
-    function _getHardAttackCoords() {
-        if (!_shipHunting) return _getEasyAttackCoords();
-        for(let i = _prevMoveObjs.length - 1; i >= 0; i--){
-            if(_prevMoveObjs[i].wasHit()) return _prevMoveObjs[i].getNearCoord(i);
+    function _getEasyAttackCoords() {
+        if (!_shipHunting) return _getRandomAttackCoords();
+        for (let i = _prevMoveObjs.length - 1; i >= 0; i--) {
+            if (_prevMoveObjs[i].wasHit()) return _prevMoveObjs[i].getNearCoord(i);
         }
+    }
+    function _getMediumAttackCoords() {
+        if (_hitMoveObjs.length <= 0) return _getRandomAttackCoords();
+        const lastMoveObj = _prevMoveObjs[_prevMoveObjs.length - 1];
+        if (!lastMoveObj.wasHit()) {
+            if (lastMoveDirection) lastMoveDirection = false;
+            else nextMoveDirection = false;
+        }
+        if (lastMoveDirection) {
+            let newCoord;
+            switch (lastMoveDirection) {
+                case 'left': newCoord = lastMoveObj.getLeftCoord();
+                    break;
+                case 'right': newCoord = lastMoveObj.getRightCoord();
+                    break;
+                case 'up': newCoord = lastMoveObj.getUpCoord();
+                    break;
+                case 'down': newCoord = lastMoveObj.getDownCoord();
+                    break;
+                default:
+            }
+            if (newCoord) return newCoord;
+            else lastMoveDirection = false;
+        }
+        if (nextMoveDirection) {
+            let newCoord;
+            let i = 0;
+            do {
+                i++;
+                switch (nextMoveDirection) {
+                    case 'left': newCoord = lastMoveObj.getLeftCoord(i);
+                        break;
+                    case 'right': newCoord = lastMoveObj.getRightCoord(i);
+                        break;
+                    case 'up': newCoord = lastMoveObj.getUpCoord(i);
+                        break;
+                    case 'down': newCoord = lastMoveObj.getDownCoord(i);
+                        break;
+                    default:
+                }
+            } while (newCoord && _coordWasUsed(newCoord));
+            if(newCoord) return newCoord;
+            else nextMoveDirection = false;
+        }
+        let moveObj;
+        do {
+            moveObj = _hitMoveObjs[_hitMoveObjs.length - 1];
+            if (moveObj.clearedNear()) _hitMoveObjs.pop();
+        } while (moveObj.clearedNear() && _hitMoveObjs.length)
+        if (!_hitMoveObjs.length) return _getRandomAttackCoords();
+        const moves = [
+            moveObj.getLeftCoord,
+            moveObj.getDownCoord,
+            moveObj.getRightCoord,
+            moveObj.getUpCoord
+        ];
+        const index = Math.round(Math.random() * 3);
+        for (let i = 0; i < 4; i++) {
+            let tempIndex = (index + i) % 4;
+            let tempCoord = moves[tempIndex]();
+            if (checkValidAttackCoord(tempCoord)) {
+                lastMoveDirection = directions[tempIndex];
+                nextMoveDirection = directions[(tempIndex + 2) % 4]
+                console.log({ tempCoord, a: 'aa' })
+                return tempCoord;
+            }
+        }
+        return _getRandomAttackCoords();
+    }
+    function _getHardAttackCoords(){
+        
     }
     function _coordWasUsed(coord) {
         let result = false;
@@ -986,6 +1060,7 @@ function aiFactory(settings) {
         return result;
     }
     function checkValidAttackCoord(coord) {
+        if (!coord) return false;
         const width = _gameboard.get.width();
         const height = _gameboard.get.height();
         if (
@@ -1065,7 +1140,8 @@ __webpack_require__.r(__webpack_exports__);
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
 const PIECE_COUNT = 5;
-const PIECE_LENGTH_ARRAY = [0, 0, 0, 0, 0, 0, 0, 0, 5]; //index == piece length  value == piece count of said length
+const PIECE_LENGTH_ARRAY = [0, 0, 1, 1, 1, 1, 1, 1]; //index == piece length  value == piece count of said length
+const DEFAULT_DIFFICULTY = 'medium';
 let _isSinglePlayer;
 
 let _currentPlayer = 'p1';
@@ -1134,7 +1210,7 @@ function _generatePlayerObj(playerRef) {
     let _player;
     const _gameboard = new _gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.Gameboard(BOARD_WIDTH, BOARD_HEIGHT);
     const _units = _createUnitArray();
-    const _ai = (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({gameboard:_gameboard,unitArray:_units, difficulty:'hard'});
+    const _ai = (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({gameboard:_gameboard,unitArray:_units, difficulty: DEFAULT_DIFFICULTY});
     const playerObj = {
         get: {
             player: () => _player !== undefined ? _player : playerRef,
@@ -1844,6 +1920,7 @@ function createScene(playerRef) {
     //
     function createGameTilesObj() {
         const _submitElement = scene.querySelector('[pPlacementID="submit"]');
+        const _quickPlayElement = scene.querySelector('[pPlacementID="quickPlay"]');
         const _gameBoxElement = scene.querySelector('[pPlacementID="gameBox"]');
         const _tileNodeArray = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_0__.generateGameTiles)(_gameBoxElement);
         const tileObjs = [];
@@ -1976,6 +2053,7 @@ function createScene(playerRef) {
             });
 
             _submitElement.addEventListener('click', submitScene);
+            _quickPlayElement.addEventListener('click',submitQuickSelect);
 
             //highlights in all 4 directions for a distance of the current maxLength
             function highlightAllplacements() {
@@ -2114,7 +2192,13 @@ function createScene(playerRef) {
                 console.log('Error: trying to place unit on occupied tile.');
             }
         })
-
+        loadNextScene();
+    }
+    function submitQuickSelect(){
+        playerObj.ai.placeShips();
+        loadNextScene();
+    }
+    function loadNextScene() {
         const scenes = _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].getScenes();
         if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer()) {
             _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.ai.placeShips();

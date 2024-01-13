@@ -5,7 +5,8 @@ import sceneManager from "./scene-manager";
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
 const PIECE_COUNT = 5;
-const PIECE_LENGTH_ARRAY = [0, 0, 0, 0, 0, 0, 0, 0, 5]; //index == piece length  value == piece count of said length
+const PIECE_LENGTH_ARRAY = [0, 0, 1, 1, 1, 1, 1, 1]; //index == piece length  value == piece count of said length
+const DEFAULT_DIFFICULTY = 'medium';
 let _isSinglePlayer;
 
 let _currentPlayer = 'p1';
@@ -74,7 +75,7 @@ function _generatePlayerObj(playerRef) {
     let _player;
     const _gameboard = new Gameboard(BOARD_WIDTH, BOARD_HEIGHT);
     const _units = _createUnitArray();
-    const _ai = aiFactory({gameboard:_gameboard,unitArray:_units, difficulty:'hard'});
+    const _ai = aiFactory({gameboard:_gameboard,unitArray:_units, difficulty: DEFAULT_DIFFICULTY});
     const playerObj = {
         get: {
             player: () => _player !== undefined ? _player : playerRef,

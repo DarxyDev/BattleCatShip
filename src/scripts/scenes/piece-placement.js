@@ -34,6 +34,7 @@ function createScene(playerRef) {
     //
     function createGameTilesObj() {
         const _submitElement = scene.querySelector('[pPlacementID="submit"]');
+        const _quickPlayElement = scene.querySelector('[pPlacementID="quickPlay"]');
         const _gameBoxElement = scene.querySelector('[pPlacementID="gameBox"]');
         const _tileNodeArray = generateGameTiles(_gameBoxElement);
         const tileObjs = [];
@@ -166,6 +167,7 @@ function createScene(playerRef) {
             });
 
             _submitElement.addEventListener('click', submitScene);
+            _quickPlayElement.addEventListener('click',submitQuickSelect);
 
             //highlights in all 4 directions for a distance of the current maxLength
             function highlightAllplacements() {
@@ -304,7 +306,13 @@ function createScene(playerRef) {
                 console.log('Error: trying to place unit on occupied tile.');
             }
         })
-
+        loadNextScene();
+    }
+    function submitQuickSelect(){
+        playerObj.ai.placeShips();
+        loadNextScene();
+    }
+    function loadNextScene() {
         const scenes = sceneManager.getScenes();
         if (gameState.get.game.isSinglePlayer()) {
             gameState.p2.ai.placeShips();
