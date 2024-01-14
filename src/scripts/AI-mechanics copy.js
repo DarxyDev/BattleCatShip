@@ -3,51 +3,36 @@ import gameState from "./game-state";
 const MED_DIFF_SCALE = .5;
 
 function aiFactory(settings) {
+    //settings
     const gameboard = settings.gameboard;
     const unitArray = settings.unitArray;
     const difficulty = settings.difficulty;
-    //
+
+    //init
     let tileArray;
     let enemyGameboard;
 
     const BOARD_WIDTH = gameboard.get.width();
     const BOARD_HEIGHT = gameboard.get.height();
 
-    function getAttackCoordObj() {
-        if (previousMoves.isEmpty) return getRandomAttackCoord();
-        return getRandomAttackCoord();
-
-    }
-    function getRandomAttackCoord() {
-        let x = Math.round(Math.random() * (BOARD_WIDTH - 1));
-        let y = Math.round(Math.random() * (BOARD_HEIGHT - 1));
-        let coordObj = new CoordObj(x, y);
-        while(!coordObj.isValid()){
-            x++;
-            if(x >= BOARD_WIDTH - 1){
-                x = 0;
-                y++;
-            }
-            if(y >= BOARD_HEIGHT - 1) y = 0;
-            coordObj = new CoordObj(x,y);
-        }
-        return coordObj;
-    }
-
+    //objects
     function CoordObj(xCoord, yCoord) {
         this.coords = [xCoord, yCoord];
         this.x = xCoord;
         this.y = yCoord;
         this.index = xCoord + (yCoord * BOARD_WIDTH);
         this.getTile = () => tileArray[this.index];
-        this.sendAttack = () => this.getTile().attack();
+        this.sendAttack = () => {
+            const coordObj = this.getTile().attack();
+            previousMoves.push(this);
+        }
         this.getUnit = () => enemyGameboard.getUnitOnCoord(this.coords);
         this.isEqualTo = (coordObj) => {
             if (
                 this.x !== coordObj.x
                 || this.y !== coordObj.y
             ) return false;
-            return true;
+            else return true;
         };
         this.isValid = () => {
             if (
@@ -68,19 +53,47 @@ function aiFactory(settings) {
         this.isCoordUsed = (coordObj) => {
             for (let i = 0; i < moveArray.length; i++) {
                 let move = moveArray[i];
-                if (coordObj.isEqualTo(move))
+                if (coordObj.isEqualTo(move)) {
                     return true
+                }
             }
             return false;
         }
     }
-
-    const aiObj = {
-        sendAttack: () => {
+    const attackObj = new function () {
+        this.sendAttack = () => {
             const coordObj = getAttackCoordObj();
-            previousMoves.push(coordObj);
             coordObj.sendAttack();
-        },
+        }
+
+        function getAttackCoordObj() {
+            if (previousMoves.isEmpty) return getRandomAttackCoord();
+            return getRandomAttackCoord();
+        }
+
+        function getRandomAttackCoord() {
+            let x = Math.round(Math.random() * (BOARD_WIDTH - 1));
+            let y = Math.round(Math.random() * (BOARD_HEIGHT - 1));
+            let coordObj = new CoordObj(x, y);
+            while (!coordObj.isValid()) {
+                x++;
+                if (x >= BOARD_WIDTH - 1) {
+                    x = 0;
+                    y++;
+                }
+                if (y >= BOARD_HEIGHT - 1)
+                    y = 0;
+                coordObj = new CoordObj(x, y);
+            }
+            return coordObj;
+        }
+    }
+
+
+
+    //return object
+    const aiObj = {
+        sendAttack: attackObj.sendAttack,
         placeShips: () => {
             const boardHeight = gameboard.get.height();
             const boardWidth = gameboard.get.width();
