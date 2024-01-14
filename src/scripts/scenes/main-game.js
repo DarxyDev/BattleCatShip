@@ -6,12 +6,26 @@ import sceneManager from "../scene-manager";
 ////////////////////Exports///////////////////////////
 const scene = initScene('TEMPLATE_main-game');
 scene.sceneOnLoad = () => {
+    gameWindows.p1 = {
+        offense: new OffenseGameWindow(playerObjs.p1),
+        defense: new DefenseGameWindow(playerObjs.p1)
+    };
+    gameWindows.p2 = {
+        offense: new OffenseGameWindow(playerObjs.p2),
+        defense: new DefenseGameWindow(playerObjs.p2)
+    }
+
     gameWindows.p1.defense.displayUnits();
     gameWindows.p2.defense.displayUnits();
     gameState.set.scene.setCurrentPlayer('p1');
     textBoxObj.displayPlayerTurn();
     if (gameState.get.game.isSinglePlayer()) setDisplayObj.singplePlayer();
     else setDisplayObj.multiplayer();
+
+    gameState.p1.ai.setTileArray(gameWindows.p1.offense.getTileArray());
+    gameState.p1.ai.setEnemyGameboard(gameState.p2.get.gameboard());
+    gameState.p2.ai.setTileArray(gameWindows.p2.offense.getTileArray());
+    gameState.p2.ai.setEnemyGameboard(gameState.p1.get.gameboard());
 }
 function initMainGameScene() {
     return scene;
@@ -229,6 +243,7 @@ function OffenseGameWindow(playerObj) {
     //public fn
     this.getTileNodeArray = () => tileNodes;
     this.getTileFromIndex = (index) => tiles[index];
+    this.getTileArray = () => tiles;
     //private fn
     const sendAttack = (coords) => {
         return gameWindows[enemyRef].defense.receiveAttack(coords);
@@ -280,7 +295,7 @@ function nextTurn() {
     const playerRef = gameState.set.scene.swapPlayers();
     if (gameState.get.game.isSinglePlayer()) {
         if (playerRef === 'p2') {
-            gameState.p2.ai.sendAttack(gameWindows.p2.offense.getTileFromIndex);
+            gameState.p2.ai.sendAttack();
         } else {
 
         }

@@ -1,4 +1,4 @@
-import { aiFactory } from "./AI-mechanics";
+import { aiFactory } from "./AI-mechanics copy";
 import { Gameboard, unitFactory } from "./gameboard-manager";
 import sceneManager from "./scene-manager";
 
@@ -96,6 +96,8 @@ function _generatePlayerObj(playerRef) {
         ai:{
             placeShips: _ai.placeShips,
             sendAttack: _ai.sendAttack,
+            setTileArray: _ai.setTileArray,
+            setEnemyGameboard: _ai.setEnemyGameboard,
         },
     };
     return playerObj;

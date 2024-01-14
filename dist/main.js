@@ -826,16 +826,15 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
-/***/ "./src/scripts/AI-mechanics.js":
-/*!*************************************!*\
-  !*** ./src/scripts/AI-mechanics.js ***!
-  \*************************************/
+/***/ "./src/scripts/AI-mechanics copy.js":
+/*!******************************************!*\
+  !*** ./src/scripts/AI-mechanics copy.js ***!
+  \******************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   aiFactory: () => (/* binding */ aiFactory),
-/* harmony export */   checkCoordUnique: () => (/* binding */ checkCoordUnique)
+/* harmony export */   aiFactory: () => (/* binding */ aiFactory)
 /* harmony export */ });
 /* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./game-state */ "./src/scripts/game-state.js");
 
@@ -843,242 +842,103 @@ __webpack_require__.r(__webpack_exports__);
 const MED_DIFF_SCALE = .5;
 
 function aiFactory(settings) {
-    let _gameboard = settings.gameboard;
-    let _unitArray = settings.unitArray;
-    let _difficulty = settings.difficulty;
+    const gameboard = settings.gameboard;
+    const unitArray = settings.unitArray;
+    const difficulty = settings.difficulty;
+    //
+    let tileArray;
+    let enemyGameboard;
 
+    const BOARD_WIDTH = gameboard.get.width();
+    const BOARD_HEIGHT = gameboard.get.height();
 
-    let _shipHunting = false;
-    const directions = ['left', 'down', 'right', 'up'];
-    let lastMoveDirection = false;
-    let nextMoveDirection = false;
+    function getAttackCoordObj() {
+        if (previousMoves.isEmpty) return getRandomAttackCoord();
+        return getRandomAttackCoord();
 
-    const _prevMoveObjs = [];
-    const _hitMoveObjs = [];
-
-    function MoveObj(coord, result) {
-        const wasHit = result === 'hit' || result === 'sunk' ? true : false;
-
-        this.getCoord = () => coord;
-        this.wasHit = () => wasHit;
-        this.attackResult = () => result;
-        let clearedNear = false;
-        this.clearedNear = () => clearedNear;
-
-        const directions = ['up', 'down', 'left', 'right'];
-        this.getNearCoord = (lastIndex) => {
-            if (directions.length <= 0) {
-                clearedNear = true;
-                if (_prevMoveObjs[lastIndex - 1]) return _prevMoveObjs[lastIndex - 1].getNearCoord();
-                else {
-                    'Something went wrong.'
-                    return _getRandomAttackCoords();
-                }
+    }
+    function getRandomAttackCoord() {
+        let x = Math.round(Math.random() * (BOARD_WIDTH - 1));
+        let y = Math.round(Math.random() * (BOARD_HEIGHT - 1));
+        let coordObj = new CoordObj(x, y);
+        while(!coordObj.isValid()){
+            x++;
+            if(x >= BOARD_WIDTH - 1){
+                x = 0;
+                y++;
             }
-            let newCoord;
-            let index = Math.round(Math.random() * (directions.length - 1));
-            const direction = directions[index];
-            switch (direction) {
-                case 'up': newCoord = this.getUpCoord();
-                    break;
-                case 'down': newCoord = this.getDownCoord();
-                    break;
-                case 'left': newCoord = this.getLeftCoord();
-                    break;
-                case 'right': newCoord = this.getRightCoord();
-                    break;
-                default:
-                    console.log("shouldn't happen");
-                    newCoord = false;
-            }
-            index = directions.indexOf(direction);
-            if (index >= 0)
-                directions.splice(index, 1);
-            if (newCoord === false) return this.getNearCoord(lastIndex);
-            return newCoord;
+            if(y >= BOARD_HEIGHT - 1) y = 0;
+            coordObj = new CoordObj(x,y);
+        }
+        return coordObj;
+    }
+
+    function CoordObj(xCoord, yCoord) {
+        this.coords = [xCoord, yCoord];
+        this.x = xCoord;
+        this.y = yCoord;
+        this.index = xCoord + (yCoord * BOARD_WIDTH);
+        this.getTile = () => tileArray[this.index];
+        this.sendAttack = () => this.getTile().attack();
+        this.getUnit = () => enemyGameboard.getUnitOnCoord(this.coords);
+        this.isEqualTo = (coordObj) => {
+            if (
+                this.x !== coordObj.x
+                || this.y !== coordObj.y
+            ) return false;
+            return true;
         };
-        this.getLeftCoord = (distance = 1) => getModCoord(-distance, 0);
-        this.getRightCoord = (distance = 1) => getModCoord(distance, 0);
-        this.getUpCoord = (distance = 1) => getModCoord(0, distance);
-        this.getDownCoord = (distance = 1) => getModCoord(0, -distance);
-        function getModCoord(modX, modY) {
-            let x = coord[0] + modX;
-            let y = coord[1] + modY;
-            if (checkValidAttackCoord([x, y])) return [x, y];
+        this.isValid = () => {
+            if (
+                this.x < 0
+                || this.y < 0
+                || this.x >= BOARD_WIDTH
+                || this.y >= BOARD_HEIGHT
+                || previousMoves.isCoordUsed(this)
+            ) return false;
+            return true;
+        };
+    }
+    const previousMoves = new function () {
+        const moveArray = [];
+        this.isEmpty = () => moveArray.length === 0;
+        this.push = (coordObj) => moveArray.push(coordObj);
+        this.pop = () => moveArray.pop();
+        this.isCoordUsed = (coordObj) => {
+            for (let i = 0; i < moveArray.length; i++) {
+                let move = moveArray[i];
+                if (coordObj.isEqualTo(move))
+                    return true
+            }
             return false;
         }
     }
 
-    function getAttackCoords() {
-        let coord;
-        switch (_difficulty) {
-            case 'easy':
-                coord = _getEasyAttackCoords();
-                break;
-            case 'medium':
-                coord = _getMediumAttackCoords();
-                break;
-            case 'hard':
-                coord = _getHardAttackCoords();
-                break;
-            default:
-                return console.log(`${_difficulty} is invalid.`)
-        }
-        return coord;
-    }
-
     const aiObj = {
-        sendAttack: (getTileFromIndex) => {
-            const coords = getAttackCoords();
-            console.log(coords);
-            const width = _gameboard.get.width();
-            const index = (coords[1] * width) + coords[0];
-            const tile = getTileFromIndex(index);
-            const attackResult = tile.attack();
-            _prevMoveObjs.push(new MoveObj(coords, attackResult));
-            if (attackResult && attackResult !== 'miss') _hitMoveObjs.push(new MoveObj(coords, attackResult));
-            if (attackResult === 'hit') _shipHunting = true;
-            if (attackResult === 'sunk') _shipHunting = false;
-
+        sendAttack: () => {
+            const coordObj = getAttackCoordObj();
+            previousMoves.push(coordObj);
+            coordObj.sendAttack();
         },
         placeShips: () => {
-            const boardHeight = _gameboard.get.height();
-            const boardWidth = _gameboard.get.width();
-            _unitArray.forEach(unit => {
+            const boardHeight = gameboard.get.height();
+            const boardWidth = gameboard.get.width();
+            unitArray.forEach(unit => {
                 let x, y, rotated;
                 do {
                     x = Math.round(Math.random() * (boardWidth - 1));
                     y = Math.round(Math.random() * (boardHeight - 1));
                     rotated = Math.random() < .5;
-                } while (!_gameboard.placeUnit(unit, [x, y], rotated))
+                } while (!gameboard.placeUnit(unit, [x, y], rotated))
             })
 
-        }
+        },
+        setTileArray: (tileArr) => tileArray = tileArr,
+        setEnemyGameboard: (enemyGB) => enemyGameboard = enemyGB,
     }
 
     return aiObj;
-
-    function _getRandomAttackCoords() {
-        const width = _gameboard.get.width();
-        const height = _gameboard.get.height();
-        let x = Math.round(Math.random() * (width - 1));
-        let y = Math.round(Math.random() * (height - 1));
-
-        if (_prevMoveObjs.length <= 0) return [x, y];
-        if (_prevMoveObjs.length >= height * width) return false;
-
-        while (_coordWasUsed([x, y])) { //not sure I like how this works, might make array of possible moves and 
-            if (Math.random() > .5)                 // remove moves as they are used
-                x = (x + 1) % width;
-            else y = (y + 1) % height;
-        }
-        return [x, y];
-    }
-    function _getEasyAttackCoords() {
-        if (!_shipHunting) return _getRandomAttackCoords();
-        for (let i = _prevMoveObjs.length - 1; i >= 0; i--) {
-            if (_prevMoveObjs[i].wasHit()) return _prevMoveObjs[i].getNearCoord(i);
-        }
-    }
-    function _getMediumAttackCoords() {
-        if (_hitMoveObjs.length <= 0) return _getRandomAttackCoords();
-        const lastMoveObj = _prevMoveObjs[_prevMoveObjs.length - 1];
-        if (!lastMoveObj.wasHit()) {
-            if (lastMoveDirection) lastMoveDirection = false;
-            else nextMoveDirection = false;
-        }
-        if (lastMoveDirection) {
-            let newCoord;
-            switch (lastMoveDirection) {
-                case 'left': newCoord = lastMoveObj.getLeftCoord();
-                    break;
-                case 'right': newCoord = lastMoveObj.getRightCoord();
-                    break;
-                case 'up': newCoord = lastMoveObj.getUpCoord();
-                    break;
-                case 'down': newCoord = lastMoveObj.getDownCoord();
-                    break;
-                default:
-            }
-            if (newCoord) return newCoord;
-            else lastMoveDirection = false;
-        }
-        if (nextMoveDirection) {
-            let newCoord;
-            let i = 0;
-            do {
-                i++;
-                switch (nextMoveDirection) {
-                    case 'left': newCoord = lastMoveObj.getLeftCoord(i);
-                        break;
-                    case 'right': newCoord = lastMoveObj.getRightCoord(i);
-                        break;
-                    case 'up': newCoord = lastMoveObj.getUpCoord(i);
-                        break;
-                    case 'down': newCoord = lastMoveObj.getDownCoord(i);
-                        break;
-                    default:
-                }
-            } while (newCoord && _coordWasUsed(newCoord));
-            if(newCoord) return newCoord;
-            else nextMoveDirection = false;
-        }
-        let moveObj;
-        do {
-            moveObj = _hitMoveObjs[_hitMoveObjs.length - 1];
-            if (moveObj.clearedNear()) _hitMoveObjs.pop();
-        } while (moveObj.clearedNear() && _hitMoveObjs.length)
-        if (!_hitMoveObjs.length) return _getRandomAttackCoords();
-        const moves = [
-            moveObj.getLeftCoord,
-            moveObj.getDownCoord,
-            moveObj.getRightCoord,
-            moveObj.getUpCoord
-        ];
-        const index = Math.round(Math.random() * 3);
-        for (let i = 0; i < 4; i++) {
-            let tempIndex = (index + i) % 4;
-            let tempCoord = moves[tempIndex]();
-            if (checkValidAttackCoord(tempCoord)) {
-                lastMoveDirection = directions[tempIndex];
-                nextMoveDirection = directions[(tempIndex + 2) % 4]
-                console.log({ tempCoord, a: 'aa' })
-                return tempCoord;
-            }
-        }
-        return _getRandomAttackCoords();
-    }
-    function _getHardAttackCoords(){
-        
-    }
-    function _coordWasUsed(coord) {
-        let result = false;
-        _prevMoveObjs.forEach(move => {
-            if (!checkCoordUnique(move.getCoord(), coord))
-                return result = true;
-        })
-        return result;
-    }
-    function checkValidAttackCoord(coord) {
-        if (!coord) return false;
-        const width = _gameboard.get.width();
-        const height = _gameboard.get.height();
-        if (
-            coord[0] < 0
-            || coord[1] < 0
-            || coord[0] >= width
-            || coord[1] >= height
-        ) return false;
-        return !_coordWasUsed(coord);
-    }
 }
-function checkCoordUnique(coord1, coord2) {
-    if ((coord1[0] === coord2[0]) &&
-        (coord1[1] === coord2[1]))
-        return false;
-    return true;
-}
-
 
 
 
@@ -1130,7 +990,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
 /* harmony export */   setDummyUnits: () => (/* binding */ setDummyUnits)
 /* harmony export */ });
-/* harmony import */ var _AI_mechanics__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AI-mechanics */ "./src/scripts/AI-mechanics.js");
+/* harmony import */ var _AI_mechanics_copy__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AI-mechanics copy */ "./src/scripts/AI-mechanics copy.js");
 /* harmony import */ var _gameboard_manager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./gameboard-manager */ "./src/scripts/gameboard-manager.js");
 /* harmony import */ var _scene_manager__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scene-manager */ "./src/scripts/scene-manager.js");
 
@@ -1210,7 +1070,7 @@ function _generatePlayerObj(playerRef) {
     let _player;
     const _gameboard = new _gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.Gameboard(BOARD_WIDTH, BOARD_HEIGHT);
     const _units = _createUnitArray();
-    const _ai = (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({gameboard:_gameboard,unitArray:_units, difficulty: DEFAULT_DIFFICULTY});
+    const _ai = (0,_AI_mechanics_copy__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({gameboard:_gameboard,unitArray:_units, difficulty: DEFAULT_DIFFICULTY});
     const playerObj = {
         get: {
             player: () => _player !== undefined ? _player : playerRef,
@@ -1231,6 +1091,8 @@ function _generatePlayerObj(playerRef) {
         ai:{
             placeShips: _ai.placeShips,
             sendAttack: _ai.sendAttack,
+            setTileArray: _ai.setTileArray,
+            setEnemyGameboard: _ai.setEnemyGameboard,
         },
     };
     return playerObj;
@@ -1587,12 +1449,26 @@ __webpack_require__.r(__webpack_exports__);
 ////////////////////Exports///////////////////////////
 const scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.initScene)('TEMPLATE_main-game');
 scene.sceneOnLoad = () => {
+    gameWindows.p1 = {
+        offense: new OffenseGameWindow(playerObjs.p1),
+        defense: new DefenseGameWindow(playerObjs.p1)
+    };
+    gameWindows.p2 = {
+        offense: new OffenseGameWindow(playerObjs.p2),
+        defense: new DefenseGameWindow(playerObjs.p2)
+    }
+
     gameWindows.p1.defense.displayUnits();
     gameWindows.p2.defense.displayUnits();
     _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.scene.setCurrentPlayer('p1');
     textBoxObj.displayPlayerTurn();
     if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer()) setDisplayObj.singplePlayer();
     else setDisplayObj.multiplayer();
+
+    _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p1.ai.setTileArray(gameWindows.p1.offense.getTileArray());
+    _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p1.ai.setEnemyGameboard(_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.get.gameboard());
+    _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.ai.setTileArray(gameWindows.p2.offense.getTileArray());
+    _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.ai.setEnemyGameboard(_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p1.get.gameboard());
 }
 function initMainGameScene() {
     return scene;
@@ -1810,6 +1686,7 @@ function OffenseGameWindow(playerObj) {
     //public fn
     this.getTileNodeArray = () => tileNodes;
     this.getTileFromIndex = (index) => tiles[index];
+    this.getTileArray = () => tiles;
     //private fn
     const sendAttack = (coords) => {
         return gameWindows[enemyRef].defense.receiveAttack(coords);
@@ -1861,7 +1738,7 @@ function nextTurn() {
     const playerRef = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.scene.swapPlayers();
     if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer()) {
         if (playerRef === 'p2') {
-            _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.ai.sendAttack(gameWindows.p2.offense.getTileFromIndex);
+            _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].p2.ai.sendAttack();
         } else {
 
         }
