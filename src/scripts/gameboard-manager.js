@@ -89,7 +89,8 @@ function unitFactory(length) {
             length: () => { return _length }
         },
         hit: () => { _hits++; },
-        isSunk: () => { return (_hits >= _length) }
+        isSunk: () => { return (_hits >= _length) },
+        isEqualTo: (unit) => _id === unit.get.id(),
     }
     return unit;
 }

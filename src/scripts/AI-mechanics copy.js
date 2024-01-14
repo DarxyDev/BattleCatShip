@@ -1,5 +1,3 @@
-import gameState from "./game-state";
-
 const MED_DIFF_SCALE = .5;
 
 function aiFactory(settings) {
@@ -21,11 +19,8 @@ function aiFactory(settings) {
         this.x = xCoord;
         this.y = yCoord;
         this.index = xCoord + (yCoord * BOARD_WIDTH);
-        this.getTile = () => tileArray[this.index];
-        this.sendAttack = () => {
-            const coordObj = this.getTile().attack();
-            previousMoves.push(this);
-        }
+        const tile = tileArray[this.index];
+        this.attack = () => tile.attack();
         this.getUnit = () => enemyGameboard.getUnitOnCoord(this.coords);
         this.isEqualTo = (coordObj) => {
             if (
@@ -47,9 +42,65 @@ function aiFactory(settings) {
     }
     const previousMoves = new function () {
         const moveArray = [];
+        const hitUnitObj = new function () {
+            const hitUnitArray = [];
+            this.push = (coordObj) => {
+                const unit = coordObj.getUnit();
+                if (!unit) return;
+                const hitUnitObj = getHitUnitObj(unit);
+                if (hitUnitObj) hitUnitObj.addCoordObj(coordObj);
+                else hitUnitArray.push(new HitUnitObj(coordObj));
+            }
+            function HitUnitObj(coordObj) {
+                const hitCoords = [coordObj];
+                this.unit = coordObj.getUnit();
+                this.addCoordObj = (coordObj) => {
+                    hitCoords.push(coordObj);
+                    sortHitCoords();
+                }
+                this.getFirst = () => hitCoords[0];
+                this.getLast = () => hitCoords[hitCoords.length - 1];
+                this.isInXAxis = () => {
+                    if (hitCoords.length <= 1)
+                        return undefined;
+                    if (hitCoords[0].x === hitCoords[1].x)
+                        return false;
+                    else return true;
+                }
+            }
+            function sortHitCoords() {
+                if (hitCoords.length <= 1) return;
+                hitCoords.sort((a, b) => {
+                    if (this.isInXAxis()) {
+                        return a.x - b.x;
+                    } else {
+                        return a.y - b.y;
+                    }
+                })
+            }
+            function getHitUnitObj(unit) {
+                for (let i = 0; i < hitUnitArray.length; i++) {
+                    let hitUnitObj = hitUnitArray[i];
+                    let unit2 = hitUnitObj.unit;
+                    if (unit.isEqualTo(unit2)) return hitUnitObj;
+                }
+                return false;
+            }
+        }
+
         this.isEmpty = () => moveArray.length === 0;
-        this.push = (coordObj) => moveArray.push(coordObj);
+        this.push = (coordObj) => {
+            moveArray.push(coordObj);
+            hitUnitObj.push(coordObj);
+        };
         this.pop = () => moveArray.pop();
+        this.getLast = () => {
+            if (!this.isEmpty())
+                return moveArray[moveArray.length - 1];
+        }
+        this.getLastNoDirection = () => {
+            console.log('grab last with no direction or false');
+        }
         this.isCoordUsed = (coordObj) => {
             for (let i = 0; i < moveArray.length; i++) {
                 let move = moveArray[i];
@@ -63,14 +114,32 @@ function aiFactory(settings) {
     const attackObj = new function () {
         this.sendAttack = () => {
             const coordObj = getAttackCoordObj();
-            coordObj.sendAttack();
+            previousMoves.push(coordObj);
+            coordObj.attack();
         }
 
+        const directions = ['left', 'up', 'right', 'down'];
         function getAttackCoordObj() {
-            if (previousMoves.isEmpty) return getRandomAttackCoord();
-            return getRandomAttackCoord();
+            if (previousMoves.isEmpty()) return getRandomAttackCoord();
+            //return getRandomAttackCoord();
+            const lastCoordObj = previousMoves.getLast();
+            let direction = lastCoordObj.moveDirection;
+            if (direction) {
+                let coordObj = getDirectionCoord(lastCoordObj, direction)
+                //might change to if(coordObj.isValid)
+                if (coordObj) {
+                    if (coordObj.getUnit())
+                        console.log(coordObj.moveDirection = direction);
+                    return coordObj;
+                }
+                let otherDirection = directions[(directions.indexOf(direction) + 2) % 4];
+                console.log(otherDirection);
+                //get first hit on this row
+                // coordObj = directionCoord(firsHit,otherDir)
+                //if(coordObj)....
+            }
+            console.log('finish here');
         }
-
         function getRandomAttackCoord() {
             let x = Math.round(Math.random() * (BOARD_WIDTH - 1));
             let y = Math.round(Math.random() * (BOARD_HEIGHT - 1));
@@ -87,13 +156,39 @@ function aiFactory(settings) {
             }
             return coordObj;
         }
+
+        function getDirectionCoord(coordObj, direction, distance = 1) {
+            let x = coordObj.x;
+            let y = coordObj.y;
+            switch (direction) {
+                case 'left': x -= distance;
+                    break;
+                case 'right': x += distance;
+                    break;
+                case 'up': y += distance;
+                    break;
+                case 'down': y -= distance;
+                    break;
+                default:
+                    console.log(`${direction} is invalid.`);
+                    return getRandomAttackCoord();
+            }
+            coordObj = new CoordObj(x, y);
+            if (coordObj.isValid())
+                return coordObj;
+            return false;
+        }
     }
 
 
 
     //return object
     const aiObj = {
-        sendAttack: attackObj.sendAttack,
+        sendAttack: () => {
+            if (tileArray && enemyGameboard)
+                attackObj.sendAttack();
+            else console.log('Please set tileArray and enemyGameboard.');
+        },
         placeShips: () => {
             const boardHeight = gameboard.get.height();
             const boardWidth = gameboard.get.width();
