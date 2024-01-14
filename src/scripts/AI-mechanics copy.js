@@ -54,9 +54,11 @@ function aiFactory(settings) {
             function HitUnitObj(coordObj) {
                 const hitCoords = [coordObj];
                 this.unit = coordObj.getUnit();
+                removeSelfOnSunk();
                 this.addCoordObj = (coordObj) => {
                     hitCoords.push(coordObj);
                     sortHitCoords();
+                    removeSelfOnSunk();
                 }
                 this.getFirst = () => hitCoords[0];
                 this.getLast = () => hitCoords[hitCoords.length - 1];
@@ -66,6 +68,17 @@ function aiFactory(settings) {
                     if (hitCoords[0].x === hitCoords[1].x)
                         return false;
                     else return true;
+                }
+                function getIndex() {
+                    for (let i = 0; i < hitUnitArray.length; i++) {
+                        let unit = hitUnitArray[i].unit;
+                        if (this.unit.isEqualTo(unit)) return i;
+                    }
+                    console.log('Should not appear');
+                }
+                function removeSelfOnSunk() {
+                    if (!this.unit.isSunk()) return;
+                    hitUnitArray.splice(getIndex(), 1);
                 }
             }
             function sortHitCoords() {
@@ -98,9 +111,6 @@ function aiFactory(settings) {
             if (!this.isEmpty())
                 return moveArray[moveArray.length - 1];
         }
-        this.getLastNoDirection = () => {
-            console.log('grab last with no direction or false');
-        }
         this.isCoordUsed = (coordObj) => {
             for (let i = 0; i < moveArray.length; i++) {
                 let move = moveArray[i];
@@ -111,6 +121,7 @@ function aiFactory(settings) {
             return false;
         }
     }
+
     const attackObj = new function () {
         this.sendAttack = () => {
             const coordObj = getAttackCoordObj();
@@ -121,7 +132,7 @@ function aiFactory(settings) {
         const directions = ['left', 'up', 'right', 'down'];
         function getAttackCoordObj() {
             if (previousMoves.isEmpty()) return getRandomAttackCoord();
-            //return getRandomAttackCoord();
+
             const lastCoordObj = previousMoves.getLast();
             let direction = lastCoordObj.moveDirection;
             if (direction) {
