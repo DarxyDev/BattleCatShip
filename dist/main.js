@@ -1073,11 +1073,11 @@ function aiFactory(settings) {
             let coordObj = new CoordObj(x, y);
             while (!coordObj.isValid()) {
                 x++;
-                if (x >= BOARD_WIDTH - 1) {
+                if (x >= BOARD_WIDTH) {
                     x = 0;
                     y++;
                 }
-                if (y >= BOARD_HEIGHT - 1)
+                if (y >= BOARD_HEIGHT)
                     y = 0;
                 coordObj = new CoordObj(x, y);
             }
