@@ -138,25 +138,6 @@ function aiFactory(settings) {
                 }
                 this.getFirstCoord = () => hitCoords[0];
                 this.getLastCoord = () => hitCoords[hitCoords.length - 1];
-                this.getNextGuess = (startCoordObj = hitCoords[0]) => {
-                    let nextCoordObj = new CoordObj(-1, -1);
-                    let inXAxis = this.isInXAxis();
-                    if (inXAxis === undefined) {
-                        let direction = directionObj.getRandom();
-                        for (let i = 0; i < 4; i++) {
-                            direction = directionObj.getNext(direction, i);
-                            nextCoordObj = startCoordObj.getCoordInDirection(direction);
-                            if (nextCoordObj.isValid()) return nextCoordObj;
-                        }
-                    }
-                    let direction = directionObj.getRandom(inXAxis);
-                    nextCoordObj = startCoordObj.getCoordInDirection(direction);
-                    if (nextCoordObj.isValid()) return nextCoordObj;
-                    direction = directionObj.getReverseOf(direction);
-                    nextCoordObj = startCoordObj.getCoordInDirection(direction);
-                    if (nextCoordObj.isValid()) return nextCoordObj;
-                    return this.getNextGuess(this.getLastCoord());
-                }
                 //HitUnitObj priv
                 const getIndex = () => {
                     for (let i = 0; i < hitUnitArray.length; i++) {
@@ -201,7 +182,10 @@ function aiFactory(settings) {
         }
 
         function getAttackCoordObj() {
-            let hitUnitObj = previousMoves.getLastHitUnitObj();
+            const hitUnitObj = previousMoves.getLastHitUnitObj();
+            const firstCoord = hitUnitObj.getFirstCoord();
+            const lastCoord = hitUnitObj.getLastCoord();
+
             switch (difficulty) {
                 case 'easy':
                     return getRandomAttackCoord();
@@ -209,7 +193,7 @@ function aiFactory(settings) {
                 case 'medium':
                     if (previousMoves.noUnitsFound())
                         return getRandomAttackCoord();
-                    return hitUnitObj.getNextGuess();
+                    return getUnitCoordGuess;
                     break;
                 case 'hard': //could add to check space around randomCoord to see if valid for unit lengths
                     if (previousMoves.noUnitsFound()) {
@@ -218,14 +202,33 @@ function aiFactory(settings) {
                             nextGuess = getRandomAttackCoord();
                         return getRandomAttackCoord();
                     }
-                    let nextGuess = hitUnitObj.getNextGuess();
+                    let nextGuess = getUnitCoordGuess();
                     if (!nextGuess.getUnit())
-                        nextGuess = hitUnitObj.getNextGuess();
+                        nextGuess = getUnitCoordGuess();
                     return nextGuess;
                     break;
                 default:
                     console.log(`Invalid difficulty: ${difficulty}`);
                     return getRandomAttackCoord();
+            }
+            function getUnitCoordGuess(startCoordObj = firstCoord) {
+                let nextCoordObj = new CoordObj(-1, -1);
+                let inXAxis = hitUnitObj.isInXAxis();
+                if (inXAxis === undefined) {
+                    let direction = directionObj.getRandom();
+                    for (let i = 0; i < 4; i++) {
+                        direction = directionObj.getNext(direction, i);
+                        nextCoordObj = startCoordObj.getCoordInDirection(direction);
+                        if (nextCoordObj.isValid()) return nextCoordObj;
+                    }
+                }
+                let direction = directionObj.getRandom(inXAxis);
+                nextCoordObj = startCoordObj.getCoordInDirection(direction);
+                if (nextCoordObj.isValid()) return nextCoordObj;
+                direction = directionObj.getReverseOf(direction);
+                nextCoordObj = startCoordObj.getCoordInDirection(direction);
+                if (nextCoordObj.isValid()) return nextCoordObj;
+                return getUnitCoordGuess(lastCoord);
             }
         }
 
