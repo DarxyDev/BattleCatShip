@@ -85,8 +85,9 @@ function unitFactory(length) {
 
     const unit = {
         get: {
-            id: () => { return _id },
-            length: () => { return _length }
+            id: () => _id,
+            length: () => _length,
+            health: () => _length - _hits,
         },
         hit: () => { _hits++; },
         isSunk: () => { return (_hits >= _length) },

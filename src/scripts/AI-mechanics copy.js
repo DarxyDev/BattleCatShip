@@ -39,72 +39,48 @@ function aiFactory(settings) {
             ) return false;
             return true;
         };
+
+        let explored = false;
+        this.isExplored = () => explored;
+        const exploredDirections = [];
+        this.markDirectionExplored = (direction) => {
+            if (!exploredDirections.includes(direction))
+                exploredDirections.push(direction);
+            if (
+                exploredDirections.includes('up')
+                && exploredDirections.includes('down')
+                && exploredDirections.includes('left')
+                && exploredDirections.includes('right')
+            ) explored = true;
+        }
+        this.getCoordInDirection = (direction, markExplored = true, distance = 1) => {
+            let x = this.x;
+            let y = this.y;
+            switch (direction) {
+                case 'left': x -= distance;
+                    break;
+                case 'right': x += distance;
+                    break;
+                case 'up': y += distance;
+                    break;
+                case 'down': y -= distance;
+                    break;
+                default:
+                    console.log(`${direction} is invalid.`);
+                    return getRandomAttackCoord();
+            }
+            if (markExplored)
+                this.markDirectionExplored(direction);
+            return new CoordObj(x, y);
+        }
     }
     const previousMoves = new function () {
         const moveArray = [];
-        const hitUnitObj = new function () {
-            const hitUnitArray = [];
-            this.push = (coordObj) => {
-                const unit = coordObj.getUnit();
-                if (!unit) return;
-                const hitUnitObj = getHitUnitObj(unit);
-                if (hitUnitObj) hitUnitObj.addCoordObj(coordObj);
-                else hitUnitArray.push(new HitUnitObj(coordObj));
-            }
-            function HitUnitObj(coordObj) {
-                const hitCoords = [coordObj];
-                this.unit = coordObj.getUnit();
-                removeSelfOnSunk();
-                this.addCoordObj = (coordObj) => {
-                    hitCoords.push(coordObj);
-                    sortHitCoords();
-                    removeSelfOnSunk();
-                }
-                this.getFirst = () => hitCoords[0];
-                this.getLast = () => hitCoords[hitCoords.length - 1];
-                this.isInXAxis = () => {
-                    if (hitCoords.length <= 1)
-                        return undefined;
-                    if (hitCoords[0].x === hitCoords[1].x)
-                        return false;
-                    else return true;
-                }
-                function getIndex() {
-                    for (let i = 0; i < hitUnitArray.length; i++) {
-                        let unit = hitUnitArray[i].unit;
-                        if (this.unit.isEqualTo(unit)) return i;
-                    }
-                    console.log('Should not appear');
-                }
-                function removeSelfOnSunk() {
-                    if (!this.unit.isSunk()) return;
-                    hitUnitArray.splice(getIndex(), 1);
-                }
-            }
-            function sortHitCoords() {
-                if (hitCoords.length <= 1) return;
-                hitCoords.sort((a, b) => {
-                    if (this.isInXAxis()) {
-                        return a.x - b.x;
-                    } else {
-                        return a.y - b.y;
-                    }
-                })
-            }
-            function getHitUnitObj(unit) {
-                for (let i = 0; i < hitUnitArray.length; i++) {
-                    let hitUnitObj = hitUnitArray[i];
-                    let unit2 = hitUnitObj.unit;
-                    if (unit.isEqualTo(unit2)) return hitUnitObj;
-                }
-                return false;
-            }
-        }
 
         this.isEmpty = () => moveArray.length === 0;
         this.push = (coordObj) => {
             moveArray.push(coordObj);
-            hitUnitObj.push(coordObj);
+            hitUnitsObj.push(coordObj);
         };
         this.pop = () => moveArray.pop();
         this.getLast = () => {
@@ -120,6 +96,101 @@ function aiFactory(settings) {
             }
             return false;
         }
+
+
+        this.noUnitsFound = () => hitUnitsObj.isEmpty();
+        this.getLastHitUnitObj = () => hitUnitsObj.getLast();
+        this.getHitUnitObjOf = (unit) => hitUnitsObj.getObjOf(unit);
+
+        const hitUnitsObj = new function () {
+            const hitUnitArray = [];
+            //public
+            this.push = (coordObj) => {
+                const unit = coordObj.getUnit();
+                if (!unit) return;
+                const hitUnitObj = getHitUnitObj(unit);
+                if (hitUnitObj) hitUnitObj.addCoordObj(coordObj);
+                else hitUnitArray.push(new HitUnitObj(coordObj));
+            }
+            this.isEmpty = () => hitUnitArray.length <= 0;
+            this.getLast = () => hitUnitArray[hitUnitArray.length - 1];
+            this.getObjOf = (unit) => this.getHitUnitObjOf(unit);
+            //
+            function HitUnitObj(coordObj) {
+                const hitCoords = [coordObj];
+                let lastAddedCoord = coordObj;
+                this.unit = coordObj.getUnit();
+                removeSelfOnSunk();
+                //public methods
+                this.getPreviousCoord = () => lastAddedCoord;
+                this.isInXAxis = () => {
+                    if (hitCoords.length <= 1)
+                        return undefined;
+                    if (hitCoords[0].x === hitCoords[1].x)
+                        return false;
+                    else return true;
+                }
+                this.addCoordObj = (coordObj) => {
+                    hitCoords.push(coordObj);
+                    lastAddedCoord = coordObj;
+                    sortHitCoords();
+                    removeSelfOnSunk();
+                }
+                this.getFirstCoord = () => hitCoords[0];
+                this.getLastCoord = () => hitCoords[hitCoords.length - 1];
+                this.getNextGuess = (startCoordObj = hitCoords[0]) => {
+                    let nextCoordObj = new CoordObj(-1, -1);
+                    let inXAxis = this.isInXAxis();
+                    if (inXAxis === undefined) {
+                        let direction = directionObj.getRandom();
+                        for (let i = 0; i < 4; i++) {
+                            direction = directionObj.getNext(direction, i);
+                            nextCoordObj = startCoordObj.getCoordInDirection(direction);
+                            if (nextCoordObj.isValid()) return nextCoordObj;
+                        }
+                    }
+                    let direction = directionObj.getRandom(inXAxis);
+                    nextCoordObj = startCoordObj.getCoordInDirection(direction);
+                    if (nextCoordObj.isValid()) return nextCoordObj;
+                    direction = directionObj.getReverseOf(direction);
+                    nextCoordObj = startCoordObj.getCoordInDirection(direction);
+                    if (nextCoordObj.isValid()) return nextCoordObj;
+                    return this.getNextGuess(this.getLastCoord());
+                }
+                //HitUnitObj priv
+                const getIndex = () => {
+                    for (let i = 0; i < hitUnitArray.length; i++) {
+                        let unit = hitUnitArray[i].unit;
+                        if (this.unit.isEqualTo(unit)) return i;
+                    }
+                    console.log('Should not appear');
+                }
+                function removeSelfOnSunk() {
+                    if (coordObj.getUnit().get.health() <= 1)
+                        hitUnitArray.splice(getIndex(), 1);
+                }
+                const sortHitCoords = () => {
+                    if (hitCoords.length <= 1) return;
+                    hitCoords.sort((a, b) => {
+                        if (this.isInXAxis()) {
+                            return a.x - b.x;
+                        } else {
+                            return a.y - b.y;
+                        }
+                    })
+                }
+            }
+            // hitObj priv
+
+            function getHitUnitObj(unit) {
+                for (let i = 0; i < hitUnitArray.length; i++) {
+                    let hitUnitObj = hitUnitArray[i];
+                    let unit2 = hitUnitObj.unit;
+                    if (unit.isEqualTo(unit2)) return hitUnitObj;
+                }
+                return false;
+            }
+        }
     }
 
     const attackObj = new function () {
@@ -129,28 +200,35 @@ function aiFactory(settings) {
             coordObj.attack();
         }
 
-        const directions = ['left', 'up', 'right', 'down'];
         function getAttackCoordObj() {
-            if (previousMoves.isEmpty()) return getRandomAttackCoord();
-
-            const lastCoordObj = previousMoves.getLast();
-            let direction = lastCoordObj.moveDirection;
-            if (direction) {
-                let coordObj = getDirectionCoord(lastCoordObj, direction)
-                //might change to if(coordObj.isValid)
-                if (coordObj) {
-                    if (coordObj.getUnit())
-                        console.log(coordObj.moveDirection = direction);
-                    return coordObj;
-                }
-                let otherDirection = directions[(directions.indexOf(direction) + 2) % 4];
-                console.log(otherDirection);
-                //get first hit on this row
-                // coordObj = directionCoord(firsHit,otherDir)
-                //if(coordObj)....
+            let hitUnitObj = previousMoves.getLastHitUnitObj();
+            switch (difficulty) {
+                case 'easy':
+                    return getRandomAttackCoord();
+                    break;
+                case 'medium':
+                    if (previousMoves.noUnitsFound())
+                        return getRandomAttackCoord();
+                    return hitUnitObj.getNextGuess();
+                    break;
+                case 'hard': //could add to check space around randomCoord to see if valid for unit lengths
+                    if (previousMoves.noUnitsFound()) {
+                        let nextGuess = getRandomAttackCoord();
+                        if (!nextGuess.getUnit())
+                            nextGuess = getRandomAttackCoord();
+                        return getRandomAttackCoord();
+                    }
+                    let nextGuess = hitUnitObj.getNextGuess();
+                    if (!nextGuess.getUnit())
+                        nextGuess = hitUnitObj.getNextGuess();
+                    return nextGuess;
+                    break;
+                default:
+                    console.log(`Invalid difficulty: ${difficulty}`);
+                    return getRandomAttackCoord();
             }
-            console.log('finish here');
         }
+
         function getRandomAttackCoord() {
             let x = Math.round(Math.random() * (BOARD_WIDTH - 1));
             let y = Math.round(Math.random() * (BOARD_HEIGHT - 1));
@@ -167,30 +245,42 @@ function aiFactory(settings) {
             }
             return coordObj;
         }
-
-        function getDirectionCoord(coordObj, direction, distance = 1) {
-            let x = coordObj.x;
-            let y = coordObj.y;
-            switch (direction) {
-                case 'left': x -= distance;
+    }
+    const directionObj = new function () {
+        const directions = ['left', 'up', 'right', 'down'];
+        this.getRandom = (inXAxis = undefined) => {
+            let index;
+            const rand = Math.random();
+            switch (inXAxis) {
+                case undefined:
+                    index = Math.round(rand * 3);
                     break;
-                case 'right': x += distance;
+                case true: //0 or 2
+                    index = Math.round(rand) * 2;
                     break;
-                case 'up': y += distance;
+                case false: // 1 or 3
+                    index = (Math.round(rand) * 2) + 1
                     break;
-                case 'down': y -= distance;
-                    break;
-                default:
-                    console.log(`${direction} is invalid.`);
-                    return getRandomAttackCoord();
             }
-            coordObj = new CoordObj(x, y);
-            if (coordObj.isValid())
-                return coordObj;
-            return false;
+            return directions[index];
+        }
+        this.getReverseOf = (direction) => {
+            const index = (directions.indexOf(direction) + 2) % 4;
+            return directions[index];
+        }
+        this.getNext = (direction, distance = 1) => {
+            if (distance === 0)
+                return direction;
+            let index = directions.indexOf(direction);
+            if (index < 0)
+                return false;
+            index = (index + distance) % 4;
+            return directions[index];
+        }
+        this.isValid = (direction) => {
+            return directions.includes(direction);
         }
     }
-
 
 
     //return object
