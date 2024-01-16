@@ -1,4 +1,4 @@
-import { aiFactory } from "./AI-mechanics copy";
+import { aiFactory } from "./AI-mechanics";
 import { Gameboard, unitFactory } from "./gameboard-manager";
 import sceneManager from "./scene-manager";
 

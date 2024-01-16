@@ -826,10 +826,10 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
-/***/ "./src/scripts/AI-mechanics copy.js":
-/*!******************************************!*\
-  !*** ./src/scripts/AI-mechanics copy.js ***!
-  \******************************************/
+/***/ "./src/scripts/AI-mechanics.js":
+/*!*************************************!*\
+  !*** ./src/scripts/AI-mechanics.js ***!
+  \*************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -1021,8 +1021,6 @@ function aiFactory(settings) {
 
         function getAttackCoordObj() {
             const hitUnitObj = previousMoves.getLastHitUnitObj();
-            const firstCoord = hitUnitObj.getFirstCoord();
-            const lastCoord = hitUnitObj.getLastCoord();
 
             switch (difficulty) {
                 case 'easy':
@@ -1031,7 +1029,7 @@ function aiFactory(settings) {
                 case 'medium':
                     if (previousMoves.noUnitsFound())
                         return getRandomAttackCoord();
-                    return getUnitCoordGuess;
+                    return getUnitCoordGuess();
                     break;
                 case 'hard': //could add to check space around randomCoord to see if valid for unit lengths
                     if (previousMoves.noUnitsFound()) {
@@ -1049,7 +1047,7 @@ function aiFactory(settings) {
                     console.log(`Invalid difficulty: ${difficulty}`);
                     return getRandomAttackCoord();
             }
-            function getUnitCoordGuess(startCoordObj = firstCoord) {
+            function getUnitCoordGuess(startCoordObj = hitUnitObj.getFirstCoord()) {
                 let nextCoordObj = new CoordObj(-1, -1);
                 let inXAxis = hitUnitObj.isInXAxis();
                 if (inXAxis === undefined) {
@@ -1066,7 +1064,7 @@ function aiFactory(settings) {
                 direction = directionObj.getReverseOf(direction);
                 nextCoordObj = startCoordObj.getCoordInDirection(direction);
                 if (nextCoordObj.isValid()) return nextCoordObj;
-                return getUnitCoordGuess(lastCoord);
+                return getUnitCoordGuess(hitUnitObj.getLastCoord());
             }
         }
 
@@ -1153,10 +1151,6 @@ function aiFactory(settings) {
 
 
 
-
-
-
-
 /***/ }),
 
 /***/ "./src/scripts/class-manager.js":
@@ -1201,7 +1195,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
 /* harmony export */   setDummyUnits: () => (/* binding */ setDummyUnits)
 /* harmony export */ });
-/* harmony import */ var _AI_mechanics_copy__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AI-mechanics copy */ "./src/scripts/AI-mechanics copy.js");
+/* harmony import */ var _AI_mechanics__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AI-mechanics */ "./src/scripts/AI-mechanics.js");
 /* harmony import */ var _gameboard_manager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./gameboard-manager */ "./src/scripts/gameboard-manager.js");
 /* harmony import */ var _scene_manager__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scene-manager */ "./src/scripts/scene-manager.js");
 
@@ -1281,7 +1275,7 @@ function _generatePlayerObj(playerRef) {
     let _player;
     const _gameboard = new _gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.Gameboard(BOARD_WIDTH, BOARD_HEIGHT);
     const _units = _createUnitArray();
-    const _ai = (0,_AI_mechanics_copy__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({gameboard:_gameboard,unitArray:_units, difficulty: DEFAULT_DIFFICULTY});
+    const _ai = (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({gameboard:_gameboard,unitArray:_units, difficulty: DEFAULT_DIFFICULTY});
     const playerObj = {
         get: {
             player: () => _player !== undefined ? _player : playerRef,
