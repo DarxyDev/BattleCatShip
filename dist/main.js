@@ -1202,10 +1202,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const BOARD_WIDTH = 7;
-const BOARD_HEIGHT = 7;
+const BOARD_WIDTH = 4;
+const BOARD_HEIGHT = 4;
 const PIECE_COUNT = 5;
-const PIECE_LENGTH_ARRAY = [0, 0, 1, 1, 1, 1, 0, 0]; //index == piece length  value == piece count of said length
+const PIECE_LENGTH_ARRAY = [0, 0, 0, 0, 1, 0, 0, 0]; //index == piece length  value == piece count of said length
+console.log('temp: set units to a single 4-slot')
 const DEFAULT_DIFFICULTY = 'medium';
 let _isSinglePlayer;
 
@@ -1512,15 +1513,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _scenes_player_select__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scenes/player-select */ "./src/scripts/scenes/player-select.js");
 /* harmony import */ var _scenes_piece_placement__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./scenes/piece-placement */ "./src/scripts/scenes/piece-placement.js");
 /* harmony import */ var _scenes_main_game__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./scenes/main-game */ "./src/scripts/scenes/main-game.js");
+/* harmony import */ var _scenes_game_over__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./scenes/game-over */ "./src/scripts/scenes/game-over.js");
 
 
 
 
 
 
-//import playerFactory from "./player-factory";
-//import gameState from "./game-state";
-//import gamePieces from "./game-pieces";
+
 
 let scenes = {
     main: {},
@@ -1557,8 +1557,7 @@ function initializeScenes() {
     scenes.main.playerSelect = (0,_scenes_player_select__WEBPACK_IMPORTED_MODULE_3__["default"])();
     scenes.p1.piecePlacement = (0,_scenes_piece_placement__WEBPACK_IMPORTED_MODULE_4__["default"])(); 
     scenes.main.game = (0,_scenes_main_game__WEBPACK_IMPORTED_MODULE_5__["default"])();
-    //initMainGame();
-    //initGameOver();
+    scenes.main.gameOver = (0,_scenes_game_over__WEBPACK_IMPORTED_MODULE_6__["default"])();
 }
 function addBlinder(text = undefined){
     gameWindow.appendChild(blinderObj.scene);
@@ -1632,6 +1631,38 @@ function initBlinder(){
     return {scene, setText}
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initBlinder);
+
+/***/ }),
+
+/***/ "./src/scripts/scenes/game-over.js":
+/*!*****************************************!*\
+  !*** ./src/scripts/scenes/game-over.js ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _scene_manager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scene-manager */ "./src/scripts/scene-manager.js");
+
+
+
+function initGameOver() {
+    let scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_0__.initScene)('TEMPLATE_game-over');
+    const mainTextBox = scene.querySelector("[gameOverID='main-textBox']");
+    const playAgainBtn = scene.querySelector("[gameOverID='play-again-btn']")
+
+    playAgainBtn.addEventListener('click',()=>{mainTextBox.textContent += ' hotdog'})
+
+    mainTextBox.textContent = 'hotdog';
+    scene.sceneOnLoad = ()=>{
+        console.log('end scene loaded')
+    };
+    return scene;
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initGameOver);
 
 /***/ }),
 
@@ -1866,8 +1897,7 @@ function OffenseGameWindow(playerObj) {
                 case attackStates.sunk:
                     tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.tileSunk);
                     attackObj.affectedIndexes.forEach(index => {
-                        const tile = tiles[index];
-                        tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.tileSunk)
+                        tiles[index].addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.tileSunk);
                     });
                     break;
                 case attackStates.error:
@@ -1880,7 +1910,8 @@ function OffenseGameWindow(playerObj) {
                 _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.game.isGameOver(true);
                 _game_state__WEBPACK_IMPORTED_MODULE_1__["default"][enemyRef].get.player().addGamePlayed(false);
                 playerObj.get.player().addGamePlayed(true);
-                textBoxObj.setText('You win!');
+                let gameOverScene = _scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].getScenes().main.gameOver;
+                _scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].loadScene(gameOverScene);
             }
             else {
                 textBoxObj.turnResult(attackObj.attackState);

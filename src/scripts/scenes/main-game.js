@@ -216,8 +216,7 @@ function OffenseGameWindow(playerObj) {
                 case attackStates.sunk:
                     tile.addClass(CLASSES.tileSunk);
                     attackObj.affectedIndexes.forEach(index => {
-                        const tile = tiles[index];
-                        tile.addClass(CLASSES.tileSunk)
+                        tiles[index].addClass(CLASSES.tileSunk);
                     });
                     break;
                 case attackStates.error:
@@ -230,7 +229,8 @@ function OffenseGameWindow(playerObj) {
                 gameState.set.game.isGameOver(true);
                 gameState[enemyRef].get.player().addGamePlayed(false);
                 playerObj.get.player().addGamePlayed(true);
-                textBoxObj.setText('You win!');
+                let gameOverScene = sceneManager.getScenes().main.gameOver;
+                sceneManager.loadScene(gameOverScene);
             }
             else {
                 textBoxObj.turnResult(attackObj.attackState);

@@ -4,9 +4,7 @@ import initTitleScreen from "./scenes/title-screen";
 import initPlayerSelect from "./scenes/player-select";
 import initPiecePlacement from "./scenes/piece-placement";
 import initMainGameScene from "./scenes/main-game";
-//import playerFactory from "./player-factory";
-//import gameState from "./game-state";
-//import gamePieces from "./game-pieces";
+import initGameOver from "./scenes/game-over";
 
 let scenes = {
     main: {},
@@ -43,8 +41,7 @@ function initializeScenes() {
     scenes.main.playerSelect = initPlayerSelect();
     scenes.p1.piecePlacement = initPiecePlacement(); 
     scenes.main.game = initMainGameScene();
-    //initMainGame();
-    //initGameOver();
+    scenes.main.gameOver = initGameOver();
 }
 function addBlinder(text = undefined){
     gameWindow.appendChild(blinderObj.scene);

@@ -2,10 +2,11 @@ import { aiFactory } from "./AI-mechanics";
 import { Gameboard, unitFactory } from "./gameboard-manager";
 import sceneManager from "./scene-manager";
 
-const BOARD_WIDTH = 7;
-const BOARD_HEIGHT = 7;
+const BOARD_WIDTH = 4;
+const BOARD_HEIGHT = 4;
 const PIECE_COUNT = 5;
-const PIECE_LENGTH_ARRAY = [0, 0, 1, 1, 1, 1, 0, 0]; //index == piece length  value == piece count of said length
+const PIECE_LENGTH_ARRAY = [0, 0, 0, 0, 1, 0, 0, 0]; //index == piece length  value == piece count of said length
+console.log('temp: set units to a single 4-slot')
 const DEFAULT_DIFFICULTY = 'medium';
 let _isSinglePlayer;
 
