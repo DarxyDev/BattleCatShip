@@ -20,6 +20,7 @@ const sceneManager = {
     getCurrentScene: ()=>currentScene,
     loadScene,
     addBlinder,
+    resetScenes,
 };
 
 export default sceneManager;
@@ -42,6 +43,9 @@ function initializeScenes() {
     scenes.p1.piecePlacement = initPiecePlacement(); 
     scenes.main.game = initMainGameScene();
     scenes.main.gameOver = initGameOver();
+}
+function resetScenes(){
+    
 }
 function addBlinder(text = undefined){
     gameWindow.appendChild(blinderObj.scene);

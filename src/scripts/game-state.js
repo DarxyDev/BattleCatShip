@@ -62,25 +62,20 @@ const gameState = {
     },
     p1: _generatePlayerObj('p1'),
     p2: _generatePlayerObj('p2'),
-    p0: { //here for intellisense
-        get: {
-            player: () => { },
-            units: () => { },
-            gameboard: () => { },
-        },
-        set: {
-            player: () => { },
-            gameboard: () => { },
-        },
-    },
+    newGame: () => {
+        _currentPlayer = 'p1';
+        _isGameOver = false;
+        gameState.p1.reset();
+        gameState.p2.reset();
+    }
 };
 
 function _generatePlayerObj(playerRef) {
 
     let _player;
-    const _gameboard = new Gameboard(BOARD_WIDTH, BOARD_HEIGHT);
-    const _units = _createUnitArray();
-    const _ai = aiFactory({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
+    let _gameboard = new Gameboard(BOARD_WIDTH, BOARD_HEIGHT);
+    let _units = _createUnitArray();
+    let _ai = aiFactory({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
     const playerObj = {
         get: {
             player: () => _player !== undefined ? _player : playerRef,
@@ -104,6 +99,11 @@ function _generatePlayerObj(playerRef) {
             setTileArray: _ai.setTileArray,
             setEnemyGameboard: _ai.setEnemyGameboard,
         },
+        reset: () => {
+            _gameboard = new Gameboard(BOARD_WIDTH, BOARD_HEIGHT);
+            _units = _createUnitArray();
+            aiFactory({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
+        }
     };
     return playerObj;
 }
