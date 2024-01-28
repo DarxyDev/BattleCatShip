@@ -1703,18 +1703,19 @@ __webpack_require__.r(__webpack_exports__);
 const scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.initScene)('TEMPLATE_main-game');
 scene.sceneOnLoad = () => {
     gameWindows.p1 = {
-        offense: new OffenseGameWindow(playerObjs.p1),
-        defense: new DefenseGameWindow(playerObjs.p1)
+        offense: OffenseGameWindowFactory(playerObjs.p1),
+        defense: DefenseGameWindowFactory(playerObjs.p1)
     };
     gameWindows.p2 = {
-        offense: new OffenseGameWindow(playerObjs.p2),
-        defense: new DefenseGameWindow(playerObjs.p2)
+        offense: OffenseGameWindowFactory(playerObjs.p2),
+        defense: DefenseGameWindowFactory(playerObjs.p2)
     }
 
     gameWindows.p1.defense.displayUnits();
     gameWindows.p2.defense.displayUnits();
     _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.scene.setCurrentPlayer('p1');
     textBoxObj.displayPlayerTurn();
+
     if (_game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.isSinglePlayer()) setDisplayObj.singplePlayer();
     else setDisplayObj.multiplayer();
 
@@ -1744,34 +1745,22 @@ const playerObjs = {
 }
 const gameWindows = {
     p1: {
-        offense: new OffenseGameWindow(playerObjs.p1),
-        defense: new DefenseGameWindow(playerObjs.p1)
+        offense: OffenseGameWindowFactory(playerObjs.p1),
+        defense: DefenseGameWindowFactory(playerObjs.p1)
     },
     p2: {
-        offense: new OffenseGameWindow(playerObjs.p2),
-        defense: new DefenseGameWindow(playerObjs.p2)
+        offense: OffenseGameWindowFactory(playerObjs.p2),
+        defense: DefenseGameWindowFactory(playerObjs.p2)
     }
 }
 
 // function objects
-const setDisplayObj = new function () {
+const setDisplayObj = (function () {
     const gameBox1 = scene.querySelector("[gameID='gameBox-left']");
     const gameBox2 = scene.querySelector("[gameID='gameBox-right']");
     (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.addGridBoardProperties)(gameBox1);
     (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.addGridBoardProperties)(gameBox2);
 
-    this.singplePlayer = () => {
-        _first(gameWindows.p1.defense);
-        _second(gameWindows.p1.offense);
-    }
-    this.multiplayer = () => {
-        _first(gameWindows.p1.offense);
-        _second(gameWindows.p2.offense);
-    }
-    this.custom = (first, second) => {
-        _first(first);
-        _second(second);
-    }
     const _first = (gameWindow) => {
         const tileArray = gameWindow.getTileNodeArray();
         _replaceTilesIn(gameBox1, tileArray)
@@ -1786,96 +1775,122 @@ const setDisplayObj = new function () {
             gameBox.appendChild(tile);
         })
     }
-}
-const textBoxObj = new function () {
+    const obj = {
+        singplePlayer: () => {
+            _first(gameWindows.p1.defense);
+            _second(gameWindows.p1.offense);
+        },
+        multiplayer: () => {
+            _first(gameWindows.p1.offense);
+            _second(gameWindows.p2.offense);
+        },
+        custom: (first, second) => {
+            _first(first);
+            _second(second);
+        },
+    }
+    return obj;
+})()
+const textBoxObj = (function () {
     const textBox = scene.querySelector("[gameID='textBox']");
-    this.clearText = () => { textBox.textContent = '' };
-    this.setText = (text) => { textBox.textContent = text };
-    this.displayPlayerTurn = () => {
-        const pRef = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.scene.currentPlayer();
-        const name = playerObjs[pRef].get.player().get.name();
-        this.setText(`${name}'s turn.`)
+    const obj = {
+        clearText: () => { textBox.textContent = '' },
+        setText: (text) => { textBox.textContent = text },
+        displayPlayerTurn: () => {
+            const pRef = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.scene.currentPlayer();
+            const name = playerObjs[pRef].get.player().get.name();
+            obj.setText(`${name}'s turn.`)
+        },
+        turnResult: (result) => {
+            obj.setText(result);
+        },
+        addNewLineText: (text) => {
+            textBox.innerHTML += '<br>' + text;
+        },
     }
-    this.turnResult = (result) => {
-        this.setText(result);
-    }
-    this.addNewLineText = (text) => {
-        textBox.innerHTML += '<br>' + text;
-    }
-}
-function DefenseGameWindow(playerObj) {
+    return obj;
+})()
+function DefenseGameWindowFactory(playerObj) {
     //init
     const tileNodes = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.generateGameTiles)();
     const tiles = getTileObjArray(tileNodes);
     const gameboard = playerObj.get.gameboard();
     const enemyRef = getEnemyPlayerRef(playerObj);
     const unitTileArr = [];
-
-    this.getTileNodeArray = () => tileNodes;
-    this.displayUnits = () => {
-        tiles.forEach(tile => {
-            const coord = tile.getCoord();
-            const unit = gameboard.getUnitOnCoord(coord);
-            if (unit) tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unit);
-        })
-    }
-    this.receiveAttack = (coord) => {
-        const unit = gameboard.getUnitOnCoord(coord);
-        const attackState = gameboard.receiveAttack(coord);
-        const index = getIndexFromCoord(coord);
-        const tile = tiles[index];
-
-        switch (attackState) {
-            case attackStates.hit:
-                tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unitHit);
-                pushUnitTileArr(unit, tile)
-                break;
-            case attackStates.miss:
-                tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unitMiss);
-                break;
-            case attackStates.sunk:
-                tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unitSunk);
-                const tileArr = getUnitTileArr(unit).tileArr;
-                tileArr.forEach(tile => { tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unitSunk); });
-                return new AttackObj(attackState, tileArr);
-                ///
-                break;
-            case attackStates.error:
-                break;
-            default:
-                console.log(`Attack state ${attackState} was unexpected.`);
-        }
-        return new AttackObj(attackState);
-    }
     //private fn
-    function AttackObj(attackState, affectedTiles) {
+    function AttackObjFactory(attackState, affectedTiles) {
         const affectedIndexes = [];
         if (affectedTiles)
             affectedTiles.forEach(tile => {
                 affectedIndexes.push(tile.getIndex())
             })
-        this.attackState = attackState;
-        this.affectedIndexes = affectedIndexes;
+        const obj = {
+            attackState,
+            affectedIndexes,
+        }
+        return obj;
     }
-    function UnitTileObj(unit, tile) {
+    function UnitTileObjFactory(unit, tile) {
         const tileArr = [tile];
-        this.unit = unit;
-        this.tileArr = tileArr;
-        this.pushTile = (tile) => { tileArr.push(tile) };
+        const obj = {
+            unit: unit,
+            tileArr: tileArr,
+            pushTile: (tile) => { tileArr.push(tile) },
+        }
     }
     function pushUnitTileArr(unit, tile) {
         for (let i = 0; i < unitTileArr.length; i++)
             if (unit === unitTileArr[i].unit)
                 return unitTileArr[i].pushTile(tile);
-        unitTileArr.push(new UnitTileObj(unit, tile));
+        unitTileArr.push(UnitTileObjFactory(unit, tile));
     }
     function getUnitTileArr(unit) {
         for (let i = 0; i < unitTileArr.length; i++)
             if (unitTileArr[i].unit === unit)
                 return unitTileArr[i];
     }
+    //public 
+    const obj = {
+        getTileNodeArray: () => tileNodes,
+        displayUnits: () => {
+            tiles.forEach(tile => {
+                const coord = tile.getCoord();
+                const unit = gameboard.getUnitOnCoord(coord);
+                if (unit) tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unit);
+            })
+        },
+        receiveAttack: (coord) => {
+            const unit = gameboard.getUnitOnCoord(coord);
+            const attackState = gameboard.receiveAttack(coord);
+            const index = getIndexFromCoord(coord);
+            const tile = tiles[index];
+
+            switch (attackState) {
+                case attackStates.hit:
+                    tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unitHit);
+                    pushUnitTileArr(unit, tile)
+                    break;
+                case attackStates.miss:
+                    tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unitMiss);
+                    break;
+                case attackStates.sunk:
+                    tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unitSunk);
+                    const tileArr = getUnitTileArr(unit).tileArr;
+                    tileArr.forEach(tile => { tile.addClass(_class_manager__WEBPACK_IMPORTED_MODULE_0__.CLASSES.unitSunk); });
+                    return AttackObjFactory(attackState, tileArr);
+                    ///
+                    break;
+                case attackStates.error:
+                    break;
+                default:
+                    console.log(`Attack state ${attackState} was unexpected.`);
+            }
+            return AttackObjFactory(attackState);
+        },
+    }
+    return obj;
 }
-function OffenseGameWindow(playerObj) {
+function OffenseGameWindowFactory(playerObj) {
     //init
     const tileNodes = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.generateGameTiles)();
     const tiles = getTileObjArray(tileNodes);
@@ -1928,42 +1943,49 @@ function OffenseGameWindow(playerObj) {
             return attackObj.attackState;
         }
     })
-
-    //public fn
-    this.getTileNodeArray = () => tileNodes;
-    this.getTileFromIndex = (index) => tiles[index];
-    this.getTileArray = () => tiles;
     //private fn
     const sendAttack = (coords) => {
         return gameWindows[enemyRef].defense.receiveAttack(coords);
     }
+    //public fn
+    const obj = {
+
+        getTileNodeArray: () => tileNodes,
+        getTileFromIndex: (index) => tiles[index],
+        getTileArray: () => tiles,
+    }
+    return obj;
 }
 function getTileObjArray(tileNodeArray) {
     const tileObjArray = [];
 
     for (let i = 0; i < tileNodeArray.length; i++)
-        tileObjArray.push(new TileObj(tileNodeArray[i], i));
+        tileObjArray.push(TileObjFactory(tileNodeArray[i], i));
 
     return tileObjArray;
     //private
-    function TileObj(tileNode, index) {
+    function TileObjFactory(tileNode, index) {
         const coordObj = {
             x: +tileNode.getAttribute('posX'),
             y: +tileNode.getAttribute('posY')
         }
-        this.getNode = () => tileNode;
-        this.getCoord = () => coordObj;
-        this.getIndex = () => index;
+
         const tempClasses = [];
-        this.addTempClass = (className) => {
-            tempClasses.push(className);
-            tileNode.classList.add(className);
+        const obj = {
+            getNode: () => tileNode,
+            getCoord: () => coordObj,
+            getIndex: () => index,
+            addTempClass: (className) => {
+                tempClasses.push(className);
+                tileNode.classList.add(className);
+            },
+            removeTempClasses: () => {
+                while (tempClasses.length > 0)
+                    tileNode.classList.remove(tempClasses.pop());
+            },
+            addClass: (className) => tileNode.classList.add(className),
         }
-        this.removeTempClasses = () => {
-            while (tempClasses.length > 0)
-                tileNode.classList.remove(tempClasses.pop());
-        }
-        this.addClass = (className) => tileNode.classList.add(className);
+        return obj;
     }
 }
 //
