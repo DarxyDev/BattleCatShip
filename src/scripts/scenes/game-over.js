@@ -10,7 +10,7 @@ function initGameOver() {
 
     mainTextBox.textContent = 'hotdog';
     scene.sceneOnLoad = ()=>{
-        console.log('end scene loaded')
+        
     };
     return scene;
 }

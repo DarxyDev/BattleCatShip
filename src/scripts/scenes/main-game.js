@@ -63,14 +63,7 @@ const setDisplayObj = new function () {
     const gameBox2 = scene.querySelector("[gameID='gameBox-right']");
     addGridBoardProperties(gameBox1);
     addGridBoardProperties(gameBox2);
-    // this.p1 = () => {
-    //     _first(gameWindows.p1.defense);
-    //     _second(gameWindows.p1.offense);
-    // }
-    // this.p2 = () => {
-    //     _first(gameWindows.p2.defense);
-    //     _second(gameWindows.p2.offense);
-    // }
+
     this.singplePlayer = () => {
         _first(gameWindows.p1.defense);
         _second(gameWindows.p1.offense);
@@ -196,7 +189,7 @@ function OffenseGameWindow(playerObj) {
     //event listeners
     tiles.forEach(tile => {
         const node = tile.getNode();
-        node.addEventListener('click', tileOnClick)
+        node.addEventListener('click', tileOnClick);
         tile.attack = tileOnClick;
 
         function tileOnClick(e) {

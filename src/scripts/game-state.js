@@ -2,10 +2,14 @@ import { aiFactory } from "./AI-mechanics";
 import { Gameboard, unitFactory } from "./gameboard-manager";
 import sceneManager from "./scene-manager";
 
-const BOARD_WIDTH = 4;
-const BOARD_HEIGHT = 4;
-const PIECE_COUNT = 5;
-const PIECE_LENGTH_ARRAY = [0, 0, 0, 0, 1, 0, 0, 0]; //index == piece length  value == piece count of said length
+const BOARD_WIDTH = 3; // must be > 2
+const BOARD_HEIGHT = 3; // must be > 2
+const PIECE_LENGTH_ARRAY = [0, 0, 0, 1, 0, 0, 0, 0]; //index == piece length  value == piece count of said length
+const PIECE_COUNT = ((count = 0) => {
+    PIECE_LENGTH_ARRAY.forEach(item => { count += item; });
+    return count;
+})();
+console.log(PIECE_COUNT)
 console.log('temp: set units to a single 4-slot')
 const DEFAULT_DIFFICULTY = 'medium';
 let _isSinglePlayer;
@@ -41,7 +45,7 @@ const gameState = {
                 }
                 _isSinglePlayer = bool;
             },
-            isGameOver:(bool) => {_isGameOver = bool},
+            isGameOver: (bool) => { _isGameOver = bool },
         },
         scene: {
             swapPlayers: () => {
@@ -60,13 +64,13 @@ const gameState = {
     p2: _generatePlayerObj('p2'),
     p0: { //here for intellisense
         get: {
-            player: () => {},
-            units: () => {},
-            gameboard: () => {},
+            player: () => { },
+            units: () => { },
+            gameboard: () => { },
         },
         set: {
-            player: () => {},
-            gameboard: () => {},
+            player: () => { },
+            gameboard: () => { },
         },
     },
 };
@@ -76,7 +80,7 @@ function _generatePlayerObj(playerRef) {
     let _player;
     const _gameboard = new Gameboard(BOARD_WIDTH, BOARD_HEIGHT);
     const _units = _createUnitArray();
-    const _ai = aiFactory({gameboard:_gameboard,unitArray:_units, difficulty: DEFAULT_DIFFICULTY});
+    const _ai = aiFactory({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
     const playerObj = {
         get: {
             player: () => _player !== undefined ? _player : playerRef,
@@ -94,7 +98,7 @@ function _generatePlayerObj(playerRef) {
                 _gameboard = gameboard;
             },
         },
-        ai:{
+        ai: {
             placeShips: _ai.placeShips,
             sendAttack: _ai.sendAttack,
             setTileArray: _ai.setTileArray,
@@ -116,7 +120,7 @@ function _createUnitArray() {
     return unitArray;
 }
 
-function setDummyUnits(){
+function setDummyUnits() {
     console.log('setting dummy units');
     const gameboardArray = [
         gameState.p1.get.gameboard(),
@@ -124,16 +128,16 @@ function setDummyUnits(){
     ];
     let offset = 1;
     let units = gameState.p1.get.units();
-    gameboardArray.forEach(gb =>{
-        if(gb === gameState.p1.get.gameboard()){
+    gameboardArray.forEach(gb => {
+        if (gb === gameState.p1.get.gameboard()) {
             units = gameState.p1.get.units()
-        }else{
+        } else {
             units = gameState.p2.get.units()
         }
-        for(let i = offset; i < units.length + offset; i++){
-            gb.placeUnit(units[i - offset],[0,i]);
+        for (let i = offset; i < units.length + offset; i++) {
+            gb.placeUnit(units[i - offset], [0, i]);
         }
         offset++;
     })
 }
-export {setDummyUnits};
+export { setDummyUnits };
