@@ -14,153 +14,101 @@ function aiFactory(settings) {
     const BOARD_HEIGHT = gameboard.get.height();
 
     //objects
-    function CoordObj(xCoord, yCoord) {
-        this.coords = [xCoord, yCoord];
-        this.x = xCoord;
-        this.y = yCoord;
-        this.index = xCoord + (yCoord * BOARD_WIDTH);
-        const tile = tileArray[this.index];
-        this.attack = () => tile.attack();
-        this.getUnit = () => enemyGameboard.getUnitOnCoord(this.coords);
-        this.isEqualTo = (coordObj) => {
-            if (
-                this.x !== coordObj.x
-                || this.y !== coordObj.y
-            ) return false;
-            else return true;
-        };
-        this.isValid = () => {
-            if (
-                this.x < 0
-                || this.y < 0
-                || this.x >= BOARD_WIDTH
-                || this.y >= BOARD_HEIGHT
-                || previousMoves.isCoordUsed(this)
-            ) return false;
-            return true;
-        };
-
+    function CoordObjFactory(xCoord, yCoord) {
+        const index = xCoord + (yCoord * BOARD_WIDTH);
+        const tile = tileArray[index];
         let explored = false;
-        this.isExplored = () => explored;
         const exploredDirections = [];
-        this.markDirectionExplored = (direction) => {
-            if (!exploredDirections.includes(direction))
-                exploredDirections.push(direction);
-            if (
-                exploredDirections.includes('up')
-                && exploredDirections.includes('down')
-                && exploredDirections.includes('left')
-                && exploredDirections.includes('right')
-            ) explored = true;
-        }
-        this.getCoordInDirection = (direction, markExplored = true, distance = 1) => {
-            let x = this.x;
-            let y = this.y;
-            switch (direction) {
-                case 'left': x -= distance;
-                    break;
-                case 'right': x += distance;
-                    break;
-                case 'up': y += distance;
-                    break;
-                case 'down': y -= distance;
-                    break;
-                default:
-                    console.log(`${direction} is invalid.`);
-                    return getRandomAttackCoord();
+
+        const obj = {
+            coords: [xCoord, yCoord],
+            x: xCoord,
+            y: yCoord,
+            index,
+            attack: () => tile.attack(),
+            getUnit: () => enemyGameboard.getUnitOnCoord(obj.coords),
+            isEqualTo: (coordObj) => {
+                if (
+                    obj.x !== coordObj.x
+                    || obj.y !== coordObj.y
+                ) return false;
+                else return true;
+            },
+            isValid: () => {
+                if (
+                    obj.x < 0
+                    || obj.y < 0
+                    || obj.x >= BOARD_WIDTH
+                    || obj.y >= BOARD_HEIGHT
+                    || previousMoves.isCoordUsed(obj)
+                ) return false;
+                return true;
+            },
+            isExplored: () => explored,
+            markDirectionExplored: (direction) => {
+                if (!exploredDirections.includes(direction))
+                    exploredDirections.push(direction);
+                if (
+                    exploredDirections.includes('up')
+                    && exploredDirections.includes('down')
+                    && exploredDirections.includes('left')
+                    && exploredDirections.includes('right')
+                ) explored = true;
+            },
+            getCoordInDirection: (direction, markExplored = true, distance = 1) => {
+                let x = obj.x;
+                let y = obj.y;
+                switch (direction) {
+                    case 'left': x -= distance;
+                        break;
+                    case 'right': x += distance;
+                        break;
+                    case 'up': y += distance;
+                        break;
+                    case 'down': y -= distance;
+                        break;
+                    default:
+                        console.log(`${direction} is invalid.`);
+                        return getRandomAttackCoord();
+                }
+                if (markExplored)
+                    obj.markDirectionExplored(direction);
+                return CoordObjFactory(x, y);
             }
-            if (markExplored)
-                this.markDirectionExplored(direction);
-            return new CoordObj(x, y);
         }
+        return obj;
     }
-    const previousMoves = new function () {
+    const previousMoves = (function () {
         const moveArray = [];
-
-        this.isEmpty = () => moveArray.length === 0;
-        this.push = (coordObj) => {
-            moveArray.push(coordObj);
-            hitUnitsObj.push(coordObj);
-        };
-        this.pop = () => moveArray.pop();
-        this.getLast = () => {
-            if (!this.isEmpty())
-                return moveArray[moveArray.length - 1];
-        }
-        this.isCoordUsed = (coordObj) => {
-            for (let i = 0; i < moveArray.length; i++) {
-                let move = moveArray[i];
-                if (coordObj.isEqualTo(move)) {
-                    return true
-                }
-            }
-            return false;
-        }
-
-
-        this.noUnitsFound = () => hitUnitsObj.isEmpty();
-        this.getLastHitUnitObj = () => hitUnitsObj.getLast();
-        this.getHitUnitObjOf = (unit) => hitUnitsObj.getObjOf(unit);
-
-        const hitUnitsObj = new function () {
-            const hitUnitArray = [];
-            //public
-            this.push = (coordObj) => {
-                const unit = coordObj.getUnit();
-                if (!unit) return;
-                const hitUnitObj = getHitUnitObj(unit);
-                if (hitUnitObj) hitUnitObj.addCoordObj(coordObj);
-                else hitUnitArray.push(new HitUnitObj(coordObj));
-            }
-            this.isEmpty = () => hitUnitArray.length <= 0;
-            this.getLast = () => hitUnitArray[hitUnitArray.length - 1];
-            this.getObjOf = (unit) => this.getHitUnitObjOf(unit);
-            //
-            function HitUnitObj(coordObj) {
-                const hitCoords = [coordObj];
-                let lastAddedCoord = coordObj;
-                this.unit = coordObj.getUnit();
-                removeSelfOnSunk();
-                //public methods
-                this.getPreviousCoord = () => lastAddedCoord;
-                this.isInXAxis = () => {
-                    if (hitCoords.length <= 1)
-                        return undefined;
-                    if (hitCoords[0].x === hitCoords[1].x)
-                        return false;
-                    else return true;
-                }
-                this.addCoordObj = (coordObj) => {
-                    hitCoords.push(coordObj);
-                    lastAddedCoord = coordObj;
-                    sortHitCoords();
-                    removeSelfOnSunk();
-                }
-                this.getFirstCoord = () => hitCoords[0];
-                this.getLastCoord = () => hitCoords[hitCoords.length - 1];
-                //HitUnitObj priv
-                const getIndex = () => {
-                    for (let i = 0; i < hitUnitArray.length; i++) {
-                        let unit = hitUnitArray[i].unit;
-                        if (this.unit.isEqualTo(unit)) return i;
+        const obj = {//&&&//
+            isEmpty: () => moveArray.length === 0,
+            push: (coordObj) => {
+                moveArray.push(coordObj);
+                hitUnitsObj.push(coordObj);
+            },
+            pop: () => moveArray.pop(),
+            getLast: () => {
+                if (!obj.isEmpty())
+                    return moveArray[moveArray.length - 1];
+            },
+            isCoordUsed: (coordObj) => {
+                for (let i = 0; i < moveArray.length; i++) {
+                    let move = moveArray[i];
+                    if (coordObj.isEqualTo(move)) {
+                        return true
                     }
-                    console.log('Should not appear');
                 }
-                function removeSelfOnSunk() {
-                    if (coordObj.getUnit().get.health() <= 1)
-                        hitUnitArray.splice(getIndex(), 1);
-                }
-                const sortHitCoords = () => {
-                    if (hitCoords.length <= 1) return;
-                    hitCoords.sort((a, b) => {
-                        if (this.isInXAxis()) {
-                            return a.x - b.x;
-                        } else {
-                            return a.y - b.y;
-                        }
-                    })
-                }
-            }
+                return false;
+            },
+
+            noUnitsFound: () => hitUnitsObj.isEmpty(),
+            getLastHitUnitObj: () => hitUnitsObj.getLast(),
+            getHitUnitObjOf: (unit) => hitUnitsObj.getObjOf(unit),
+        }
+        //&&&//
+        const hitUnitsObj = (function () {
+            const hitUnitArray = [];
+
             // hitObj priv
 
             function getHitUnitObj(unit) {
@@ -171,16 +119,77 @@ function aiFactory(settings) {
                 }
                 return false;
             }
-        }
-    }
+            //public
+            const obj = {
+                push: (coordObj) => {
+                    const unit = coordObj.getUnit();
+                    if (!unit) return;
+                    const hitUnitObj = getHitUnitObj(unit);
+                    if (hitUnitObj) hitUnitObj.addCoordObj(coordObj);
+                    else hitUnitArray.push(HitUnitObjFactory(coordObj));
+                },
+                isEmpty: () => hitUnitArray.length <= 0,
+                getLast: () => hitUnitArray[hitUnitArray.length - 1],
+                getObjOf: (unit) => obj.getHitUnitObjOf(unit),
+                //
+            }
+            //&&&//
+            function HitUnitObjFactory(coordObj) {
+                const hitCoords = [coordObj];
+                let lastAddedCoord = coordObj;
+                removeSelfOnSunk();
 
-    const attackObj = new function () {
-        this.sendAttack = () => {
-            const coordObj = getAttackCoordObj();
-            previousMoves.push(coordObj);
-            coordObj.attack();
-        }
+                //HitUnitObj priv
+                const getIndex = () => {
+                    for (let i = 0; i < hitUnitArray.length; i++) {
+                        let unit = hitUnitArray[i].unit;
+                        if (obj.unit.isEqualTo(unit)) return i;
+                    }
+                    console.log('Should not appear');
+                }
+                function removeSelfOnSunk() {
+                    if (coordObj.getUnit().get.health() <= 1)
+                        hitUnitArray.splice(getIndex(), 1);
+                }
+                const sortHitCoords = () => {
+                    if (hitCoords.length <= 1) return;
+                    hitCoords.sort((a, b) => {
+                        if (obj.isInXAxis()) {
+                            return a.x - b.x;
+                        } else {
+                            return a.y - b.y;
+                        }
+                    })
+                }
+                const obj = {
+                    unit: coordObj.getUnit(),
+                    getPreviousCoord: () => lastAddedCoord,
+                    isInXAxis: () => {
+                        if (hitCoords.length <= 1)
+                            return undefined;
+                        if (hitCoords[0].x === hitCoords[1].x)
+                            return false;
+                        else return true;
+                    },
+                    addCoordObj: (coordObj) => {
+                        hitCoords.push(coordObj);
+                        lastAddedCoord = coordObj;
+                        sortHitCoords();
+                        removeSelfOnSunk();
+                    },
+                    getFirstCoord: () => hitCoords[0],
+                    getLastCoord: () => hitCoords[hitCoords.length - 1],
+                }
+                return obj;
+            }
+            return obj;
+        })()
+        return obj;
 
+    })()
+
+    const attackObj = (function () {
+        //&&&//
         function getAttackCoordObj() {
             const hitUnitObj = previousMoves.getLastHitUnitObj();
 
@@ -210,7 +219,7 @@ function aiFactory(settings) {
                     return getRandomAttackCoord();
             }
             function getUnitCoordGuess(startCoordObj = hitUnitObj.getFirstCoord()) {
-                let nextCoordObj = new CoordObj(-1, -1);
+                let nextCoordObj = CoordObjFactory(-1, -1);
                 let inXAxis = hitUnitObj.isInXAxis();
                 if (inXAxis === undefined) {
                     let direction = directionObj.getRandom();
@@ -233,7 +242,7 @@ function aiFactory(settings) {
         function getRandomAttackCoord() {
             let x = Math.round(Math.random() * (BOARD_WIDTH - 1));
             let y = Math.round(Math.random() * (BOARD_HEIGHT - 1));
-            let coordObj = new CoordObj(x, y);
+            let coordObj = CoordObjFactory(x, y);
             while (!coordObj.isValid()) {
                 x++;
                 if (x >= BOARD_WIDTH) {
@@ -242,46 +251,59 @@ function aiFactory(settings) {
                 }
                 if (y >= BOARD_HEIGHT)
                     y = 0;
-                coordObj = new CoordObj(x, y);
+                coordObj = CoordObjFactory(x, y);
             }
             return coordObj;
         }
-    }
-    const directionObj = new function () {
+        const obj = {
+            sendAttack: () => {
+                const coordObj = getAttackCoordObj();
+                previousMoves.push(coordObj);
+                coordObj.attack();
+            },
+        }
+        return obj;
+    })()
+    //&&&//
+    const directionObj = directionObjFactory();
+    function directionObjFactory() {
         const directions = ['left', 'up', 'right', 'down'];
-        this.getRandom = (inXAxis = undefined) => {
-            let index;
-            const rand = Math.random();
-            switch (inXAxis) {
-                case undefined:
-                    index = Math.round(rand * 3);
-                    break;
-                case true: //0 or 2
-                    index = Math.round(rand) * 2;
-                    break;
-                case false: // 1 or 3
-                    index = (Math.round(rand) * 2) + 1
-                    break;
-            }
-            return directions[index];
+        const obj = {
+            getRandom: (inXAxis = undefined) => {
+                let index;
+                const rand = Math.random();
+                switch (inXAxis) {
+                    case undefined:
+                        index = Math.round(rand * 3);
+                        break;
+                    case true: //0 or 2
+                        index = Math.round(rand) * 2;
+                        break;
+                    case false: // 1 or 3
+                        index = (Math.round(rand) * 2) + 1
+                        break;
+                }
+                return directions[index];
+            },
+            getReverseOf: (direction) => {
+                const index = (directions.indexOf(direction) + 2) % 4;
+                return directions[index];
+            },
+            getNext: (direction, distance = 1) => {
+                if (distance === 0)
+                    return direction;
+                let index = directions.indexOf(direction);
+                if (index < 0)
+                    return false;
+                index = (index + distance) % 4;
+                return directions[index];
+            },
+            isValid: (direction) => {
+                return directions.includes(direction);
+            },
         }
-        this.getReverseOf = (direction) => {
-            const index = (directions.indexOf(direction) + 2) % 4;
-            return directions[index];
-        }
-        this.getNext = (direction, distance = 1) => {
-            if (distance === 0)
-                return direction;
-            let index = directions.indexOf(direction);
-            if (index < 0)
-                return false;
-            index = (index + distance) % 4;
-            return directions[index];
-        }
-        this.isValid = (direction) => {
-            return directions.includes(direction);
-        }
-    }
+        return obj;
+    };
 
 
     //return object
