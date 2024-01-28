@@ -1837,11 +1837,13 @@ function DefenseGameWindowFactory(playerObj) {
             tileArr: tileArr,
             pushTile: (tile) => { tileArr.push(tile) },
         }
+        return obj;
     }
     function pushUnitTileArr(unit, tile) {
-        for (let i = 0; i < unitTileArr.length; i++)
+        for (let i = 0; i < unitTileArr.length; i++) {
             if (unit === unitTileArr[i].unit)
                 return unitTileArr[i].pushTile(tile);
+        }
         unitTileArr.push(UnitTileObjFactory(unit, tile));
     }
     function getUnitTileArr(unit) {
@@ -2059,10 +2061,10 @@ function createScene(playerRef) {
     //other scoped vars
     const playerObj = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"][playerRef];
     const unitObj = createUnitObj(playerObj.get.units());
-    const placedUnitsObj = new PlacedUnitsObj();
+    const placedUnitsObj = PlacedUnitsObjFactory();
 
-    scene.resetScene = ()=>{
-        
+    scene.resetScene = () => {
+
     }
     return scene;
     //
@@ -2201,7 +2203,7 @@ function createScene(playerRef) {
             });
 
             _submitElement.addEventListener('click', submitScene);
-            _quickPlayElement.addEventListener('click',submitQuickSelect);
+            _quickPlayElement.addEventListener('click', submitQuickSelect);
 
             //highlights in all 4 directions for a distance of the current maxLength
             function highlightAllplacements() {
@@ -2209,10 +2211,10 @@ function createScene(playerRef) {
                 tile.highlight.selectable();
 
                 const directionTiles = [
-                    new DirecionTileObj('up'),
-                    new DirecionTileObj('down'),
-                    new DirecionTileObj('left'),
-                    new DirecionTileObj('right')
+                    DirectionTileObjFactory('up'),
+                    DirectionTileObjFactory('down'),
+                    DirectionTileObjFactory('left'),
+                    DirectionTileObjFactory('right')
                 ]
                 const minLength = unitObj.getMinLength();
                 const maxLength = unitObj.getMaxLength();
@@ -2220,28 +2222,31 @@ function createScene(playerRef) {
                 for (let i = 2; i <= maxLength; i++)
                     directionTiles.forEach(obj => { obj.highlightNext(i); })
 
-                function DirecionTileObj(direction) {
+                function DirectionTileObjFactory(direction) {
                     const tileArr = [tile];
                     let tileObj = tile;
 
-                    this.highlightNext = (length) => {
-                        if (!tileObj) return;
-                        tileObj = tileObj.nextTile[direction]();
+                    const obj = {
+                        highlightNext: (length) => {
+                            if (!tileObj) return;
+                            tileObj = tileObj.nextTile[direction]();
 
-                        if (!tileObj || tileObj.unit.getUnit()) {
-                            if (tileArr.length === 0) return tileObj = false;
+                            if (!tileObj || tileObj.unit.getUnit()) {
+                                if (tileArr.length === 0) return tileObj = false;
 
-                            for (length--; length >= minLength && !unitObj.getUnitOfLength(length); length--) {
-                                tileObj = tileArr.pop();
-                                tileObj.getNode().classList.remove(_class_manager__WEBPACK_IMPORTED_MODULE_2__.CLASSES.invalidHighlight);
+                                for (length--; length >= minLength && !unitObj.getUnitOfLength(length); length--) {
+                                    tileObj = tileArr.pop();
+                                    tileObj.getNode().classList.remove(_class_manager__WEBPACK_IMPORTED_MODULE_2__.CLASSES.invalidHighlight);
+                                }
+                                return tileObj = false;
                             }
-                            return tileObj = false;
-                        }
-                        if (unitObj.getUnitOfLength(length))
-                            tileObj.highlight.selectable();
-                        else tileObj.highlight.invalid();
-                        tileArr.push(tileObj);
+                            if (unitObj.getUnitOfLength(length))
+                                tileObj.highlight.selectable();
+                            else tileObj.highlight.invalid();
+                            tileArr.push(tileObj);
+                        },
                     }
+                    return obj;
                 }
             }
             function highlightCurrentPlacement() {
@@ -2316,7 +2321,7 @@ function createScene(playerRef) {
             }
             function addHighlight(tileClassObjArray, className) {
                 tileNode.classList.add(className);
-                tileClassObjArray.push(new TileClassObj(tileNode, className))
+                tileClassObjArray.push(TileClassObjFactory(tileNode, className))
             }
             return tile;
         }
@@ -2342,7 +2347,7 @@ function createScene(playerRef) {
         })
         loadNextScene();
     }
-    function submitQuickSelect(){
+    function submitQuickSelect() {
         playerObj.ai.placeShips();
         loadNextScene();
     }
@@ -2363,40 +2368,42 @@ function createScene(playerRef) {
         }
     }
 
-    function TileClassObj(tileNode, className) {
-        this.tileNode = tileNode;
-        this.className = className;
+    function TileClassObjFactory(tileNode, className) {
+        return { tileNode, className };
     }
 
-    function PlacedUnitsObj() {
+    function PlacedUnitsObjFactory() {
         const placedUnitArr = [];
 
-        this.pushUnit = (unit, tile) => {
-            let placedUnit = placedUnitArr.find((placedUnit) => placedUnit.unit === unit);
-            if (!placedUnit) {
-                placedUnit = { unit, tileArr: [] };
-                placedUnitArr.push(placedUnit);
-            }
-            let tileArr = placedUnit.tileArr;
-            if (!tileArr.includes(tile)) tileArr.push(tile);
-        }
-        this.removeUnit = (unit) => {
-            const index = placedUnitArr.findIndex((placedUnit) => placedUnit.unit === unit);
-            if (index < 0) return false;
-            unitObj.setUnitAvailable(unit);
-            return placedUnitArr.splice(index, 1)[0];
-        }
-        this.getTileArrayFromPlacedUnit = (unit) => {
-            const placedUnit = placedUnitArr.find((placedUnit) => placedUnit.unit === unit);
-            if (!placedUnit) return [];
-            sortTiles(placedUnit.tileArr)
-            return placedUnit.tileArr;
-        }
         function sortTiles(tileArr) {
             if (tileArr.length < 2) return;
             let axis = tileArr[0].getCoordObj().x === tileArr[1].getCoordObj().x ? 'y' : 'x';
             tileArr.sort((a, b) => a.getCoordObj()[axis] > b.getCoordObj()[axis])
         }
+        const obj = {
+            pushUnit: (unit, tile) => {
+                let placedUnit = placedUnitArr.find((placedUnit) => placedUnit.unit === unit);
+                if (!placedUnit) {
+                    placedUnit = { unit, tileArr: [] };
+                    placedUnitArr.push(placedUnit);
+                }
+                let tileArr = placedUnit.tileArr;
+                if (!tileArr.includes(tile)) tileArr.push(tile);
+            },
+            removeUnit: (unit) => {
+                const index = placedUnitArr.findIndex((placedUnit) => placedUnit.unit === unit);
+                if (index < 0) return false;
+                unitObj.setUnitAvailable(unit);
+                return placedUnitArr.splice(index, 1)[0];
+            },
+            getTileArrayFromPlacedUnit: (unit) => {
+                const placedUnit = placedUnitArr.find((placedUnit) => placedUnit.unit === unit);
+                if (!placedUnit) return [];
+                sortTiles(placedUnit.tileArr)
+                return placedUnit.tileArr;
+            },
+        }
+        return obj;
     }
 }
 
@@ -2408,15 +2415,19 @@ function createUnitObj(unitArray) {
     //create semi-cloned units and fill unit array
     //  and set _maxLength
     unitArray.forEach((unit) => {
-        _availableUnits.push(new CloneUnit(unit));
+        _availableUnits.push(CloneUnitFactory(unit));
     })
-    function CloneUnit(unit) {
+    function CloneUnitFactory(unit) {
         const id = unit.get.id();
         const length = unit.get.length();
-        this.get = {
-            id: () => id,
-            length: () => length,
-        };
+
+        const obj = {
+            get: {
+                id: () => id,
+                length: () => length,
+            }
+        }
+        return obj;
     }
     function getUnitOfLength(length) {
         for (let i = 0; i < _availableUnits.length; i++) {

@@ -141,11 +141,13 @@ function DefenseGameWindowFactory(playerObj) {
             tileArr: tileArr,
             pushTile: (tile) => { tileArr.push(tile) },
         }
+        return obj;
     }
     function pushUnitTileArr(unit, tile) {
-        for (let i = 0; i < unitTileArr.length; i++)
+        for (let i = 0; i < unitTileArr.length; i++) {
             if (unit === unitTileArr[i].unit)
                 return unitTileArr[i].pushTile(tile);
+        }
         unitTileArr.push(UnitTileObjFactory(unit, tile));
     }
     function getUnitTileArr(unit) {
