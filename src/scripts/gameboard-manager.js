@@ -1,18 +1,19 @@
-function Gameboard(width = 10, height = 10) {
+function GameboardFactory(width = 10, height = 10) {
     let _unitsRemaining = 0;
     const boardSize = width * height;
     const _boardArray = [];
     for (let i = 0; i < boardSize; i++) _boardArray.push(false);
     const _hitArray = [];
     for (let i = 0; i < boardSize; i++) _hitArray.push(false);
-    this.get = {
+
+    const get = {
         unitsRemaining: () => { return _unitsRemaining },
         boardArray: () => { return _boardArray },
         hitArray: () => { return _hitArray },
         width: () => { return width },
         height: () => { return height },
     }
-    this.placeUnit = (unit, coord, rotated) => {
+    const placeUnit = (unit, coord, rotated) => {
         if (coord.x !== undefined) coord = [coord.x, coord.y]; //allows coord obj instead of array
         for (let i = 0; i < unit.get.length(); i++) {
             let j = rotated ?
@@ -30,15 +31,15 @@ function Gameboard(width = 10, height = 10) {
         _unitsRemaining++;
         return true;
     }
-    this.removeUnit = (unit) => {
+    const removeUnit = (unit) => {
         _boardArray.forEach(value => { if (value === unit) value = false; })
     }
-    this.getUnitOnCoord = (coord) => {
+    const getUnitOnCoord = (coord) => {
         const index = get2DIndex(coord);
         if (_boardArray[index]) return _boardArray[index];
         return false;
     }
-    this.receiveAttack = (coord) => {
+    const receiveAttack = (coord) => {
         const i = get2DIndex(coord);
         if (_hitArray[i]) return false;
         _hitArray[i] = true;
@@ -52,7 +53,7 @@ function Gameboard(width = 10, height = 10) {
         }
         return 'hit';
     }
-    this.isGameOver = () => { return _unitsRemaining <= 0 }
+    const isGameOver = () => { return _unitsRemaining <= 0 }
 
     function get2DIndex(x, y) {
         let a, b;
@@ -75,6 +76,15 @@ function Gameboard(width = 10, height = 10) {
             return false;
         return a * width + b;
     }
+    const obj = {
+        get,
+        placeUnit,
+        removeUnit,
+        getUnitOnCoord,
+        receiveAttack,
+        isGameOver,
+    };
+    return obj;
 }
 
 let _unitID = 1000;
@@ -98,4 +108,4 @@ function unitFactory(length) {
 
 
 
-export { Gameboard, unitFactory };
+export { GameboardFactory, unitFactory };

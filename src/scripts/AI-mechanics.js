@@ -188,7 +188,8 @@ function aiFactory(settings) {
 
     })()
 
-    const attackObj = (function () {
+    const attackObj = attackObjFactory();
+    function attackObjFactory() {
         //&&&//
         function getAttackCoordObj() {
             const hitUnitObj = previousMoves.getLastHitUnitObj();
@@ -263,7 +264,7 @@ function aiFactory(settings) {
             },
         }
         return obj;
-    })()
+    };
     //&&&//
     const directionObj = directionObjFactory();
     function directionObjFactory() {

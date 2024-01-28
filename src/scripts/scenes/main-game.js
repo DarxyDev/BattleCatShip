@@ -59,7 +59,8 @@ const gameWindows = {
 }
 
 // function objects
-const setDisplayObj = (function () {
+const setDisplayObj = 
+function setDisplayObjFactory() {
     const gameBox1 = scene.querySelector("[gameID='gameBox-left']");
     const gameBox2 = scene.querySelector("[gameID='gameBox-right']");
     addGridBoardProperties(gameBox1);
@@ -94,8 +95,9 @@ const setDisplayObj = (function () {
         },
     }
     return obj;
-})()
-const textBoxObj = (function () {
+}
+const textBoxObj = textBoxObjFactory();
+function textBoxObjFactory() {
     const textBox = scene.querySelector("[gameID='textBox']");
     const obj = {
         clearText: () => { textBox.textContent = '' },
@@ -113,7 +115,7 @@ const textBoxObj = (function () {
         },
     }
     return obj;
-})()
+};
 function DefenseGameWindowFactory(playerObj) {
     //init
     const tileNodes = generateGameTiles();

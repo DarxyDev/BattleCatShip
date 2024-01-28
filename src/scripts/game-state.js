@@ -1,5 +1,5 @@
 import { aiFactory } from "./AI-mechanics";
-import { Gameboard, unitFactory } from "./gameboard-manager";
+import { GameboardFactory, unitFactory } from "./gameboard-manager";
 import sceneManager from "./scene-manager";
 
 const BOARD_WIDTH = 3; // must be > 2
@@ -71,7 +71,7 @@ const gameState = {
 function _generatePlayerObj(playerRef) {
 
     let _player;
-    let _gameboard = new Gameboard(BOARD_WIDTH, BOARD_HEIGHT);
+    let _gameboard = GameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
     let _units = _createUnitArray();
     let _ai = aiFactory({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
     const playerObj = {
@@ -98,7 +98,7 @@ function _generatePlayerObj(playerRef) {
             setEnemyGameboard: _ai.setEnemyGameboard,
         },
         reset: () => {
-            _gameboard = new Gameboard(BOARD_WIDTH, BOARD_HEIGHT);
+            _gameboard = GameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
             _units = _createUnitArray();
             aiFactory({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
         }

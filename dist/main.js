@@ -1026,7 +1026,8 @@ function aiFactory(settings) {
 
     })()
 
-    const attackObj = (function () {
+    const attackObj = attackObjFactory();
+    function attackObjFactory() {
         //&&&//
         function getAttackCoordObj() {
             const hitUnitObj = previousMoves.getLastHitUnitObj();
@@ -1101,7 +1102,7 @@ function aiFactory(settings) {
             },
         }
         return obj;
-    })()
+    };
     //&&&//
     const directionObj = directionObjFactory();
     function directionObjFactory() {
@@ -1293,7 +1294,7 @@ const gameState = {
 function _generatePlayerObj(playerRef) {
 
     let _player;
-    let _gameboard = new _gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.Gameboard(BOARD_WIDTH, BOARD_HEIGHT);
+    let _gameboard = (0,_gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.GameboardFactory)(BOARD_WIDTH, BOARD_HEIGHT);
     let _units = _createUnitArray();
     let _ai = (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
     const playerObj = {
@@ -1320,7 +1321,7 @@ function _generatePlayerObj(playerRef) {
             setEnemyGameboard: _ai.setEnemyGameboard,
         },
         reset: () => {
-            _gameboard = new _gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.Gameboard(BOARD_WIDTH, BOARD_HEIGHT);
+            _gameboard = (0,_gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.GameboardFactory)(BOARD_WIDTH, BOARD_HEIGHT);
             _units = _createUnitArray();
             (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
         }
@@ -1372,24 +1373,25 @@ function setDummyUnits() {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   Gameboard: () => (/* binding */ Gameboard),
+/* harmony export */   GameboardFactory: () => (/* binding */ GameboardFactory),
 /* harmony export */   unitFactory: () => (/* binding */ unitFactory)
 /* harmony export */ });
-function Gameboard(width = 10, height = 10) {
+function GameboardFactory(width = 10, height = 10) {
     let _unitsRemaining = 0;
     const boardSize = width * height;
     const _boardArray = [];
     for (let i = 0; i < boardSize; i++) _boardArray.push(false);
     const _hitArray = [];
     for (let i = 0; i < boardSize; i++) _hitArray.push(false);
-    this.get = {
+
+    const get = {
         unitsRemaining: () => { return _unitsRemaining },
         boardArray: () => { return _boardArray },
         hitArray: () => { return _hitArray },
         width: () => { return width },
         height: () => { return height },
     }
-    this.placeUnit = (unit, coord, rotated) => {
+    const placeUnit = (unit, coord, rotated) => {
         if (coord.x !== undefined) coord = [coord.x, coord.y]; //allows coord obj instead of array
         for (let i = 0; i < unit.get.length(); i++) {
             let j = rotated ?
@@ -1407,15 +1409,15 @@ function Gameboard(width = 10, height = 10) {
         _unitsRemaining++;
         return true;
     }
-    this.removeUnit = (unit) => {
+    const removeUnit = (unit) => {
         _boardArray.forEach(value => { if (value === unit) value = false; })
     }
-    this.getUnitOnCoord = (coord) => {
+    const getUnitOnCoord = (coord) => {
         const index = get2DIndex(coord);
         if (_boardArray[index]) return _boardArray[index];
         return false;
     }
-    this.receiveAttack = (coord) => {
+    const receiveAttack = (coord) => {
         const i = get2DIndex(coord);
         if (_hitArray[i]) return false;
         _hitArray[i] = true;
@@ -1429,7 +1431,7 @@ function Gameboard(width = 10, height = 10) {
         }
         return 'hit';
     }
-    this.isGameOver = () => { return _unitsRemaining <= 0 }
+    const isGameOver = () => { return _unitsRemaining <= 0 }
 
     function get2DIndex(x, y) {
         let a, b;
@@ -1452,6 +1454,15 @@ function Gameboard(width = 10, height = 10) {
             return false;
         return a * width + b;
     }
+    const obj = {
+        get,
+        placeUnit,
+        removeUnit,
+        getUnitOnCoord,
+        receiveAttack,
+        isGameOver,
+    };
+    return obj;
 }
 
 let _unitID = 1000;
@@ -1777,7 +1788,8 @@ const gameWindows = {
 }
 
 // function objects
-const setDisplayObj = (function () {
+const setDisplayObj = 
+function setDisplayObjFactory() {
     const gameBox1 = scene.querySelector("[gameID='gameBox-left']");
     const gameBox2 = scene.querySelector("[gameID='gameBox-right']");
     (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.addGridBoardProperties)(gameBox1);
@@ -1812,8 +1824,9 @@ const setDisplayObj = (function () {
         },
     }
     return obj;
-})()
-const textBoxObj = (function () {
+}
+const textBoxObj = textBoxObjFactory();
+function textBoxObjFactory() {
     const textBox = scene.querySelector("[gameID='textBox']");
     const obj = {
         clearText: () => { textBox.textContent = '' },
@@ -1831,7 +1844,7 @@ const textBoxObj = (function () {
         },
     }
     return obj;
-})()
+};
 function DefenseGameWindowFactory(playerObj) {
     //init
     const tileNodes = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_2__.generateGameTiles)();
