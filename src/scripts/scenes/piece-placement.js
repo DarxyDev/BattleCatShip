@@ -30,6 +30,9 @@ function createScene(playerRef) {
     const unitObj = createUnitObj(playerObj.get.units());
     const placedUnitsObj = new PlacedUnitsObj();
 
+    scene.resetScene = ()=>{
+        
+    }
     return scene;
     //
     function createGameTilesObj() {

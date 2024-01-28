@@ -1,5 +1,6 @@
 import { initScene } from "../scene-manager";
 import sceneManager from "../scene-manager";
+import gameState from "../game-state";
 
 function initGameOver() {
     let scene = initScene('TEMPLATE_game-over');

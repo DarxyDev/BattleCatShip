@@ -1209,8 +1209,6 @@ const PIECE_COUNT = ((count = 0) => {
     PIECE_LENGTH_ARRAY.forEach(item => { count += item; });
     return count;
 })();
-console.log(PIECE_COUNT)
-console.log('temp: set units to a single 4-slot')
 const DEFAULT_DIFFICULTY = 'medium';
 let _isSinglePlayer;
 
@@ -1565,7 +1563,10 @@ function initializeScenes() {
     scenes.main.gameOver = (0,_scenes_game_over__WEBPACK_IMPORTED_MODULE_6__["default"])();
 }
 function resetScenes(){
-    
+    // scenes.p1.piecePlacement.resetScene();
+    // scenes.main.game.resetScene();
+    scenes.p1.piecePlacement = (0,_scenes_piece_placement__WEBPACK_IMPORTED_MODULE_4__["default"])();
+    scenes.main.game = (0,_scenes_main_game__WEBPACK_IMPORTED_MODULE_5__["default"])();
 }
 function addBlinder(text = undefined){
     gameWindow.appendChild(blinderObj.scene);
@@ -1653,6 +1654,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _scene_manager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scene-manager */ "./src/scripts/scene-manager.js");
+/* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../game-state */ "./src/scripts/game-state.js");
+
 
 
 
@@ -1663,7 +1666,7 @@ function initGameOver() {
 
     playAgainBtn.addEventListener('click',()=>{
         _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].resetScenes();
-        gameState.newGame();
+        _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].newGame();
         _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(_scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].getScenes().p1.piecePlacement);
     })
 
@@ -2036,6 +2039,9 @@ function createScene(playerRef) {
     const unitObj = createUnitObj(playerObj.get.units());
     const placedUnitsObj = new PlacedUnitsObj();
 
+    scene.resetScene = ()=>{
+        
+    }
     return scene;
     //
     function createGameTilesObj() {

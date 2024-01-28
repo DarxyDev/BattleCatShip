@@ -45,7 +45,10 @@ function initializeScenes() {
     scenes.main.gameOver = initGameOver();
 }
 function resetScenes(){
-    
+    // scenes.p1.piecePlacement.resetScene();
+    // scenes.main.game.resetScene();
+    scenes.p1.piecePlacement = initPiecePlacement();
+    scenes.main.game = initMainGameScene();
 }
 function addBlinder(text = undefined){
     gameWindow.appendChild(blinderObj.scene);

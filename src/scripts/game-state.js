@@ -9,8 +9,6 @@ const PIECE_COUNT = ((count = 0) => {
     PIECE_LENGTH_ARRAY.forEach(item => { count += item; });
     return count;
 })();
-console.log(PIECE_COUNT)
-console.log('temp: set units to a single 4-slot')
 const DEFAULT_DIFFICULTY = 'medium';
 let _isSinglePlayer;
 
