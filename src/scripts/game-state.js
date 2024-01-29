@@ -100,7 +100,7 @@ function _generatePlayerObj(playerRef) {
         reset: () => {
             _gameboard = GameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
             _units = _createUnitArray();
-            aiFactory({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
+            _ai = aiFactory({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
         }
     };
     return playerObj;
@@ -117,25 +117,3 @@ function _createUnitArray() {
     }
     return unitArray;
 }
-
-function setDummyUnits() {
-    console.log('setting dummy units');
-    const gameboardArray = [
-        gameState.p1.get.gameboard(),
-        gameState.p2.get.gameboard()
-    ];
-    let offset = 1;
-    let units = gameState.p1.get.units();
-    gameboardArray.forEach(gb => {
-        if (gb === gameState.p1.get.gameboard()) {
-            units = gameState.p1.get.units()
-        } else {
-            units = gameState.p2.get.units()
-        }
-        for (let i = offset; i < units.length + offset; i++) {
-            gb.placeUnit(units[i - offset], [0, i]);
-        }
-        offset++;
-    })
-}
-export { setDummyUnits };

@@ -59,7 +59,7 @@ const gameWindows = {
 }
 
 // function objects
-const setDisplayObj = 
+const setDisplayObj = setDisplayObjFactory();
 function setDisplayObjFactory() {
     const gameBox1 = scene.querySelector("[gameID='gameBox-left']");
     const gameBox2 = scene.querySelector("[gameID='gameBox-right']");

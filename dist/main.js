@@ -1215,8 +1215,7 @@ const CLASSES = {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
-/* harmony export */   setDummyUnits: () => (/* binding */ setDummyUnits)
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _AI_mechanics__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AI-mechanics */ "./src/scripts/AI-mechanics.js");
 /* harmony import */ var _gameboard_manager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./gameboard-manager */ "./src/scripts/gameboard-manager.js");
@@ -1323,7 +1322,7 @@ function _generatePlayerObj(playerRef) {
         reset: () => {
             _gameboard = (0,_gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.GameboardFactory)(BOARD_WIDTH, BOARD_HEIGHT);
             _units = _createUnitArray();
-            (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
+            _ai = (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
         }
     };
     return playerObj;
@@ -1340,28 +1339,6 @@ function _createUnitArray() {
     }
     return unitArray;
 }
-
-function setDummyUnits() {
-    console.log('setting dummy units');
-    const gameboardArray = [
-        gameState.p1.get.gameboard(),
-        gameState.p2.get.gameboard()
-    ];
-    let offset = 1;
-    let units = gameState.p1.get.units();
-    gameboardArray.forEach(gb => {
-        if (gb === gameState.p1.get.gameboard()) {
-            units = gameState.p1.get.units()
-        } else {
-            units = gameState.p2.get.units()
-        }
-        for (let i = offset; i < units.length + offset; i++) {
-            gb.placeUnit(units[i - offset], [0, i]);
-        }
-        offset++;
-    })
-}
-
 
 /***/ }),
 
@@ -1703,7 +1680,6 @@ function initGameOver() {
         _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(_scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].getScenes().p1.piecePlacement);
     })
 
-    mainTextBox.textContent = 'hotdog';
     scene.sceneOnLoad = ()=>{
 
     };
@@ -1788,7 +1764,7 @@ const gameWindows = {
 }
 
 // function objects
-const setDisplayObj = 
+const setDisplayObj = setDisplayObjFactory();
 function setDisplayObjFactory() {
     const gameBox1 = scene.querySelector("[gameID='gameBox-left']");
     const gameBox2 = scene.querySelector("[gameID='gameBox-right']");
@@ -2078,7 +2054,6 @@ function initPiecePlacement() {
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initPiecePlacement);
 
 //internal workings start here
-const PIECE_COUNT = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.pieceCount();
 const BOARD_WIDTH = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.boardWidth();
 const BOARD_HEIGHT = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.boardHeight();
 
@@ -2440,86 +2415,87 @@ function createScene(playerRef) {
         }
         return obj;
     }
-}
-
-function createUnitObj(unitArray) {
-    const _availableUnits = [];
-    const _placedUnits = [];
-    let _maxLength = 0;
-    let _minLength;
-    //create semi-cloned units and fill unit array
-    //  and set _maxLength
-    unitArray.forEach((unit) => {
-        _availableUnits.push(CloneUnitFactory(unit));
-    })
-    function CloneUnitFactory(unit) {
-        const id = unit.get.id();
-        const length = unit.get.length();
-
-        const obj = {
-            get: {
-                id: () => id,
-                length: () => length,
+    function createUnitObj(unitArray) {
+        const _availableUnits = [];
+        const _placedUnits = [];
+        let _maxLength = 0;
+        let _minLength;
+        //create semi-cloned units and fill unit array
+        //  and set _maxLength
+        unitArray.forEach((unit) => {
+            _availableUnits.push(CloneUnitFactory(unit));
+        })
+        function CloneUnitFactory(unit) {
+            const id = unit.get.id();
+            const length = unit.get.length();
+    
+            const obj = {
+                get: {
+                    id: () => id,
+                    length: () => length,
+                }
+            }
+            return obj;
+        }
+        function getUnitOfLength(length) {
+            for (let i = 0; i < _availableUnits.length; i++) {
+                if (_availableUnits[i].get.length() === length) return _availableUnits[i];
+            }
+            return false;
+        }
+        function setUnitPlaced(unit) {
+            fromArrayToArray(_availableUnits, _placedUnits, unit);
+            setLengthBounds();
+        }
+        function setUnitAvailable(unit) {
+            fromArrayToArray(_placedUnits, _availableUnits, unit);
+            setLengthBounds();
+        }
+        function setLengthBounds() {
+            if (!_availableUnits.length) {
+                _minLength = 0;
+                _maxLength = 0;
+                return;
+            }
+            _minLength = false;
+            _maxLength = 0;
+            for (let i = 0; i < _availableUnits.length; i++) {
+                length = _availableUnits[i].get.length();
+                if (_maxLength < length) _maxLength = length;
+                if (!_minLength || _minLength > length) _minLength = length;
             }
         }
-        return obj;
-    }
-    function getUnitOfLength(length) {
-        for (let i = 0; i < _availableUnits.length; i++) {
-            if (_availableUnits[i].get.length() === length) return _availableUnits[i];
+        function fromArrayToArray(fromArr, toArr, item) {
+            const index = fromArr.indexOf(item);
+            if (index < 0) return false;
+            toArr.push(item);
+            fromArr.splice(index, 1);
         }
-        return false;
-    }
-    function setUnitPlaced(unit) {
-        fromArrayToArray(_availableUnits, _placedUnits, unit);
+        function getRealUnitFromClone(cloneUnit) {
+            let id = cloneUnit.get.id();
+            for (let i = 0; i < unitArray.length; i++) {
+                if (id === unitArray[i].get.id())
+                    return unitArray[i];
+            }
+            return false;
+        }
+        const unitObj = {
+            getAvailableUnitCount: () => _availableUnits.length,
+            noUnitsAvailable: () => _availableUnits.length === 0,
+            getPlacedUnits: () => _placedUnits,
+            getMinLength: () => _minLength,
+            getMaxLength: () => _maxLength,
+            getUnitOfLength,
+            setUnitPlaced,
+            setUnitAvailable,
+            getRealUnitFromClone,
+        }
         setLengthBounds();
+        return unitObj;
     }
-    function setUnitAvailable(unit) {
-        fromArrayToArray(_placedUnits, _availableUnits, unit);
-        setLengthBounds();
-    }
-    function setLengthBounds() {
-        if (!_availableUnits.length) {
-            _minLength = 0;
-            _maxLength = 0;
-            return;
-        }
-        _minLength = false;
-        _maxLength = 0;
-        for (let i = 0; i < _availableUnits.length; i++) {
-            length = _availableUnits[i].get.length();
-            if (_maxLength < length) _maxLength = length;
-            if (!_minLength || _minLength > length) _minLength = length;
-        }
-    }
-    function fromArrayToArray(fromArr, toArr, item) {
-        const index = fromArr.indexOf(item);
-        if (index < 0) return false;
-        toArr.push(item);
-        fromArr.splice(index, 1);
-    }
-    function getRealUnitFromClone(cloneUnit) {
-        let id = cloneUnit.get.id();
-        for (let i = 0; i < unitArray.length; i++) {
-            if (id === unitArray[i].get.id())
-                return unitArray[i];
-        }
-        return false;
-    }
-    const unitObj = {
-        getAvailableUnitCount: () => _availableUnits.length,
-        noUnitsAvailable: () => _availableUnits.length === 0,
-        getPlacedUnits: () => _placedUnits,
-        getMinLength: () => _minLength,
-        getMaxLength: () => _maxLength,
-        getUnitOfLength,
-        setUnitPlaced,
-        setUnitAvailable,
-        getRealUnitFromClone,
-    }
-    setLengthBounds();
-    return unitObj;
 }
+
+
 
 /***/ }),
 

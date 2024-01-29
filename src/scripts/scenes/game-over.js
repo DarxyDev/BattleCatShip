@@ -13,7 +13,6 @@ function initGameOver() {
         sceneManager.loadScene(sceneManager.getScenes().p1.piecePlacement);
     })
 
-    mainTextBox.textContent = 'hotdog';
     scene.sceneOnLoad = ()=>{
 
     };
