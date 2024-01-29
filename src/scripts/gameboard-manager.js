@@ -1,4 +1,7 @@
+let id = 0;
 function GameboardFactory(width = 10, height = 10) {
+    id++;
+    const _id = id;
     let _unitsRemaining = 0;
     const boardSize = width * height;
     const _boardArray = [];
@@ -12,6 +15,7 @@ function GameboardFactory(width = 10, height = 10) {
         hitArray: () => { return _hitArray },
         width: () => { return width },
         height: () => { return height },
+        id: () => _id,
     }
     const placeUnit = (unit, coord, rotated) => {
         if (coord.x !== undefined) coord = [coord.x, coord.y]; //allows coord obj instead of array

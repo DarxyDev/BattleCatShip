@@ -315,6 +315,7 @@ function aiFactory(settings) {
             else console.log('Please set tileArray and enemyGameboard.');
         },
         placeShips: () => {
+            console.log(gameboard.get.id())
             const boardHeight = gameboard.get.height();
             const boardWidth = gameboard.get.width();
             unitArray.forEach(unit => {

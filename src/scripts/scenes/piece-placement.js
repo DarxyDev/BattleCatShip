@@ -2,6 +2,7 @@ import sceneManager, { initScene } from "../scene-manager";
 import { generateGameTiles } from "../scene-manager";
 import gameState from "../game-state";
 import { CLASSES } from "../class-manager";
+import { GameboardFactory } from "../gameboard-manager";
 
 //export scene to sceneManager
 function initPiecePlacement() {

@@ -87,7 +87,7 @@ function _generatePlayerObj(playerRef) {
                 _player = player;
             },
             gameboard: (gameboard) => {
-                if (_gameboard !== undefined) return console.log('gameboard already set. Returning.');
+                if (_gameboard !== undefined) console.log('resetting gameboard');
                 _gameboard = gameboard;
             },
         },
@@ -99,6 +99,7 @@ function _generatePlayerObj(playerRef) {
         },
         reset: () => {
             _gameboard = GameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
+            console.log(_gameboard.get.id())
             _units = _createUnitArray();
             _ai = aiFactory({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
         }
