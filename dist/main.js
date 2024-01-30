@@ -836,11 +836,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   aiFactory: () => (/* binding */ aiFactory)
 /* harmony export */ });
+/* harmony import */ var _game_state__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./game-state */ "./src/scripts/game-state.js");
+/* harmony import */ var _gameboard_manager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./gameboard-manager */ "./src/scripts/gameboard-manager.js");
+
+
+
 const MED_DIFF_SCALE = .5;
+let id = 0;
 
 function aiFactory(settings) {
+    const _id = id++;
     //settings
-    const gameboard = settings.gameboard;
+    let gameboard = settings.gameboard;
     const unitArray = settings.unitArray;
     const difficulty = settings.difficulty;
 
@@ -1153,21 +1160,31 @@ function aiFactory(settings) {
             else console.log('Please set tileArray and enemyGameboard.');
         },
         placeShips: () => {
-            console.log(gameboard.get.id())
             const boardHeight = gameboard.get.height();
             const boardWidth = gameboard.get.width();
+            const playerObj = _game_state__WEBPACK_IMPORTED_MODULE_0__["default"][settings.playerRef];
+            let loopCount = 0;
             unitArray.forEach(unit => {
                 let x, y, rotated;
                 do {
-                    x = Math.round(Math.random() * (boardWidth - 1));
-                    y = Math.round(Math.random() * (boardHeight - 1));
-                    rotated = Math.random() < .5;
+                    if (loopCount++ >= 1000) {
+                        console.log('Potential infinite loop detected. Forcing new gameboard');
+                        gameboard = (0,_gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.GameboardFactory)(boardWidth, boardHeight);
+                        playerObj.set.gameboard(gameboard);
+                        return aiObj.placeShips();
+                    }
+                    else {
+                        x = Math.round(Math.random() * (boardWidth - 1));
+                        y = Math.round(Math.random() * (boardHeight - 1));
+                        rotated = Math.random() < .5;
+                    }
                 } while (!gameboard.placeUnit(unit, [x, y], rotated))
             })
 
         },
         setTileArray: (tileArr) => tileArray = tileArr,
         setEnemyGameboard: (enemyGB) => enemyGameboard = enemyGB,
+        getID: () => _id,
     }
 
     return aiObj;
@@ -1225,9 +1242,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const BOARD_WIDTH = 3; // must be > 2
-const BOARD_HEIGHT = 3; // must be > 2
-const PIECE_LENGTH_ARRAY = [0, 0, 0, 1, 0, 0, 0, 0]; //index == piece length  value == piece count of said length
+const BOARD_WIDTH = 7; // must be > 2
+const BOARD_HEIGHT = 7; // must be > 2
+const PIECE_LENGTH_ARRAY = [0, 0, 1, 2, 0, 2, 1, 0]; //index == piece length  value == piece count of said length
 const PIECE_COUNT = ((count = 0) => {
     PIECE_LENGTH_ARRAY.forEach(item => { count += item; });
     return count;
@@ -1237,6 +1254,7 @@ let _isSinglePlayer;
 
 let _currentPlayer = 'p1';
 let _isGameOver = false;
+let _winner;
 
 //todo: change gamestate get/sets to individual objects with get/set and all references
 const gameState = {
@@ -1247,6 +1265,7 @@ const gameState = {
             boardHeight: () => BOARD_HEIGHT,
             pieceCount: () => PIECE_COUNT,
             isGameOver: () => _isGameOver,
+            winner: ()=> _winner,
         },
         scene: {
             currentPlayer: () => _currentPlayer,
@@ -1266,7 +1285,15 @@ const gameState = {
                 }
                 _isSinglePlayer = bool;
             },
-            isGameOver: (bool) => { _isGameOver = bool },
+            isGameOver: (winner) => {
+                if(winner === false){
+                    _isGameOver = false;
+                    _winner = undefined;
+                    return;
+                }
+                _isGameOver = true;
+                _winner = winner;
+            },
         },
         scene: {
             swapPlayers: () => {
@@ -1285,7 +1312,7 @@ const gameState = {
     p2: _generatePlayerObj('p2'),
     newGame: () => {
         _currentPlayer = 'p1';
-        _isGameOver = false;
+        gameState.set.game.isGameOver(false);
         gameState.p1.reset();
         gameState.p2.reset();
     }
@@ -1296,13 +1323,17 @@ function _generatePlayerObj(playerRef) {
     let _player;
     let _gameboard = (0,_gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.GameboardFactory)(BOARD_WIDTH, BOARD_HEIGHT);
     let _units = _createUnitArray();
-    let _ai = (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
+    let _ai = (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY, playerRef });
     const playerObj = {
         get: {
             player: () => _player !== undefined ? _player : playerRef,
             units: () => _units,
             gameboard: () => _gameboard,
             playerRef: () => playerRef,
+            enemyPlayer: ()=>{
+                if(playerRef === 'p1') return gameState.p2;
+                else return gameState.p1;
+            }
         },
         set: {
             player: (player) => {
@@ -1315,16 +1346,15 @@ function _generatePlayerObj(playerRef) {
             },
         },
         ai: {
-            placeShips: _ai.placeShips,
-            sendAttack: _ai.sendAttack,
-            setTileArray: _ai.setTileArray,
-            setEnemyGameboard: _ai.setEnemyGameboard,
+            placeShips:(x)=>{ return _ai.placeShips(x)},
+            sendAttack: (x)=>{return _ai.sendAttack(x)},
+            setTileArray: (x)=>{return _ai.setTileArray(x)},
+            setEnemyGameboard: (x)=>{return _ai.setEnemyGameboard(x)},
         },
         reset: () => {
             _gameboard = (0,_gameboard_manager__WEBPACK_IMPORTED_MODULE_1__.GameboardFactory)(BOARD_WIDTH, BOARD_HEIGHT);
-            console.log(_gameboard.get.id())
             _units = _createUnitArray();
-            _ai = (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
+            _ai = (0,_AI_mechanics__WEBPACK_IMPORTED_MODULE_0__.aiFactory)({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY, playerRef });
         }
     };
     return playerObj;
@@ -1678,16 +1708,43 @@ __webpack_require__.r(__webpack_exports__);
 function initGameOver() {
     let scene = (0,_scene_manager__WEBPACK_IMPORTED_MODULE_0__.initScene)('TEMPLATE_game-over');
     const mainTextBox = scene.querySelector("[gameOverID='main-textBox']");
-    const playAgainBtn = scene.querySelector("[gameOverID='play-again-btn']")
+    const playAgainBtn = scene.querySelector("[gameOverID='play-again-btn']");
 
-    playAgainBtn.addEventListener('click',()=>{
+    playAgainBtn.addEventListener('click', () => {
         _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].resetScenes();
         _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].newGame();
         _scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].loadScene(_scene_manager__WEBPACK_IMPORTED_MODULE_0__["default"].getScenes().p1.piecePlacement);
     })
 
-    scene.sceneOnLoad = ()=>{
+    scene.sceneOnLoad = () => {
+        const winnerObj = _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].get.game.winner();
+        const winner = winnerObj.get.player();
+        const loser = winnerObj.get.enemyPlayer().get.player();
+        mainTextBox.innerHTML = ``;
 
+        setStats(winner);
+        setStats(loser);
+
+        function setStats(player) {
+            const name = player.get.name();
+            const games = player.get.games();
+            const wins = player.get.wins();
+            const streak = player.get.streak();
+            let message = `${name} `;
+            if (player.get.streak() > 0)
+                message += `Won! <br><br>`
+            else
+                message += `Lost. <br><br>`;
+            addStat('Games played', games);
+            addStat('Wins', wins);
+            if (streak > 0)
+                addStat(`Win streak`, streak);
+            message += `<br><br>---------------<br>`
+            mainTextBox.innerHTML += message;
+            function addStat(stat, value) {
+                message += `${stat}:   ${value} <br>`;
+            }
+        }
     };
     return scene;
 }
@@ -1947,7 +2004,7 @@ function initMainGameScene() {
                         console.log(`Attack state ${attackState} was unexpected.`);
                 }
                 if (enemyGameboard.isGameOver()) {
-                    _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.game.isGameOver(true);
+                    _game_state__WEBPACK_IMPORTED_MODULE_1__["default"].set.game.isGameOver(playerObj);
                     _game_state__WEBPACK_IMPORTED_MODULE_1__["default"][enemyRef].get.player().addGamePlayed(false);
                     playerObj.get.player().addGamePlayed(true);
                     let gameOverScene = _scene_manager__WEBPACK_IMPORTED_MODULE_2__["default"].getScenes().main.gameOver;

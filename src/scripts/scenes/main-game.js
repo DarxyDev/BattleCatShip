@@ -236,7 +236,7 @@ function initMainGameScene() {
                         console.log(`Attack state ${attackState} was unexpected.`);
                 }
                 if (enemyGameboard.isGameOver()) {
-                    gameState.set.game.isGameOver(true);
+                    gameState.set.game.isGameOver(playerObj);
                     gameState[enemyRef].get.player().addGamePlayed(false);
                     playerObj.get.player().addGamePlayed(true);
                     let gameOverScene = sceneManager.getScenes().main.gameOver;

@@ -2,9 +2,9 @@ import { aiFactory } from "./AI-mechanics";
 import { GameboardFactory, unitFactory } from "./gameboard-manager";
 import sceneManager from "./scene-manager";
 
-const BOARD_WIDTH = 3; // must be > 2
-const BOARD_HEIGHT = 3; // must be > 2
-const PIECE_LENGTH_ARRAY = [0, 0, 0, 1, 0, 0, 0, 0]; //index == piece length  value == piece count of said length
+const BOARD_WIDTH = 7; // must be > 2
+const BOARD_HEIGHT = 7; // must be > 2
+const PIECE_LENGTH_ARRAY = [0, 0, 1, 2, 0, 2, 1, 0]; //index == piece length  value == piece count of said length
 const PIECE_COUNT = ((count = 0) => {
     PIECE_LENGTH_ARRAY.forEach(item => { count += item; });
     return count;
@@ -14,6 +14,7 @@ let _isSinglePlayer;
 
 let _currentPlayer = 'p1';
 let _isGameOver = false;
+let _winner;
 
 //todo: change gamestate get/sets to individual objects with get/set and all references
 const gameState = {
@@ -24,6 +25,7 @@ const gameState = {
             boardHeight: () => BOARD_HEIGHT,
             pieceCount: () => PIECE_COUNT,
             isGameOver: () => _isGameOver,
+            winner: ()=> _winner,
         },
         scene: {
             currentPlayer: () => _currentPlayer,
@@ -43,7 +45,15 @@ const gameState = {
                 }
                 _isSinglePlayer = bool;
             },
-            isGameOver: (bool) => { _isGameOver = bool },
+            isGameOver: (winner) => {
+                if(winner === false){
+                    _isGameOver = false;
+                    _winner = undefined;
+                    return;
+                }
+                _isGameOver = true;
+                _winner = winner;
+            },
         },
         scene: {
             swapPlayers: () => {
@@ -62,7 +72,7 @@ const gameState = {
     p2: _generatePlayerObj('p2'),
     newGame: () => {
         _currentPlayer = 'p1';
-        _isGameOver = false;
+        gameState.set.game.isGameOver(false);
         gameState.p1.reset();
         gameState.p2.reset();
     }
@@ -73,13 +83,17 @@ function _generatePlayerObj(playerRef) {
     let _player;
     let _gameboard = GameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
     let _units = _createUnitArray();
-    let _ai = aiFactory({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
+    let _ai = aiFactory({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY, playerRef });
     const playerObj = {
         get: {
             player: () => _player !== undefined ? _player : playerRef,
             units: () => _units,
             gameboard: () => _gameboard,
             playerRef: () => playerRef,
+            enemyPlayer: ()=>{
+                if(playerRef === 'p1') return gameState.p2;
+                else return gameState.p1;
+            }
         },
         set: {
             player: (player) => {
@@ -92,16 +106,15 @@ function _generatePlayerObj(playerRef) {
             },
         },
         ai: {
-            placeShips: _ai.placeShips,
-            sendAttack: _ai.sendAttack,
-            setTileArray: _ai.setTileArray,
-            setEnemyGameboard: _ai.setEnemyGameboard,
+            placeShips:(x)=>{ return _ai.placeShips(x)},
+            sendAttack: (x)=>{return _ai.sendAttack(x)},
+            setTileArray: (x)=>{return _ai.setTileArray(x)},
+            setEnemyGameboard: (x)=>{return _ai.setEnemyGameboard(x)},
         },
         reset: () => {
             _gameboard = GameboardFactory(BOARD_WIDTH, BOARD_HEIGHT);
-            console.log(_gameboard.get.id())
             _units = _createUnitArray();
-            _ai = aiFactory({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY });
+            _ai = aiFactory({ gameboard: _gameboard, unitArray: _units, difficulty: DEFAULT_DIFFICULTY, playerRef });
         }
     };
     return playerObj;

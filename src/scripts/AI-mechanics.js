@@ -1,8 +1,13 @@
+import gameState from "./game-state";
+import { GameboardFactory } from "./gameboard-manager";
+
 const MED_DIFF_SCALE = .5;
+let id = 0;
 
 function aiFactory(settings) {
+    const _id = id++;
     //settings
-    const gameboard = settings.gameboard;
+    let gameboard = settings.gameboard;
     const unitArray = settings.unitArray;
     const difficulty = settings.difficulty;
 
@@ -315,21 +320,31 @@ function aiFactory(settings) {
             else console.log('Please set tileArray and enemyGameboard.');
         },
         placeShips: () => {
-            console.log(gameboard.get.id())
             const boardHeight = gameboard.get.height();
             const boardWidth = gameboard.get.width();
+            const playerObj = gameState[settings.playerRef];
+            let loopCount = 0;
             unitArray.forEach(unit => {
                 let x, y, rotated;
                 do {
-                    x = Math.round(Math.random() * (boardWidth - 1));
-                    y = Math.round(Math.random() * (boardHeight - 1));
-                    rotated = Math.random() < .5;
+                    if (loopCount++ >= 1000) {
+                        console.log('Potential infinite loop detected. Forcing new gameboard');
+                        gameboard = GameboardFactory(boardWidth, boardHeight);
+                        playerObj.set.gameboard(gameboard);
+                        return aiObj.placeShips();
+                    }
+                    else {
+                        x = Math.round(Math.random() * (boardWidth - 1));
+                        y = Math.round(Math.random() * (boardHeight - 1));
+                        rotated = Math.random() < .5;
+                    }
                 } while (!gameboard.placeUnit(unit, [x, y], rotated))
             })
 
         },
         setTileArray: (tileArr) => tileArray = tileArr,
         setEnemyGameboard: (enemyGB) => enemyGameboard = enemyGB,
+        getID: () => _id,
     }
 
     return aiObj;
